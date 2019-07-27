@@ -51,6 +51,25 @@ export default new Router({
       ]
     },
     {
+      path: '/logistic',
+      component: Layout,
+      redirect: '/logistic/scheduler',
+      meta: {
+        title: 'Logistic',
+        icon: 'example'
+      },
+      children:[
+        {
+          path: '/logistic/scheduler',
+          component: ()=> import('@/views/logistic/scheduler/index.vue'),
+          meta: {
+            title: 'Logistic',
+            icon: 'tree'
+          }
+        }
+      ]
+    },
+    {
       path: '/example',
       component: Layout,
       redirect: '/example/tree',
