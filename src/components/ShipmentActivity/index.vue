@@ -3,7 +3,7 @@
        @click="showDialog">
     <div class="left-wrapper">
       <div class="left-upper-wrapper">
-        {{activity.name}}
+        {{activity.name}} ({{activity.load.size[0]}})
       </div>
       <div class="left-bottom-wrapper" v-if="activity.routeUid">
         {{activity.arriveTimeStr}} <span v-if="type != 'depotTourActivity'">{{activity.startTimeStr}} {{activity.endTimeStr}}</span>

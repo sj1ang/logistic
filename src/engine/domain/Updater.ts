@@ -3,6 +3,7 @@ import {DepotTourActivity, ShipmentTourActivity, TourActivity} from "@/engine/do
 import {convertMin2Time} from "@/utils/common";
 import {TransportCostMatrixManager} from "@/engine/domain/TransportCostMatrix";
 import {ActivityNotice} from "@/engine/domain/Notice";
+import {LoadImpl} from "@/engine/domain/Load";
 
 export interface Updater {
   update(route: Route): void;
@@ -92,6 +93,32 @@ export class RouteTimeUpdater implements Updater{
   }
 }
 
+export class RouteLoadUpdater implements Updater{
+  update(route: Route): void {
+    let acts = route.activities;
+    let nearestDepotActIndex: number = 0;
+    let load = new LoadImpl([0]);
+    let maxLoad = new LoadImpl([0]);
+    for(let i = 0; i < acts.length; i++){
+      if(acts[i] instanceof DepotTourActivity){
+        acts[nearestDepotActIndex].load = load;
+        acts[nearestDepotActIndex].load.reverse();
+
+        maxLoad = maxLoad.max(acts[nearestDepotActIndex].load);
+
+        nearestDepotActIndex = i;
+        acts[i].load = new LoadImpl([0]);
+        load = acts[i].load;
+        continue;
+      }
+
+      load = load.add(acts[i].load);
+    }
+
+    route.load = maxLoad;
+  }
+}
+
 export class ActivityNoticeUpdater implements Updater{
   update(route: Route): void {
     let constraintManager = route.constraintManager;
@@ -99,16 +126,21 @@ export class ActivityNoticeUpdater implements Updater{
       let act = route.activities[i];
       act.noticeManager.clear();
 
-      let results = constraintManager.calculatePenalty(act);
+      let results = constraintManager.calculateActivityPenalty(act);
 
       for(let i in results){
         if(results[i].notice) {
           act.noticeManager.addNotice(<ActivityNotice>results[i].notice);
         }
       }
-
-      console.log(act);
     }
+  }
+}
+
+export class RouteNoticeUpdater implements Updater{
+  update(route: Route): void {
+    let constraintManager = route.constraintManager;
+    let results = constraintManager.calculateRoutePenalty(route);
   }
 }
 

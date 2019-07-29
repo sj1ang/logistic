@@ -16,15 +16,15 @@ export interface HardConstraint extends Constraint{
 }
 
 export interface SoftActivityConstraint extends SoftConstraint{
-  calculatePenalty(activity: TourActivity): Array<SoftConstraintResult>;
+  calculateActivityPenalty(activity: TourActivity): Array<SoftConstraintResult>;
 }
 
-export interface RouteConstraint extends Constraint{
-
+export interface SoftRouteConstraint extends SoftConstraint{
+  calculateRoutePenalty(route: Route): Array<SoftConstraintResult>;
 }
 
 export class TimeWindowConstraint implements SoftActivityConstraint{
-  calculatePenalty(activity: TourActivity): Array<SoftConstraintResult> {
+  calculateActivityPenalty(activity: TourActivity): Array<SoftConstraintResult> {
     let penalty: number = 0;
     let timeDiff: number = activity.startTime - activity.twEnd;
     let notice: Notice | undefined;
@@ -53,18 +53,46 @@ export class SoftConstraintResult{
   }
 }
 
-export class ConstraintManager implements SoftActivityConstraint{
+export class LoadConstraint implements SoftRouteConstraint{
+  calculateRoutePenalty(route: Route): Array<SoftConstraintResult> {
+    let penalty: number = 0;
+    let notice: Notice | undefined;
+    let results: Array<SoftConstraintResult> = new Array<SoftConstraintResult>();
+
+    if(route.driver && route.driver.vehicle) {
+      let vehicle = route.driver.vehicle;
+      console.log("calculating load penalty...");
+    }
+
+    results.push(new SoftConstraintResult(penalty, notice));
+    return results;
+  }
+
+}
+
+export class ConstraintManager implements SoftActivityConstraint, SoftRouteConstraint{
   softActivityConstraints: Array<SoftActivityConstraint>;
+  softRouteConstraints: Array<SoftRouteConstraint>;
 
   constructor(){
     this.softActivityConstraints = new Array<SoftActivityConstraint>();
+    this.softRouteConstraints = new Array<SoftRouteConstraint>();
   }
 
-  calculatePenalty(activity: TourActivity): Array<SoftConstraintResult> {
+  calculateActivityPenalty(activity: TourActivity): Array<SoftConstraintResult> {
     let results: Array<SoftConstraintResult> = new Array<SoftConstraintResult>();
-
     for(let i in this.softActivityConstraints){
-      let singleConstraintResult = this.softActivityConstraints[i].calculatePenalty(activity);
+      let singleConstraintResult = this.softActivityConstraints[i].calculateActivityPenalty(activity);
+      results = results.concat(singleConstraintResult);
+    }
+
+    return results;
+  }
+
+  calculateRoutePenalty(route: Route): Array<SoftConstraintResult> {
+    let results: Array<SoftConstraintResult> = new Array<SoftConstraintResult>();
+    for(let i in this.softRouteConstraints){
+      let singleConstraintResult = this.softRouteConstraints[i].calculateRoutePenalty(route);
       results = results.concat(singleConstraintResult);
     }
 
@@ -74,11 +102,17 @@ export class ConstraintManager implements SoftActivityConstraint{
   addConstraint(constraint: Constants){
     if(isSoftActivityConstraint(constraint)){
       this.softActivityConstraints.push(constraint);
+    }else if(isSoftRouteConstraint(constraint)){
+      this.softRouteConstraints.push(constraint);
     }
   }
 }
 
 function isSoftActivityConstraint(arg: Constraint): arg is SoftActivityConstraint {
-  return (arg as SoftActivityConstraint).calculatePenalty !== undefined;
+  return (arg as SoftActivityConstraint).calculateActivityPenalty !== undefined;
+}
+
+function isSoftRouteConstraint(arg: Constraint): arg is SoftRouteConstraint {
+  return (arg as SoftRouteConstraint).calculateRoutePenalty !== undefined;
 }
 

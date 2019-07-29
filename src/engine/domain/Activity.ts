@@ -2,6 +2,7 @@ import {convertMin2Time, genUID} from "@/utils/common";
 import {hasId} from "@/engine/domain/Id";
 import {MyLocation, MyLocationFactory} from "@/engine/domain/MyLocation";
 import {ActivityCaution, ActivityNoticeManager} from "@/engine/domain/Notice";
+import {Load, LoadImpl} from "@/engine/domain/Load";
 
 export interface TourActivity extends hasId{
   uid: string;
@@ -24,6 +25,7 @@ export interface TourActivity extends hasId{
   routeUid: string | undefined;
 
   noticeManager: ActivityNoticeManager;
+  load: Load;
 
   unassign(): void;
 }
@@ -49,8 +51,9 @@ export class ShipmentTourActivity implements TourActivity{
   routeUid: string | undefined = undefined;
 
   noticeManager: ActivityNoticeManager;
+  load: Load;
 
-  constructor(name: string, location: MyLocation, operationTime: number, twStart: number, twEnd: number) {
+  constructor(name: string, location: MyLocation, operationTime: number, twStart: number, twEnd: number, size: Array<number>) {
     this.uid = genUID();
     this.name = name;
     this.location = location;
@@ -64,6 +67,8 @@ export class ShipmentTourActivity implements TourActivity{
     this.endTimeStr = convertMin2Time(this.endTime);
 
     this.noticeManager = new ActivityNoticeManager();
+
+    this.load =  new LoadImpl(size);
   }
 
   unassign():void{
@@ -103,6 +108,7 @@ export class DepotTourActivity implements TourActivity{
   routeUid: string | undefined = undefined;
 
   noticeManager: ActivityNoticeManager;
+  load: Load;
 
   constructor(operationTime: number, twStart: number, twEnd: number) {
     this.uid = genUID();
@@ -120,6 +126,8 @@ export class DepotTourActivity implements TourActivity{
     this.endTimeStr = convertMin2Time(this.endTime);
 
     this.noticeManager = new ActivityNoticeManager();
+
+    this.load = new LoadImpl([0]);
   }
 
   unassign(): void{
