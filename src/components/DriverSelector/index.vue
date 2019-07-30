@@ -74,7 +74,7 @@
 
 <style lang="scss" scoped>
   .main-container {
-    width: 64px;
+    width: 72px;
     margin: 4px;
     display: flex;
   }
@@ -85,7 +85,7 @@
     user-select: none;
     background: #d8d8d8;
     font-size: 12px;
-    flex: 0 0 64px;
+    flex: 0 0 72px;
   }
 
   .driver-info-wrapper{

@@ -20,6 +20,9 @@ export interface Route extends hasId{
   load: Load;
   driver: Driver | undefined;
   showDetail: boolean;
+  isLocked: boolean;
+  idFrozen: boolean;
+  fee: number;
 
   assignDriver(driver: Driver): void;
   cancelDriver(): void;
@@ -38,6 +41,9 @@ export class RouteImpl implements Route{
   driver: Driver | undefined;
 
   showDetail: boolean = false;
+  isLocked: boolean = false;
+  idFrozen: boolean = false;
+  fee: number = 0;
 
   constructor(){
     this.uid = genUID();

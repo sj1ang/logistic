@@ -46,23 +46,28 @@
             <div class="route-detail-row">
               <div class="route-detail-title">锁住线路</div>
               <div class="route-detail-content">
-                <el-switch></el-switch>
+                <el-switch v-model="route.isLocked"></el-switch>
               </div>
               <div class="route-detail-title">冻结线路</div>
               <div class="route-detail-content">
-                <el-switch></el-switch>
+                <el-switch v-model="route.isFrozen"></el-switch>
               </div>
             </div>
             <div class="route-detail-row">
               <div class="route-detail-title">线路费用</div>
               <div class="route-detail-content">
-                <el-input type="number" size="mini" style="width: 100%"></el-input>
+                <el-input type="number" size="mini" style="width: 100%" v-model="route.fee"></el-input>
               </div>
             </div>
             <notice-panel :route="route"></notice-panel>
           </div>
-          <div class="route-detail-mid-wrapper"></div>
-          <div class="route-detail-right-wrapper"></div>
+          <div class="route-detail-mid-wrapper">
+
+          </div>
+          <div class="route-detail-right-wrapper">
+            <driver-panel :driver="route.driver" v-if="route.driver"></driver-panel>
+            <div style="font-size: 12px; height: 24px; background: #f5f5f5; line-height: 16px; padding: 4px" v-else>请分配司机</div>
+          </div>
         </div>
       </div>
       <div class="route-wrapper route-add-button-wrapper" @click="addRoute">添加线路</div>
@@ -84,10 +89,11 @@
   import {DriverPool} from '../../../engine/domain/Driver'
   import {VehiclePool} from '../../../engine/domain/Vehicle'
   import NoticePanel from "../../../components/NoticePanel/index"
+  import DriverPanel from "../../../components/DriverPanel/index"
 
   @Component({
     name: 'Scheduler',
-    components: {NoticePanel, DriverSelector, ShipmentActivity, Sticky, Draggable}
+    components: {DriverPanel, NoticePanel, DriverSelector, ShipmentActivity, Sticky, Draggable}
   })
   export default class extends Vue {
     shipmentPool: ShipmentPool;
@@ -328,7 +334,8 @@
   }
 
   .route-detail-right-wrapper{
-    border-left: 1px solid #f5f5f5;
-    flex: 1;
+    padding: 4px;
+    /*border-left: 1px solid #f5f5f5;*/
+    flex: 0 0 116px;
   }
 </style>
