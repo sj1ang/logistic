@@ -5,7 +5,7 @@ export interface Load {
   add(load: Load): Load;
   minus(load: Load): Load;
   max(load: Load): Load;
-  // calOverload(capacity: Load): Load;
+  calOverload(capacity: Load): Load;
   reverse(): void;
 }
 
@@ -55,12 +55,12 @@ export class LoadImpl implements Load{
     return resultLoad;
   }
 
-  // calOverload(capacity: Load): Load{
-  //   let overload: Load = new LoadImpl([0, 0]);
-  //   for(let i in capacity.size){
-  //     overload.size[i] = this.size[i] > capacity.size[i] ? this.size[i] - capacity.size[i] : 0;
-  //   }
-  //
-  //   return overload;
-  // }
+  calOverload(capacity: Load): Load{
+    let overload: Load = new LoadImpl([0]);
+    for(let i in capacity.size){
+      overload.size[i] = this.size[i] > capacity.size[i] ? this.size[i] - capacity.size[i] : 0;
+    }
+
+    return overload;
+  }
 }

@@ -26,17 +26,44 @@
       </div>
     </sticky>
     <div class="bottom-wrapper">
-      <div class="route-wrapper" v-for="(route, index) in routePool.routes">
-        <div :class="['notice-wrapper', {'notice-wrapper-caution': route.noticeManager.noticeLevel == 3}, {'notice-wrapper-error': route.noticeManager.noticeLevel == 5}]"></div>
-        <div style="flex: 1">
-          <draggable v-model="routePool.routes[index].activities" group="1" @change="insertActivity($event, index)"
-                     style="padding-top: 4px; padding-left: 4px; min-height: 40px; display: flex; flex-wrap: wrap; flex: 1">
-            <shipment-activity v-for="item in routePool.routes[index].activities" :key="item.uid"
-                               :activity="item"></shipment-activity>
-          </draggable>
+      <div v-for="(route, index) in routePool.routes">
+        <div class="route-wrapper">
+          <div
+            :class="['notice-wrapper', {'notice-wrapper-caution': route.noticeManager.noticeLevel == 3}, {'notice-wrapper-error': route.noticeManager.noticeLevel == 5}]"></div>
+          <div style="flex: 1">
+            <draggable v-model="routePool.routes[index].activities" group="1" @change="insertActivity($event, index)"
+                       style="padding-top: 4px; padding-left: 4px; min-height: 40px; display: flex; flex-wrap: wrap; flex: 1">
+              <shipment-activity v-for="item in routePool.routes[index].activities" :key="item.uid"
+                                 :activity="item"></shipment-activity>
+            </draggable>
+          </div>
+          <driver-selector :route="route"></driver-selector>
+          <div class="expand-icon-wrapper" @click="switchDetail(route)">
+          </div>
         </div>
-        <driver-selector :route="route"></driver-selector>
-        <div class="expand-icon-wrapper"></div>
+        <div class="route-detail-wrapper" v-show="route.showDetail">
+          <div class="route-detail-left-wrapper">
+            <div class="route-detail-row">
+              <div class="route-detail-title">锁住线路</div>
+              <div class="route-detail-content">
+                <el-switch></el-switch>
+              </div>
+              <div class="route-detail-title">冻结线路</div>
+              <div class="route-detail-content">
+                <el-switch></el-switch>
+              </div>
+            </div>
+            <div class="route-detail-row">
+              <div class="route-detail-title">线路费用</div>
+              <div class="route-detail-content">
+                <el-input type="number" size="mini" style="width: 100%"></el-input>
+              </div>
+            </div>
+            <notice-panel :route="route"></notice-panel>
+          </div>
+          <div class="route-detail-mid-wrapper"></div>
+          <div class="route-detail-right-wrapper"></div>
+        </div>
       </div>
       <div class="route-wrapper route-add-button-wrapper" @click="addRoute">添加线路</div>
     </div>
@@ -56,10 +83,11 @@
   import DriverSelector from "../../../components/DriverSelector/index"
   import {DriverPool} from '../../../engine/domain/Driver'
   import {VehiclePool} from '../../../engine/domain/Vehicle'
+  import NoticePanel from "../../../components/NoticePanel/index"
 
   @Component({
     name: 'Scheduler',
-    components: {DriverSelector, ShipmentActivity, Sticky, Draggable}
+    components: {NoticePanel, DriverSelector, ShipmentActivity, Sticky, Draggable}
   })
   export default class extends Vue {
     shipmentPool: ShipmentPool;
@@ -89,7 +117,7 @@
       let d8 = this.driverPool.createDriver("司机8");
       let d9 = this.driverPool.createDriver("司机9");
 
-      let v1 = this.vehiclePool.createVehicle("车型1", [21]);
+      let v1 = this.vehiclePool.createVehicle("车型1", [18]);
       let v2 = this.vehiclePool.createVehicle("车型2", [21]);
       let v3 = this.vehiclePool.createVehicle("车型3", [21]);
       let v4 = this.vehiclePool.createVehicle("车型4", [21]);
@@ -97,7 +125,7 @@
       let v6 = this.vehiclePool.createVehicle("车型6", [21]);
       let v7 = this.vehiclePool.createVehicle("车型7", [21]);
       let v8 = this.vehiclePool.createVehicle("车型8", [21]);
-      let v9 = this.vehiclePool.createVehicle("车型9", [21]);
+      let v9 = this.vehiclePool.createVehicle("车型9", [16]);
       let v10 = this.vehiclePool.createVehicle("车型10", [21]);
 
       d1.addAvailableVehicle(v1);
@@ -159,12 +187,16 @@
       this.routePool.addRoute();
     }
 
-    tryFun(){
+    tryFun() {
 
     }
 
-    editVehicles(){
+    editVehicles() {
 
+    }
+
+    switchDetail(route: Route){
+      route.showDetail = !route.showDetail;
     }
 
   }
@@ -192,6 +224,7 @@
     padding-left: 8px;
     flex: 1;
     overflow: scroll;
+    z-index: 1000;
   }
 
   .top-right-wrapper {
@@ -220,7 +253,7 @@
     /*box-sizing: border-box;*/
   }
 
-  .route-driver-wrapper{
+  .route-driver-wrapper {
     margin: 4px;
     width: 80px;
     /*height: ;*/
@@ -244,18 +277,58 @@
     background: #4AB7BD;
   }
 
-  .notice-wrapper-caution{
+  .notice-wrapper-caution {
     background: #FFBA00;
   }
 
-  .notice-wrapper-error{
+  .notice-wrapper-error {
     background: #C03639;
   }
 
-  .expand-icon-wrapper{
+  .expand-icon-wrapper {
     margin: 4px 4px 4px 0;
-    height: 32px;
+    min-height: 32px;
     width: 32px;
     background: #d8d8d8;
+  }
+
+  .route-detail-wrapper{
+    height: 160px;
+    background: #ffffff;
+    display: flex;
+  }
+
+  .route-detail-left-wrapper{
+    padding: 4px;
+    flex: 0 0 240px;
+    font-size: 12px;
+    overflow: scroll;
+  }
+
+  .route-detail-row{
+    display: flex;
+    height: 40px;
+    background: #f5f5f5;
+    padding: 4px;
+    line-height: 32px;
+    color: #909399;
+  }
+
+  .route-detail-title{
+    width: 64px;
+  }
+
+  .route-detail-content{
+    flex: 1 1
+  }
+
+  .route-detail-mid-wrapper{
+    border-left: 1px solid #f5f5f5;
+    flex: 1;
+  }
+
+  .route-detail-right-wrapper{
+    border-left: 1px solid #f5f5f5;
+    flex: 1;
   }
 </style>

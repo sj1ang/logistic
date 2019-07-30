@@ -3,8 +3,13 @@
     <!--<div style="border-left: 1px solid #d8d8d8; width: 4px; box-sizing: border-box"></div>-->
     <div class="driver-wrapper" @click="switchDialog">
       <div v-if="route.driver" class="driver-info-wrapper">
-        <div class="driver-info-upper-wrapper">{{route.driver.name}}</div>
+        <div class="driver-info-upper-wrapper">
+          {{route.driver.name}}
+        </div>
         <div class="driver-info-bottom-wrapper">{{route.driver.vehicle.name}}</div>
+        <div class="load-index-wrapper">
+          <div :style="'width:' + (route.load.size[0] / route.driver.vehicle.capacity.size[0] * 100) + '%'" :class="['load-index', {'load-index-caution' : route.load.size[0] / route.driver.vehicle.capacity.size[0] > 1}, {'load-index-error': route.load.size[0] / route.driver.vehicle.capacity.size[0] > (overLoadThreshold[0] + 1)}]"></div>
+        </div>
       </div>
       <div v-else>待选择</div>
     </div>
@@ -34,6 +39,7 @@
   import {Route} from "../../engine/domain/Route"
   import {Driver, DriverPool} from "../../engine/domain/Driver"
   import {Vehicle} from "../../engine/domain/Vehicle"
+  import {Constants} from "../../engine/Constant/Constants"
 
   @Component({
     name: 'DriverSelector'
@@ -43,10 +49,12 @@
     private title: string = "司机名";
     private drivers: Array<Driver>;
     private dialogVisible = false;
+    private overLoadThreshold: Array<number>;
 
     constructor() {
       super();
       this.drivers = DriverPool.getInstance().drivers;
+      this.overLoadThreshold = Constants.OVERLOAD_THRESHOLD;
     }
 
     switchDialog() {
@@ -81,22 +89,54 @@
   }
 
   .driver-info-wrapper{
-    height: 32px;
+    height: 100%;
     padding: 2px;
     display: flex;
     flex-direction: column;
     text-align: left;
+    position: relative;
   }
 
   .driver-info-upper-wrapper{
     line-height: 16px;
     font-size: 12px;
+    z-index: 1;
   }
 
   .driver-info-bottom-wrapper{
     line-height: 12px;
     font-size: 10px;
     color: #909399;
+    z-index: 1;
+  }
+
+  .load-index-wrapper{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .load-index{
+    flex: 1;
+    background: #4AB7BD;
+    opacity: 0.5;
+  }
+
+  .load-index-caution{
+    width: 100%;
+    background: #FEC171;
+  }
+
+  .load-index-error{
+    width: 100%;
+    background: #C03639;
   }
 
   .driver-list-wrapper{

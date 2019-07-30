@@ -19,6 +19,7 @@ export interface Route extends hasId{
   constraintManager: ConstraintManager;
   load: Load;
   driver: Driver | undefined;
+  showDetail: boolean;
 
   assignDriver(driver: Driver): void;
   cancelDriver(): void;
@@ -35,6 +36,8 @@ export class RouteImpl implements Route{
   constraintManager: ConstraintManager;
   load: Load;
   driver: Driver | undefined;
+
+  showDetail: boolean = false;
 
   constructor(){
     this.uid = genUID();

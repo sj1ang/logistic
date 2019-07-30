@@ -5,6 +5,7 @@ export interface Notice {
   icon: string;
   hint: string;
   color: string;
+  noticeLevel: number;
 }
 
 export interface RouteNotice extends Notice{
@@ -15,13 +16,31 @@ export class RouteCaution implements RouteNotice{
   hint: string;
   icon: string;
   color: string;
+  noticeLevel: number;
   route: Route;
 
   constructor(route: Route, hint: string){
     this.route = route;
     this.hint = hint;
     this.icon = 'el-icon-warning-outline';
-    this.color = '#E6A23C'
+    this.color = '#E6A23C';
+    this.noticeLevel = 3;
+  }
+}
+
+export class RouteError implements RouteNotice{
+  hint: string;
+  icon: string;
+  color: string;
+  noticeLevel: number;
+  route: Route;
+
+  constructor(route: Route, hint: string){
+    this.route = route;
+    this.hint = hint;
+    this.icon = 'el-icon-error';
+    this.color = '#E6A23C';
+    this.noticeLevel = 5;
   }
 }
 
@@ -46,6 +65,9 @@ export class RouteNoticeManager implements NoticeManager{
       if(this.notices[i] instanceof RouteCaution){
         this.noticeLevel = this.noticeLevel < 3 ? 3 : this.noticeLevel;
       }
+      if(this.notices[i] instanceof RouteError){
+        this.noticeLevel = this.noticeLevel < 5 ? 5 : this.noticeLevel;
+      }
     }
 
     return this.noticeLevel;
@@ -58,6 +80,7 @@ export class RouteNoticeManager implements NoticeManager{
 
   clear(){
     this.notices = new Array<RouteNotice>();
+    this.noticeLevel = 0;
   }
 }
 
@@ -75,6 +98,7 @@ export class ActivityCaution implements ActivityNotice{
   hint: string;
   icon: string;
   color: string;
+  noticeLevel: number;
   activity: TourActivity;
 
   constructor(activity: TourActivity, hint: string){
@@ -82,6 +106,7 @@ export class ActivityCaution implements ActivityNotice{
     this.icon = 'el-icon-warning-outline';
     this.color = '#E6A23C'
     this.activity = activity;
+    this.noticeLevel = 3;
   }
 }
 
@@ -89,6 +114,7 @@ export class ActivityError implements ActivityNotice{
   hint: string;
   icon: string;
   color: string;
+  noticeLevel: number;
   activity: TourActivity;
 
   constructor(activity: TourActivity, hint: string){
@@ -96,6 +122,7 @@ export class ActivityError implements ActivityNotice{
     this.icon = 'el-icon-circle-close';
     this.color = '#E6A23C'
     this.activity = activity;
+    this.noticeLevel = 5;
   }
 }
 

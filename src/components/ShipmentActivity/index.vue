@@ -129,7 +129,7 @@
 <style lang="scss" scoped>
   .activity-wrapper {
     height: 32px;
-    width: 168px;
+    width: 152px;
     padding: 2px;
     background: #d8d8d8;
     margin-right: 4px;

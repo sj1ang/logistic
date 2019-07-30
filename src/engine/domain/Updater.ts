@@ -2,7 +2,7 @@ import {Route, RouteImpl} from "@/engine/domain/Route";
 import {DepotTourActivity, ShipmentTourActivity, TourActivity} from "@/engine/domain/Activity";
 import {convertMin2Time} from "@/utils/common";
 import {TransportCostMatrixManager} from "@/engine/domain/TransportCostMatrix";
-import {ActivityNotice} from "@/engine/domain/Notice";
+import {ActivityNotice, RouteNotice} from "@/engine/domain/Notice";
 import {LoadImpl} from "@/engine/domain/Load";
 
 export interface Updater {
@@ -139,8 +139,16 @@ export class ActivityNoticeUpdater implements Updater{
 
 export class RouteNoticeUpdater implements Updater{
   update(route: Route): void {
+    route.noticeManager.clear();
     let constraintManager = route.constraintManager;
     let results = constraintManager.calculateRoutePenalty(route);
+
+    for(let i in results){
+      if(results[i].notice){
+        console.log(results[i].notice);
+        route.noticeManager.addNotice(<RouteNotice>results[i].notice)
+      }
+    }
   }
 }
 
