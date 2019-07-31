@@ -13,6 +13,7 @@
           </div>
         </div>
         <div class="top-right-wrapper">
+          <add-shipment-activity></add-shipment-activity>
           <div class="setting-button" @click="addShipmentTourActivity">
             +
           </div>
@@ -90,10 +91,11 @@
   import {VehiclePool} from '../../../engine/domain/Vehicle'
   import NoticePanel from "../../../components/NoticePanel/index"
   import DriverPanel from "../../../components/DriverPanel/index"
+  import AddShipmentActivity from "../../../components/AddShipmentActivity/index"
 
   @Component({
     name: 'Scheduler',
-    components: {DriverPanel, NoticePanel, DriverSelector, ShipmentActivity, Sticky, Draggable}
+    components: {AddShipmentActivity, DriverPanel, NoticePanel, DriverSelector, ShipmentActivity, Sticky, Draggable}
   })
   export default class extends Vue {
     shipmentPool: ShipmentPool;
@@ -105,7 +107,7 @@
 
     constructor() {
       super();
-      this.shipmentPool = new ShipmentPoolImpl();
+      this.shipmentPool = ShipmentPool.getInstance();
       this.routePool = RoutePool.getInstance();
       this.driverPool = DriverPool.getInstance();
       this.vehiclePool = VehiclePool.getInstance();
@@ -234,7 +236,7 @@
   }
 
   .top-right-wrapper {
-    background: #d8d8d8;
+    /*background: #d8d8d8;*/
     flex: 0 0 40px;
   }
 
@@ -299,7 +301,7 @@
   }
 
   .route-detail-wrapper{
-    height: 160px;
+    max-height: 160px;
     background: #ffffff;
     display: flex;
   }

@@ -4,20 +4,20 @@ import {hasId} from "@/engine/domain/Id";
 import {genUID} from "@/utils/common";
 
 export interface Driver extends hasId{
-  routeUid: string | undefined;
+  routeUids: Array<string>;
   workStart: number;
   workEnd: number;
   vehicle: Vehicle | undefined;
   availableVehicles: Array<Vehicle>;
 
   assign2Route(route: Route): void;
-  cancel(): void;
+  cancel(route: Route): void;
   assignVehicle(vehicle: Vehicle): void;
   addAvailableVehicle(vehicle: Vehicle): void;
 }
 
 export class DriverImpl implements Driver{
-  routeUid: string | undefined;
+  routeUids: Array<string>;
   workStart: number;
   workEnd: number;
   uid: string;
@@ -32,14 +32,20 @@ export class DriverImpl implements Driver{
     this.workEnd = 60 * 12;
     this.name = name;
     this.availableVehicles = new Array<Vehicle>();
+    this.routeUids = new Array<string>();
   }
 
   assign2Route(route: Route): void {
-    this.routeUid = route.uid;
+    this.routeUids.push(route.uid);
   }
 
-  cancel(): void {
-    this.routeUid = undefined;
+  cancel(route: Route): void {
+    this.routeUids = this.routeUids.filter(x=>{
+      if(x == route.uid)
+        return false;
+
+      return true;
+    })
   }
 
   addAvailableVehicle(vehicle: Vehicle): void {

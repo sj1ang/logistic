@@ -87,7 +87,7 @@ export class RouteImpl implements Route{
 
   cancelDriver(){
     if(this.driver) {
-      this.driver.cancel();
+      this.driver.cancel(this);
     }
   }
 }
