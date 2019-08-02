@@ -11,6 +11,7 @@
   import {ShipmentTourActivity, TourActivity} from "../../engine/domain/Activity"
   import {MyLocationFactory} from "../../engine/domain/MyLocation"
   import ShipmentActivityDialog from "../ShipmentActivityDialog/index"
+  import {genUID} from "../../utils/common"
 
   @Component({
     name: 'AddShipmentActivity',
@@ -21,16 +22,14 @@
 
     constructor(){
       super();
-      this.createNewActivity();
-    }
-
-    createNewActivity(){
       let l = MyLocationFactory.getInstance().createLocation();
       this.activity = new ShipmentTourActivity("新建任务" + l.id, l, 1, 0, 100, [-1]);
     }
 
     switchDialog(): void{
-      this.createNewActivity();
+      let l = MyLocationFactory.getInstance().createLocation();
+      this.activity = new ShipmentTourActivity("新建任务" + l.id, l, 1, 0, 100, [-1]);
+
       this.$refs.dialog.showDialog();
     }
   }

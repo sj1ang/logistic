@@ -16,7 +16,6 @@
       <div :class="['triangle-wrapper', {'triangle-wrapper-caution': activity.noticeManager.noticeLevel == 3}, {'triangle-wrapper-error': activity.noticeManager.noticeLevel == 5}]"></div>
       <!--{{activity.noticeManager.noticeLevel}}-->
     </div>
-
     <shipment-activity-dialog :activity="activity" :type="'modification'" ref="dialog"></shipment-activity-dialog>
 
     <!--<el-dialog title="配送信息" :visible.sync="dialogVisible" :append-to-body='true' width="50%" :close-on-click-modal="false">-->
@@ -69,7 +68,7 @@
 </template>
 
 <script lang="ts">
-  import {Component, Prop, Vue} from 'vue-property-decorator'
+  import {Component, Prop, Vue, Watch} from 'vue-property-decorator'
   import {
     DepotTourActivity,
     ShipmentTourActivity,

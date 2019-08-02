@@ -13,7 +13,10 @@
           </div>
         </div>
         <div class="top-right-wrapper">
-          <add-shipment-activity></add-shipment-activity>
+          <div>
+            <add-shipment-activity></add-shipment-activity>
+          </div>
+          <!--<add-shipment-activity></add-shipment-activity>-->
           <div class="setting-button" @click="addShipmentTourActivity">
             +
           </div>

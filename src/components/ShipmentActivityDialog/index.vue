@@ -39,6 +39,11 @@
             <el-input type="number" v-model="wrapper.operationTime"></el-input>
           </el-col>
         </el-form-item>
+        <el-form-item v-for="(value, index) in wrapper.load.size" :label="loadTitle[index]">
+          <el-col>
+            <el-input type="number" v-model="wrapper.load.size[index]"></el-input>
+          </el-col>
+        </el-form-item>
         <el-form-item style="text-align: right">
           <el-button @click="cancel">取消</el-button>
           <el-button type="primary" @click="confirm" v-if="type == 'modification'">修改</el-button>
@@ -50,14 +55,16 @@
 </template>
 
 <script lang="ts">
-  import {Component, Prop, Vue} from 'vue-property-decorator'
+  import {Component, Prop, Vue, Watch} from 'vue-property-decorator'
   import {
     TourActivityWrapper,
-    TourActivity
+    TourActivity, ShipmentTourActivity, DepotTourActivity
   } from '../../engine/domain/Activity'
   import {convertTime2Min} from "../../utils/common"
   import {Route, RoutePool} from "../../engine/domain/Route"
   import {ShipmentPool} from "../../engine/domain/ShipmentPool"
+  import {MyLocationFactory} from "../../engine/domain/MyLocation"
+  import {Constants} from "../../engine/Constant/Constants"
 
   @Component({
     name: 'ShipmentActivityDialog'
@@ -67,13 +74,21 @@
     @Prop() private type: string;
     private dialogVisible: boolean = false;
     private wrapper: TourActivityWrapper;
+    private loadTitle: Array<string>;
 
     constructor() {
       super();
       this.wrapper = new TourActivityWrapper(this.activity);
+      this.loadTitle = Constants.LOAD_TITLE;
+    }
+
+    @Watch('activity', {deep: true})
+    onActivityChanged(){
+      this.wrapper = new TourActivityWrapper(this.activity);
     }
 
     showDialog() {
+      this.wrapper = new TourActivityWrapper(this.activity);
       this.dialogVisible = true;
     }
 
@@ -86,6 +101,12 @@
       this.activity.twStart = convertTime2Min(this.wrapper.twStartStr);
       this.activity.twEnd = convertTime2Min(this.wrapper.twEndStr);
       this.activity.operationTime = Number.parseInt(<string>this.wrapper.operationTime);
+
+      if(this.activity instanceof ShipmentTourActivity) {
+        this.activity.load = this.wrapper.load.cloneAndReverse();
+      }else if(this.activity instanceof DepotTourActivity){
+        this.activity.load = this.wrapper.load.clone();
+      }
 
       let route: Route = RoutePool.getInstance().routes.find(x=>{
         return x.uid == this.activity.routeUid;

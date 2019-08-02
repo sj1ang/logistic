@@ -7,6 +7,8 @@ export interface Load {
   max(load: Load): Load;
   calOverload(capacity: Load): Load;
   reverse(): void;
+  clone(): Load;
+  cloneAndReverse(): Load;
 }
 
 export class LoadImpl implements Load{
@@ -62,5 +64,17 @@ export class LoadImpl implements Load{
     }
 
     return overload;
+  }
+
+  clone(): Load{
+    return new LoadImpl(this.size);
+  }
+
+  cloneAndReverse(): Load{
+    let load = new LoadImpl(this.size);
+    for(let i in load.size){
+      load.size[i] = -load.size[i];
+    }
+    return load;
   }
 }
