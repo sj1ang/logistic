@@ -16,7 +16,7 @@
     <el-dialog title="选择司机" :visible.sync="dialogVisible">
       <div class="driver-list-wrapper">
         <div v-for="(driver, index) in drivers" class="driver-row-wrapper">
-          <div :class="['driver-name-wrapper', {'driver-name-assigned-wrapper': driver.routeUids.length > 0 }]">{{driver.name}}</div>
+          <div :class="['driver-name-wrapper', {'driver-name-assigned-wrapper': driver.routeUids.size > 0 }]">{{driver.name}}</div>
           <div style="flex: 1;">
             <div v-for="(vehicle, index) in driver.availableVehicles" :class="['vehicle-selector', {'vehicle-selector-chosen': (driver.vehicle && driver.vehicle.uid == vehicle.uid)}]" @click="chooseVehicle(driver, vehicle)">{{vehicle.name}}</div>
           </div>
@@ -63,9 +63,6 @@
 
     assignDriver(route: Route, driver: Driver){
       route.assignDriver(driver);
-      if(driver.routeUids.length > 1){
-        this.$message.warning("同一位司机分配在不同的线路！");
-      }
       this.dialogVisible = false;
     }
 

@@ -4,6 +4,7 @@ import {convertMin2Time} from "@/utils/common";
 import {TransportCostMatrixManager} from "@/engine/domain/TransportCostMatrix";
 import {ActivityNotice, RouteNotice} from "@/engine/domain/Notice";
 import {LoadImpl} from "@/engine/domain/Load";
+import {Task} from "@/engine/domain/Task";
 
 export interface Updater {
   update(route: Route): void;
@@ -44,6 +45,15 @@ export class RouteInitUpdater implements Updater{
       r.activities = r.activities.filter(x=>{
         if(ids2Remove.indexOf(x.uid) == -1) return true;
       })
+    }
+
+    route.tasks = new Array<Task>();
+
+    for(let act of route.activities){
+      if(act instanceof ShipmentTourActivity){
+        let shipmentAct = <ShipmentTourActivity>act;
+        route.tasks.push(shipmentAct.task);
+      }
     }
 
   }
@@ -141,14 +151,21 @@ export class RouteNoticeUpdater implements Updater{
   update(route: Route): void {
     route.noticeManager.clear();
     let constraintManager = route.constraintManager;
-    let results = constraintManager.calculateRoutePenalty(route);
+    let softResults = constraintManager.calculateRoutePenalty(route);
 
-    for(let i in results){
-      if(results[i].notice){
-        console.log(results[i].notice);
-        route.noticeManager.addNotice(<RouteNotice>results[i].notice)
+    for(let i in softResults){
+      if(softResults[i].notice){
+        route.noticeManager.addNotice(<RouteNotice>softResults[i].notice)
       }
     }
+
+    // let hardResults = constraintManager.isFulfilled(route);
+    //
+    // for(let i in hardResults){
+    //   if(hardResults[i].notice){
+    //     route.noticeManager.addNotice(<RouteNotice>hardResults[i].notice);
+    //   }
+    // }
   }
 }
 

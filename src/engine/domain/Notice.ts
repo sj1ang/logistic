@@ -1,11 +1,13 @@
 import {Route} from "@/engine/domain/Route";
 import {TourActivity} from "@/engine/domain/Activity";
+import {Constants} from "@/engine/Constant/Constants";
 
 export interface Notice {
   icon: string;
   hint: string;
   color: string;
   noticeLevel: number;
+  code: number;
 }
 
 export interface RouteNotice extends Notice{
@@ -18,13 +20,15 @@ export class RouteCaution implements RouteNotice{
   color: string;
   noticeLevel: number;
   route: Route;
+  code: number;
 
-  constructor(route: Route, hint: string){
+  constructor(route: Route, hint: string, code: number){
     this.route = route;
     this.hint = hint;
     this.icon = 'el-icon-warning-outline';
     this.color = '#E6A23C';
     this.noticeLevel = 3;
+    this.code = code;
   }
 }
 
@@ -34,13 +38,15 @@ export class RouteError implements RouteNotice{
   color: string;
   noticeLevel: number;
   route: Route;
+  code: number;
 
-  constructor(route: Route, hint: string){
+  constructor(route: Route, hint: string, code: number){
     this.route = route;
     this.hint = hint;
     this.icon = 'el-icon-error';
     this.color = '#E6A23C';
     this.noticeLevel = 5;
+    this.code = code;
   }
 }
 
@@ -78,6 +84,13 @@ export class RouteNoticeManager implements NoticeManager{
     this.checkNoticeLevel();
   }
 
+  clearDriverAssignmentNotice(){
+    this.notices = this.notices.filter(x=>{
+      if(x.code == Constants.DRIVER_ASSIGNMENT_ERROR_CODE) return false;
+      return true;
+    })
+  }
+
   clear(){
     this.notices = new Array<RouteNotice>();
     this.noticeLevel = 0;
@@ -100,13 +113,15 @@ export class ActivityCaution implements ActivityNotice{
   color: string;
   noticeLevel: number;
   activity: TourActivity;
+  code: number;
 
-  constructor(activity: TourActivity, hint: string){
+  constructor(activity: TourActivity, hint: string, code: number){
     this.hint = hint;
     this.icon = 'el-icon-warning-outline';
     this.color = '#E6A23C'
     this.activity = activity;
     this.noticeLevel = 3;
+    this.code = code;
   }
 }
 
@@ -116,13 +131,15 @@ export class ActivityError implements ActivityNotice{
   color: string;
   noticeLevel: number;
   activity: TourActivity;
+  code: number;
 
-  constructor(activity: TourActivity, hint: string){
+  constructor(activity: TourActivity, hint: string, code: number){
     this.hint = hint;
     this.icon = 'el-icon-circle-close';
     this.color = '#E6A23C'
     this.activity = activity;
     this.noticeLevel = 5;
+    this.code = code;
   }
 }
 

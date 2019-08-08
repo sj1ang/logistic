@@ -9,9 +9,15 @@ import {
   UpdaterManager
 } from "@/engine/domain/Updater";
 import {RouteCaution, RouteNoticeManager} from "@/engine/domain/Notice";
-import {ConstraintManager, LoadConstraint, TimeWindowConstraint} from "@/engine/domain/Constraint";
+import {
+  ConstraintManager,
+  DriverAssignmentConstraint,
+  LoadConstraint,
+  TimeWindowConstraint
+} from "@/engine/domain/Constraint";
 import {Load, LoadImpl} from "@/engine/domain/Load";
 import {Driver} from "@/engine/domain/Driver";
+import {Task} from "@/engine/domain/Task";
 
 export interface Route extends hasId{
   activities: Array<TourActivity>;
@@ -23,6 +29,7 @@ export interface Route extends hasId{
   isLocked: boolean;
   idFrozen: boolean;
   fee: number;
+  tasks: Array<Task>;
 
   assignDriver(driver: Driver): void;
   cancelDriver(): void;
@@ -39,15 +46,16 @@ export class RouteImpl implements Route{
   constraintManager: ConstraintManager;
   load: Load;
   driver: Driver | undefined;
-
   showDetail: boolean = false;
   isLocked: boolean = false;
   idFrozen: boolean = false;
   fee: number = 0;
+  tasks: Array<Task>;
 
   constructor(){
     this.uid = genUID();
     this.activities = new Array<TourActivity>();
+    this.tasks = new Array<Task>();
     this.updaterManager = new UpdaterManager();
     this.noticeManager = new RouteNoticeManager();
     this.constraintManager = new ConstraintManager();
@@ -64,6 +72,7 @@ export class RouteImpl implements Route{
     this.updaterManager.addUpdater(new RouteNoticeUpdater());
     this.constraintManager.addConstraint(new TimeWindowConstraint());
     this.constraintManager.addConstraint(new LoadConstraint());
+    this.constraintManager.addConstraint(new DriverAssignmentConstraint());
 
     this.updateRoute();
   }
@@ -115,7 +124,13 @@ export class RoutePool{
     return route;
   }
 
-  getRoute(index: number){
+  getRoute(index: number): Route{
     return this.routes[index];
+  }
+
+  getRouteByUid(uid: string): Route | undefined{
+    return this.routes.find(x=>{
+      if(x.uid == uid) return true;
+    });
   }
 }

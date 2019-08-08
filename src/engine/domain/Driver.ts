@@ -1,10 +1,13 @@
 import {Vehicle} from "@/engine/domain/Vehicle";
-import {Route} from "@/engine/domain/Route";
+import {Route, RoutePool} from "@/engine/domain/Route";
 import {hasId} from "@/engine/domain/Id";
 import {genUID} from "@/utils/common";
+import {Message} from 'element-ui';
+import {RouteError} from "@/engine/domain/Notice";
+import {Constants} from "@/engine/Constant/Constants";
 
 export interface Driver extends hasId{
-  routeUids: Array<string>;
+  routeUids: Set<string>;
   workStart: number;
   workEnd: number;
   vehicle: Vehicle | undefined;
@@ -17,7 +20,7 @@ export interface Driver extends hasId{
 }
 
 export class DriverImpl implements Driver{
-  routeUids: Array<string>;
+  routeUids: Set<string>;
   workStart: number;
   workEnd: number;
   uid: string;
@@ -32,20 +35,36 @@ export class DriverImpl implements Driver{
     this.workEnd = 60 * 12;
     this.name = name;
     this.availableVehicles = new Array<Vehicle>();
-    this.routeUids = new Array<string>();
+    this.routeUids = new Set<string>();
   }
 
   assign2Route(route: Route): void {
-    this.routeUids.push(route.uid);
+    this.routeUids.add(route.uid);
+    if(this.routeUids.size > 1){
+      Message.warning('同一位司机分配在不同的线路！');
+
+      // for(let uid of this.routeUids.values()){
+      //   let routePool = RoutePool.getInstance();
+      //   let tmpRoute = routePool.getRouteByUid(uid);
+      //
+      //   if(tmpRoute) {
+      //     tmpRoute.noticeManager.addNotice(new RouteError(tmpRoute, "线路司机重复", Constants.DRIVER_ASSIGNMENT_ERROR_CODE));
+      //   }
+      //
+      // }
+    }
+
   }
 
   cancel(route: Route): void {
-    this.routeUids = this.routeUids.filter(x=>{
-      if(x == route.uid)
-        return false;
+    // this.routeUids = this.routeUids.filter(x=>{
+    //   if(x == route.uid)
+    //     return false;
+    //
+    //   return true;
+    // })
 
-      return true;
-    })
+    this.routeUids.delete(route.uid);
   }
 
   addAvailableVehicle(vehicle: Vehicle): void {

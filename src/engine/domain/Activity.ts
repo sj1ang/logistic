@@ -3,6 +3,7 @@ import {hasId} from "@/engine/domain/Id";
 import {MyLocation, MyLocationFactory} from "@/engine/domain/MyLocation";
 import {ActivityCaution, ActivityNoticeManager} from "@/engine/domain/Notice";
 import {Load, LoadImpl} from "@/engine/domain/Load";
+import {Task} from "@/engine/domain/Task";
 
 export interface TourActivity extends hasId{
   uid: string;
@@ -53,7 +54,9 @@ export class ShipmentTourActivity implements TourActivity{
   noticeManager: ActivityNoticeManager;
   load: Load;
 
-  constructor(name: string, location: MyLocation, operationTime: number, twStart: number, twEnd: number, size: Array<number>) {
+  task: Task;
+
+  constructor(name: string, location: MyLocation, operationTime: number, twStart: number, twEnd: number, size: Array<number>, task: Task) {
     this.uid = genUID();
     this.name = name;
     this.location = location;
@@ -69,6 +72,8 @@ export class ShipmentTourActivity implements TourActivity{
     this.noticeManager = new ActivityNoticeManager();
 
     this.load =  new LoadImpl(size);
+
+    this.task = task;
   }
 
   unassign():void{

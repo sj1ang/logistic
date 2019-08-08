@@ -45,7 +45,7 @@
           <div class="expand-icon-wrapper" @click="switchDetail(route)">
           </div>
         </div>
-        <div class="route-detail-wrapper" v-show="route.showDetail">
+        <div class="route-detail-wrapper" v-if="route.showDetail">
           <div class="route-detail-left-wrapper">
             <div class="route-detail-row">
               <div class="route-detail-title">锁住线路</div>
@@ -66,7 +66,7 @@
             <notice-panel :route="route"></notice-panel>
           </div>
           <div class="route-detail-mid-wrapper">
-
+            <task-panel :tasks="route.tasks"></task-panel>
           </div>
           <div class="route-detail-right-wrapper">
             <driver-panel :driver="route.driver" v-if="route.driver"></driver-panel>
@@ -95,10 +95,14 @@
   import NoticePanel from "../../../components/NoticePanel/index"
   import DriverPanel from "../../../components/DriverPanel/index"
   import AddShipmentActivity from "../../../components/AddShipmentActivity/index"
+  import {TaskPool} from '../../../engine/domain/Task'
+  import TaskPanel from "../../../components/TaskPanel/index"
 
   @Component({
     name: 'Scheduler',
-    components: {AddShipmentActivity, DriverPanel, NoticePanel, DriverSelector, ShipmentActivity, Sticky, Draggable}
+    components: {
+      TaskPanel,
+      AddShipmentActivity, DriverPanel, NoticePanel, DriverSelector, ShipmentActivity, Sticky, Draggable}
   })
   export default class extends Vue {
     shipmentPool: ShipmentPool;
@@ -107,6 +111,7 @@
     loadIndex: string;
     driverPool: DriverPool;
     vehiclePool: VehiclePool;
+    taskPool: TaskPool;
 
     constructor() {
       super();
@@ -114,6 +119,7 @@
       this.routePool = RoutePool.getInstance();
       this.driverPool = DriverPool.getInstance();
       this.vehiclePool = VehiclePool.getInstance();
+      this.taskPool = TaskPool.getInstance();
 
       this.routePool.addRoute();
       this.routePool.addRoute();
@@ -165,12 +171,19 @@
       let l5 = MyLocationFactory.getInstance().createLocation();
       let l6 = MyLocationFactory.getInstance().createLocation();
 
-      let sta1 = new ShipmentTourActivity("任务" + l1.id, l1, 1, 2, 6, [-1]);
-      let sta2 = new ShipmentTourActivity("任务" + l2.id, l2, 2, 3, 8, [-2]);
-      let sta3 = new ShipmentTourActivity("任务" + l3.id, l3, 1, 4, 10, [-3]);
-      let sta4 = new ShipmentTourActivity("任务" + l4.id, l4, 2, 6, 12, [-4]);
-      let sta5 = new ShipmentTourActivity("任务" + l5.id, l5, 2, 4, 14, [-5]);
-      let sta6 = new ShipmentTourActivity("任务" + l6.id, l6, 2, 8, 12, [-6]);
+      let t1 = this.taskPool.createTask("任务1");
+      let t2 = this.taskPool.createTask("任务2");
+      let t3 = this.taskPool.createTask("任务3");
+      let t4 = this.taskPool.createTask("任务4");
+      let t5 = this.taskPool.createTask("任务5");
+      let t6 = this.taskPool.createTask("任务6");
+
+      let sta1 = new ShipmentTourActivity("配送" + l1.id, l1, 1, 2, 6, [-1], t1);
+      let sta2 = new ShipmentTourActivity("配送" + l2.id, l2, 2, 3, 8, [-2], t2);
+      let sta3 = new ShipmentTourActivity("配送" + l3.id, l3, 1, 4, 10, [-3], t3);
+      let sta4 = new ShipmentTourActivity("配送" + l4.id, l4, 2, 6, 12, [-4], t4);
+      let sta5 = new ShipmentTourActivity("配送" + l5.id, l5, 2, 4, 14, [-5], t5);
+      let sta6 = new ShipmentTourActivity("配送" + l6.id, l6, 2, 8, 12, [-6], t6);
 
       this.shipmentPool.addShipmentTourActivity(sta1);
       this.shipmentPool.addShipmentTourActivity(sta2);
@@ -310,7 +323,8 @@
   }
 
   .route-detail-left-wrapper{
-    padding: 4px;
+    /*padding: 4px;*/
+    margin: 4px;
     flex: 0 0 240px;
     font-size: 12px;
     overflow: scroll;
@@ -334,7 +348,7 @@
   }
 
   .route-detail-mid-wrapper{
-    border-left: 1px solid #f5f5f5;
+    /*border-left: 1px solid #f5f5f5;*/
     flex: 1;
   }
 

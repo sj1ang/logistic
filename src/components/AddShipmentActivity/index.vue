@@ -12,6 +12,7 @@
   import {MyLocationFactory} from "../../engine/domain/MyLocation"
   import ShipmentActivityDialog from "../ShipmentActivityDialog/index"
   import {genUID} from "../../utils/common"
+  import {TaskPool} from "../../engine/domain/Task"
 
   @Component({
     name: 'AddShipmentActivity',
@@ -23,12 +24,14 @@
     constructor(){
       super();
       let l = MyLocationFactory.getInstance().createLocation();
-      this.activity = new ShipmentTourActivity("新建任务" + l.id, l, 1, 0, 100, [-1]);
+      let t = TaskPool.getInstance().createTask("new task");
+      this.activity = new ShipmentTourActivity("新建任务" + l.id, l, 1, 0, 100, [-1], t);
     }
 
     switchDialog(): void{
       let l = MyLocationFactory.getInstance().createLocation();
-      this.activity = new ShipmentTourActivity("新建任务" + l.id, l, 1, 0, 100, [-1]);
+      let t = TaskPool.getInstance().createTask("new task");
+      this.activity = new ShipmentTourActivity("新建任务" + l.id, l, 1, 0, 100, [-1], t);
 
       this.$refs.dialog.showDialog();
     }
