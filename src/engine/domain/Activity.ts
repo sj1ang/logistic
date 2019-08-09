@@ -54,7 +54,7 @@ export class ShipmentTourActivity implements TourActivity{
   noticeManager: ActivityNoticeManager;
   load: Load;
 
-  task: Task;
+  task: Task | undefined;
 
   constructor(name: string, location: MyLocation, operationTime: number, twStart: number, twEnd: number, size: Array<number>, task: Task) {
     this.uid = genUID();

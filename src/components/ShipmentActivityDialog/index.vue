@@ -46,6 +46,17 @@
             <el-input type="number" min=0 v-model="wrapper.load.size[index]"></el-input>
           </el-col>
         </el-form-item>
+        <el-form-item label="配送任务">
+          <el-select v-model="activity.task" value-key="uid" style="width: 100%">
+            <el-option
+              v-for="task in tasks"
+              :key="task.uid"
+              :label="task.name"
+              :value="task"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item style="text-align: right">
           <el-button @click="cancel">取消</el-button>
           <el-button type="primary" @click="confirm" v-if="type == 'modification'">修改</el-button>
@@ -67,6 +78,7 @@
   import {ShipmentPool} from "../../engine/domain/ShipmentPool"
   import {MyLocationFactory} from "../../engine/domain/MyLocation"
   import {Constants} from "../../engine/Constant/Constants"
+  import {Task, TaskPool} from "../../engine/domain/Task"
 
   @Component({
     name: 'ShipmentActivityDialog'
@@ -77,11 +89,15 @@
     private dialogVisible: boolean = false;
     private wrapper: TourActivityWrapper;
     private loadTitle: Array<string>;
+    private taskPool: TaskPool;
+    private tasks: Array<Task>;
 
     constructor() {
       super();
+      this.taskPool = TaskPool.getInstance();
       this.wrapper = new TourActivityWrapper(this.activity);
       this.loadTitle = Constants.LOAD_TITLE;
+      this.tasks = this.taskPool.tasks;
     }
 
     @Watch('activity', {deep: true})

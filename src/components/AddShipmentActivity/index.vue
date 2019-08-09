@@ -24,14 +24,12 @@
     constructor(){
       super();
       let l = MyLocationFactory.getInstance().createLocation();
-      let t = TaskPool.getInstance().createTask("new task");
-      this.activity = new ShipmentTourActivity("新建任务" + l.id, l, 1, 0, 100, [-1], t);
+      this.activity = new ShipmentTourActivity("新建任务" + l.id, l, 1, 0, 100, [-1], undefined);
     }
 
     switchDialog(): void{
       let l = MyLocationFactory.getInstance().createLocation();
-      let t = TaskPool.getInstance().createTask("new task");
-      this.activity = new ShipmentTourActivity("新建任务" + l.id, l, 1, 0, 100, [-1], t);
+      this.activity = new ShipmentTourActivity("新建任务" + l.id, l, 1, 0, 100, [-1], undefined);
 
       this.$refs.dialog.showDialog();
     }
