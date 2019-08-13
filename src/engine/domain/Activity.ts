@@ -158,6 +158,7 @@ export class TourActivityWrapper{
   twEndStr: string;
   operationTime: number;
   load: Load;
+  task: Task | undefined;
 
   constructor(activity: TourActivity){
     this.tourActivity = activity;
@@ -165,6 +166,10 @@ export class TourActivityWrapper{
     this.twEndStr = convertMin2Time(activity.twEnd);
     this.operationTime = activity.operationTime;
     this.load = new LoadImpl([0]);
+
+    if(activity instanceof ShipmentTourActivity){
+      this.task = <ShipmentTourActivity>activity.task;
+    }
 
     if(activity instanceof ShipmentTourActivity) {
       for (let i = 0; i < activity.load.size.length; i++) {

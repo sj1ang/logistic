@@ -1,7 +1,9 @@
 <template>
   <div>
-    <div class="function-button" @click="switchDialog"></div>
-    <shipment-activity-dialog :activity="activity" :type="'insertion'" ref="dialog"></shipment-activity-dialog>
+    <div class="function-button" @click="switchShipmentDialog"></div>
+    <div class="function-button" @click="switchConfigurationDialog"></div>
+    <shipment-activity-dialog :activity="activity" :type="'insertion'" ref="shipmentDialog"></shipment-activity-dialog>
+    <configuration-dialog ref="configurationDialog"></configuration-dialog>
   </div>
 </template>
 
@@ -13,10 +15,11 @@
   import ShipmentActivityDialog from "../ShipmentActivityDialog/index"
   import {genUID} from "../../utils/common"
   import {TaskPool} from "../../engine/domain/Task"
+  import ConfigurationDialog from "../ConfigurationDialog/index"
 
   @Component({
     name: 'AddShipmentActivity',
-    components: {ShipmentActivityDialog, ShipmentActivity}
+    components: {ConfigurationDialog, ShipmentActivityDialog, ShipmentActivity}
   })
   export default class extends Vue {
     private activity: TourActivity;
@@ -27,11 +30,16 @@
       this.activity = new ShipmentTourActivity("新建任务" + l.id, l, 1, 0, 100, [-1], undefined);
     }
 
-    switchDialog(): void{
+    switchShipmentDialog(): void{
       let l = MyLocationFactory.getInstance().createLocation();
       this.activity = new ShipmentTourActivity("新建任务" + l.id, l, 1, 0, 100, [-1], undefined);
 
-      this.$refs.dialog.showDialog();
+      this.$refs.shipmentDialog.showDialog();
+    }
+
+    switchConfigurationDialog(): void{
+      console.log('switching...');
+      this.$refs.configurationDialog.showDialog();
     }
   }
 </script>

@@ -2,7 +2,7 @@
   <div>
     <el-dialog title="配送信息" :visible.sync="dialogVisible" :append-to-body='true' width="50%"
                :close-on-click-modal="false">
-      <el-form v-model="wrapper" :rules="rules" size="mini" label-width="80px">
+      <el-form v-model="wrapper" :rules="rules" ref="activityForm" size="mini" label-width="80px">
         <el-form-item label="时间窗口">
           <el-col :span="11">
             <el-time-select
@@ -41,13 +41,13 @@
             <el-input type="number" min=0 v-model="wrapper.operationTime"></el-input>
           </el-col>
         </el-form-item>
-        <el-form-item v-for="(value, index) in wrapper.load.size" :label="loadTitle[index]">
+        <el-form-item v-for="(value, index) in wrapper.load.size" :label="loadTitle[index]" prop="task">
           <el-col>
             <el-input type="number" min=0 v-model="wrapper.load.size[index]"></el-input>
           </el-col>
         </el-form-item>
         <el-form-item label="配送任务">
-          <el-select v-model="activity.task" value-key="uid" style="width: 100%">
+          <el-select v-model="wrapper.task" value-key="uid" style="width: 100%" :disabled="type == 'modification'">
             <el-option
               v-for="task in tasks"
               :key="task.uid"
@@ -57,10 +57,25 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item style="text-align: right">
-          <el-button @click="cancel">取消</el-button>
-          <el-button type="primary" @click="confirm" v-if="type == 'modification'">修改</el-button>
-          <el-button type="primary" @click="insert" v-if="type == 'insertion'">新增</el-button>
+        <el-form-item>
+          <div style="display: flex; justify-content: space-between">
+            <el-popover
+              placement="right"
+              width="160"
+              v-model="popoverVisible">
+              <p>从配送池中删除？</p>
+              <div style="text-align: right; margin: 0">
+                <el-button size="mini" type="text" @click="popoverVisible = false">取消</el-button>
+                <el-button type="primary" size="mini" @click="deleteActivity(activity)">确定</el-button>
+              </div>
+              <el-button type="danger" slot="reference" v-if="type == 'modification'">删除</el-button>
+            </el-popover>
+            <div>
+              <el-button @click="cancel">取消</el-button>
+              <el-button type="primary" @click="confirm" v-if="type == 'modification'">修改</el-button>
+              <el-button type="primary" @click="insert" v-if="type == 'insertion'">新增</el-button>
+            </div>
+          </div>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -87,6 +102,7 @@
     @Prop() private activity: TourActivity;
     @Prop() private type: string;
     private dialogVisible: boolean = false;
+    private popoverVisible: boolean = false;
     private wrapper: TourActivityWrapper;
     private loadTitle: Array<string>;
     private taskPool: TaskPool;
@@ -116,35 +132,62 @@
     }
 
     confirm() {
-      this.activity.twStart = convertTime2Min(this.wrapper.twStartStr);
-      this.activity.twEnd = convertTime2Min(this.wrapper.twEndStr);
-      this.activity.operationTime = Number.parseInt(<string>this.wrapper.operationTime);
+      this.$refs['activityForm'].validate((valid) =>{
+        console.log(valid)
+        if(valid){
+          this.activity.twStart = convertTime2Min(this.wrapper.twStartStr);
+          this.activity.twEnd = convertTime2Min(this.wrapper.twEndStr);
+          this.activity.operationTime = Number.parseInt(<string>this.wrapper.operationTime);
 
-      if (this.activity instanceof ShipmentTourActivity) {
-        this.activity.load = this.wrapper.load.cloneAndReverse();
-      } else if (this.activity instanceof DepotTourActivity) {
-        this.activity.load = this.wrapper.load.clone();
-      }
+          if (this.activity instanceof ShipmentTourActivity) {
+            this.activity.load = this.wrapper.load.cloneAndReverse();
+          } else if (this.activity instanceof DepotTourActivity) {
+            this.activity.load = this.wrapper.load.clone();
+          }
 
-      let route: Route = RoutePool.getInstance().routes.find(x => {
-        return x.uid == this.activity.routeUid;
+          let route: Route = RoutePool.getInstance().routes.find(x => {
+            return x.uid == this.activity.routeUid;
+          })
+
+          if (route) {
+            route.updateRoute();
+          }
+
+          this.dialogVisible = false;
+        }else{
+
+        }
       })
-
-      if (route) {
-        route.updateRoute();
-      }
-
-      this.dialogVisible = false;
     }
 
     insert() {
       this.activity.twStart = convertTime2Min(this.wrapper.twStartStr);
       this.activity.twEnd = convertTime2Min(this.wrapper.twEndStr);
       this.activity.operationTime = Number.parseInt(<string>this.wrapper.operationTime);
+      if(this.activity instanceof ShipmentTourActivity){
+        (<ShipmentTourActivity>this.activity).task = this.wrapper.task;
+      }
 
       ShipmentPool.getInstance().shipments.push(this.activity);
 
       this.dialogVisible = false;
+    }
+
+    deleteActivity(activity: TourActivity){
+      let routeUid = activity.routeUid;
+
+      if(routeUid){
+        let route = RoutePool.getInstance().getRouteByUid(routeUid);
+        route.deleteTourActivity(activity);
+      }else {
+        let shipmentPool = ShipmentPool.getInstance();
+        shipmentPool.shipments = shipmentPool.shipments.filter(x => {
+          if (x.uid == activity.uid) return false;
+          return true;
+        })
+      }
+
+
     }
 
     private validateTWEndStr = (rule: any, value: string, callback: Function) => {
@@ -159,8 +202,18 @@
       }
     }
 
+    private validateTask = (rule: any, value: string, callback: Function) => {
+      console.log(value);
+      if (!value) {
+        callback(new Error('null value'));
+      } else {
+        callback()
+      }
+    }
+
     private rules = {
-      twEndStr: [{validator: this.validateTWEndStr, trigger: 'blur'}]
+      twEndStr: [{validator: this.validateTWEndStr, trigger: 'blur'}],
+      task: [{validator: this.validateTask, trigger: 'change'}]
     }
   }
 </script>

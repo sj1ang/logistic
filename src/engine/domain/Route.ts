@@ -30,10 +30,9 @@ export interface Route extends hasId{
   idFrozen: boolean;
   fee: number;
   tasks: Array<Task>;
-
+  deleteTourActivity(activity: TourActivity): number;
   assignDriver(driver: Driver): void;
   cancelDriver(): void;
-
   updateRoute(): void;
 }
 
@@ -84,6 +83,18 @@ export class RouteImpl implements Route{
 
   addDepotTourActivity(index: number): void{
     this.activities.splice(index, 0, new DepotTourActivity(0, 0, Number.MAX_VALUE));
+  }
+
+  deleteTourActivity(activity: TourActivity): number{
+    let len = this.activities.length;
+    this.activities = this.activities.filter(x=>{
+      if(activity.uid == x.uid) return false;
+      return true;
+    })
+
+    this.updateRoute();
+
+    return len - this.activities.length;
   }
 
   assignDriver(driver: Driver){
