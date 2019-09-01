@@ -50,21 +50,47 @@ export default new Router({
         }
       ]
     },
+    // {
+    //   path: '/logistic',
+    //   component: Layout,
+    //   redirect: '/logistic/scheduler',
+    //   meta: {
+    //     title: 'Logistic',
+    //     icon: 'example'
+    //   },
+    //   children:[
+    //     {
+    //       path: '/logistic/scheduler',
+    //       component: ()=> import('@/views/logistic/scheduler/index.vue'),
+    //       meta: {
+    //         title: 'Logistic',
+    //         icon: 'tree'
+    //       }
+    //     }
+    //   ]
+    // },
     {
       path: '/logistic',
       component: Layout,
-      redirect: '/logistic/scheduler',
+      redirect: '/logistic/assemblage',
       meta: {
         title: 'Logistic',
         icon: 'example'
       },
       children:[
         {
-          path: '/logistic/scheduler',
-          component: ()=> import('@/views/logistic/scheduler/index.vue'),
+          path: '/logistic/assemblage',
+          component: ()=> import('@/views/logistic/assemblage/index.vue'),
           meta: {
             title: 'Logistic',
             icon: 'tree'
+          }
+        },
+        {
+          path: '/logistic/scheduler',
+          component: ()=> import('@/views/logistic/scheduler/index.vue'),
+          meta: {
+            hidden: true
           }
         }
       ]

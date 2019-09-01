@@ -5,6 +5,7 @@ import {TransportCostMatrixManager} from "@/engine/domain/TransportCostMatrix";
 import {ActivityNotice, RouteNotice} from "@/engine/domain/Notice";
 import {LoadImpl} from "@/engine/domain/Load";
 import {Task} from "@/engine/domain/Task";
+import {Vehicle} from "@/engine/domain/Vehicle";
 
 export interface Updater {
   update(route: Route): void;
@@ -52,7 +53,8 @@ export class RouteInitUpdater implements Updater{
     for(let act of route.activities){
       if(act instanceof ShipmentTourActivity){
         let shipmentAct = <ShipmentTourActivity>act;
-        route.tasks.push(shipmentAct.task);
+        if(shipmentAct.task)
+          route.tasks.push(shipmentAct.task);
       }
     }
 
@@ -129,9 +131,61 @@ export class RouteLoadUpdater implements Updater{
   }
 }
 
+export class CostUpdater implements Updater{
+  update(route: Route): void {
+    let matrix = TransportCostMatrixManager.getInstance();
+
+
+    //clear all cost properties
+    let duration: number = 0;
+    let idleTime: number = 0;
+    let serviceTime: number = 0;
+    let distance: number = 0;
+    let cost: number = 0;
+    let score: number = 0;
+
+    let vehicle;
+
+    let acts = route.activities;
+    let prevAct;
+    let currAct;
+    for(let i = 0; i < acts.length; i++){
+      prevAct = currAct;
+      currAct = acts[i];
+
+      idleTime += currAct.startTime - currAct.arriveTime;
+      serviceTime += currAct.operationTime;
+
+      if(prevAct && currAct){
+        distance += matrix.getDistance(prevAct.locationId, currAct.locationId);
+      }
+    }
+
+    duration = acts[acts.length - 1].endTime - acts[0].startTime;
+
+    if(route.driver){
+      vehicle = route.driver.vehicle;
+    }
+
+    if(vehicle){
+      cost = distance * vehicle.distanceCost + idleTime * vehicle.idleTimeCost + serviceTime * vehicle.serviceTimeCost + vehicle.fixedCost;
+      score += cost;
+    }
+
+    route.duration = duration;
+    route.idleTime = idleTime;
+    route.serviceTime = serviceTime;
+    route.distance = distance;
+    route.cost = cost;
+    route.score = score;
+  }
+}
+
 export class ActivityNoticeUpdater implements Updater{
   update(route: Route): void {
+    let score = route.score;
     let constraintManager = route.constraintManager;
+
     for(let i in route.activities){
       let act = route.activities[i];
       act.noticeManager.clear();
@@ -142,20 +196,26 @@ export class ActivityNoticeUpdater implements Updater{
         if(results[i].notice) {
           act.noticeManager.addNotice(<ActivityNotice>results[i].notice);
         }
+
+        score += results[i].penalty;
       }
     }
+
+    route.score = score;
   }
 }
 
 export class RouteNoticeUpdater implements Updater{
   update(route: Route): void {
+    let score = route.score;
     route.noticeManager.clear();
     let constraintManager = route.constraintManager;
     let softResults = constraintManager.calculateRoutePenalty(route);
 
     for(let i in softResults){
       if(softResults[i].notice){
-        route.noticeManager.addNotice(<RouteNotice>softResults[i].notice)
+        route.noticeManager.addNotice(<RouteNotice>softResults[i].notice);
+        score += softResults[i].penalty;
       }
     }
 

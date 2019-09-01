@@ -2,7 +2,7 @@
   <div>
     <el-dialog title="配送信息" :visible.sync="dialogVisible" :append-to-body='true' width="50%"
                :close-on-click-modal="false">
-      <el-form v-model="wrapper" :rules="rules" ref="activityForm" size="mini" label-width="80px">
+      <el-form v-model="wrapper" ref="activityForm" size="mini" label-width="80px">
         <el-form-item label="时间窗口">
           <el-col :span="11">
             <el-time-select
@@ -41,7 +41,7 @@
             <el-input type="number" min=0 v-model="wrapper.operationTime"></el-input>
           </el-col>
         </el-form-item>
-        <el-form-item v-for="(value, index) in wrapper.load.size" :label="loadTitle[index]" prop="task">
+        <el-form-item v-for="(value, index) in wrapper.load.size" :label="loadTitle[index]">
           <el-col>
             <el-input type="number" min=0 v-model="wrapper.load.size[index]"></el-input>
           </el-col>
@@ -91,7 +91,7 @@
   import {convertTime2Min} from "../../utils/common"
   import {Route, RoutePool} from "../../engine/domain/Route"
   import {ShipmentPool} from "../../engine/domain/ShipmentPool"
-  import {MyLocationFactory} from "../../engine/domain/MyLocation"
+  import {MyLocationPool} from "../../engine/domain/MyLocation"
   import {Constants} from "../../engine/Constant/Constants"
   import {Task, TaskPool} from "../../engine/domain/Task"
 
@@ -132,9 +132,9 @@
     }
 
     confirm() {
-      this.$refs['activityForm'].validate((valid) =>{
-        console.log(valid)
-        if(valid){
+      // this.$refs['activityForm'].validate((valid) =>{
+      //   console.log(valid)
+      //   if(valid){
           this.activity.twStart = convertTime2Min(this.wrapper.twStartStr);
           this.activity.twEnd = convertTime2Min(this.wrapper.twEndStr);
           this.activity.operationTime = Number.parseInt(<string>this.wrapper.operationTime);
@@ -154,10 +154,10 @@
           }
 
           this.dialogVisible = false;
-        }else{
-
-        }
-      })
+        // }else{
+        //
+        // }
+      // })
     }
 
     insert() {

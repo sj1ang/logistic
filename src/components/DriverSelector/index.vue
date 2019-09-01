@@ -15,7 +15,7 @@
     </div>
     <el-dialog title="选择司机" :visible.sync="dialogVisible">
       <div class="driver-list-wrapper">
-        <div v-for="(driver, index) in drivers" class="driver-row-wrapper">
+        <div v-for="(driver, index) in drivers" class="driver-row-wrapper" v-if="driver.isAvailable">
           <div :class="['driver-name-wrapper', {'driver-name-assigned-wrapper': driver.routeUids.size > 0 }]">{{driver.name}}</div>
           <div style="flex: 1;">
             <div v-for="(vehicle, index) in driver.availableVehicles" :class="['vehicle-selector', {'vehicle-selector-chosen': (driver.vehicle && driver.vehicle.uid == vehicle.uid)}]" @click="chooseVehicle(driver, vehicle)">{{vehicle.name}}</div>

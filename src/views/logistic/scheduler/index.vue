@@ -3,7 +3,9 @@
     <sticky :z-index="10">
       <div class="top-wrapper">
         <div class="top-left-wrapper">
-          <div class="index-wrapper"></div>
+          <!--<div class="index-wrapper">-->
+            <!--&lt;!&ndash;<index-cell title="里程" :value="9999.99" unit="km"></index-cell>&ndash;&gt;-->
+          <!--</div>-->
           <div class="shipment-wrapper">
             <draggable v-model="shipmentPool.shipments" group="1" @change="addTourActivity2ShipmentPool"
                        style="height: 100%; display: flex; flex-wrap: wrap; align-content: flex-start">
@@ -63,6 +65,7 @@
                 <el-input type="number" size="mini" style="width: 100%" v-model="route.fee"></el-input>
               </div>
             </div>
+            <route-index-panel :route="route"></route-index-panel>
             <notice-panel :route="route"></notice-panel>
           </div>
           <div class="route-detail-mid-wrapper">
@@ -86,8 +89,8 @@
   import Draggable from "vuedraggable"
   import {DepotTourActivity, ShipmentTourActivity, TourActivity} from '../../../engine/domain/Activity'
   import {Route, RouteImpl, RoutePool} from "../../../engine/domain/Route"
-  import {ShipmentPool, ShipmentPoolImpl} from '../../../engine/domain/ShipmentPool'
-  import {MyLocationFactory} from "../../../engine/domain/MyLocation"
+  import {ShipmentPool} from '../../../engine/domain/ShipmentPool'
+  import {MyLocationPool} from "../../../engine/domain/MyLocation"
   import {convertMin2Time, convertTime2Min} from "../../../utils/common"
   import DriverSelector from "../../../components/DriverSelector/index"
   import {DriverPool} from '../../../engine/domain/Driver'
@@ -97,10 +100,15 @@
   import AddShipmentActivity from "../../../components/AddShipmentActivity/index"
   import {TaskPool} from '../../../engine/domain/Task'
   import TaskPanel from "../../../components/TaskPanel/index"
+  import IndexCell from "../../../components/IndexCell/index"
+  import RouteIndexPanel from "../../../components/RouteIndexPanel/index"
+  import {ProductPool} from '../../../engine/domain/Product'
 
   @Component({
     name: 'Scheduler',
     components: {
+      RouteIndexPanel,
+      IndexCell,
       TaskPanel,
       AddShipmentActivity, DriverPanel, NoticePanel, DriverSelector, ShipmentActivity, Sticky, Draggable}
   })
@@ -112,6 +120,8 @@
     driverPool: DriverPool;
     vehiclePool: VehiclePool;
     taskPool: TaskPool;
+    productPool: ProductPool;
+    locationPool: MyLocationPool;
 
     constructor() {
       super();
@@ -120,6 +130,8 @@
       this.driverPool = DriverPool.getInstance();
       this.vehiclePool = VehiclePool.getInstance();
       this.taskPool = TaskPool.getInstance();
+      this.productPool = ProductPool.getInstance();
+      this.locationPool = MyLocationPool.getInstance();
 
       this.routePool.addRoute();
       this.routePool.addRoute();
@@ -134,16 +146,16 @@
       let d8 = this.driverPool.createDriver("司机8");
       let d9 = this.driverPool.createDriver("司机9");
 
-      let v1 = this.vehiclePool.createVehicle("车型1", [18]);
-      let v2 = this.vehiclePool.createVehicle("车型2", [21]);
-      let v3 = this.vehiclePool.createVehicle("车型3", [21]);
-      let v4 = this.vehiclePool.createVehicle("车型4", [21]);
-      let v5 = this.vehiclePool.createVehicle("车型5", [21]);
-      let v6 = this.vehiclePool.createVehicle("车型6", [21]);
-      let v7 = this.vehiclePool.createVehicle("车型7", [21]);
-      let v8 = this.vehiclePool.createVehicle("车型8", [21]);
-      let v9 = this.vehiclePool.createVehicle("车型9", [16]);
-      let v10 = this.vehiclePool.createVehicle("车型10", [21]);
+      let v1 = this.vehiclePool.createVehicle("车型1", 20, 4, 4, 1, [18]);
+      let v2 = this.vehiclePool.createVehicle("车型2", 20, 4, 4, 1, [21]);
+      let v3 = this.vehiclePool.createVehicle("车型3", 20, 4, 4, 1, [21]);
+      let v4 = this.vehiclePool.createVehicle("车型4", 20, 4, 4, 1, [21]);
+      let v5 = this.vehiclePool.createVehicle("车型5", 20, 4, 4, 1, [21]);
+      let v6 = this.vehiclePool.createVehicle("车型6", 20, 4, 4, 1, [21]);
+      let v7 = this.vehiclePool.createVehicle("车型7", 20, 4, 4, 1, [21]);
+      let v8 = this.vehiclePool.createVehicle("车型8", 20, 4, 4, 1, [21]);
+      let v9 = this.vehiclePool.createVehicle("车型9", 20, 4, 4, 1, [16]);
+      let v10 = this.vehiclePool.createVehicle("车型10", 20, 4, 4, 1, [21]);
 
       d1.addAvailableVehicle(v1);
       d2.addAvailableVehicle(v2);
@@ -164,12 +176,24 @@
     }
 
     assembly() {
-      let l1 = MyLocationFactory.getInstance().createLocation();
-      let l2 = MyLocationFactory.getInstance().createLocation();
-      let l3 = MyLocationFactory.getInstance().createLocation();
-      let l4 = MyLocationFactory.getInstance().createLocation();
-      let l5 = MyLocationFactory.getInstance().createLocation();
-      let l6 = MyLocationFactory.getInstance().createLocation();
+      // this.productPool.fetchProduct();
+      this.locationPool.fetchLocations().then(ProductPool.getInstance().fetchProduct).then(res=>{
+        console.log(res);
+      // this.taskPool.fetchTasks();
+
+      let l1 = this.locationPool.getLocation(1);
+      let l2 = this.locationPool.getLocation(2);
+      let l3 = this.locationPool.getLocation(3);
+      let l4 = this.locationPool.getLocation(4);
+      let l5 = this.locationPool.getLocation(5);
+      let l6 = this.locationPool.getLocation(6);
+
+      console.log(l1);
+      console.log(l2);
+      console.log(l3);
+      console.log(l4);
+      console.log(l5);
+      console.log(l6);
 
       let t1 = this.taskPool.createTask("任务1");
       let t2 = this.taskPool.createTask("任务2");
@@ -191,6 +215,7 @@
       this.shipmentPool.addShipmentTourActivity(sta4);
       this.shipmentPool.addShipmentTourActivity(sta5);
       this.shipmentPool.addShipmentTourActivity(sta6);
+      })
     }
 
     insertActivity(evt, index) {
@@ -198,8 +223,8 @@
     }
 
     addShipmentTourActivity() {
-      let l = MyLocationFactory.getInstance().createLocation();
-      let tourActivity = new ShipmentTourActivity("新建任务" + l.id, l, 1, 0, 100, [-1]);
+      let l = this.locationPool.getLocation(1);
+      let tourActivity = new ShipmentTourActivity("新建任务" + l.id, l, 1, 0, 100, [-1], undefined);
       this.shipmentPool.addShipmentTourActivity(tourActivity);
     }
 
@@ -235,12 +260,14 @@
   .top-left-wrapper {
     flex: 1;
     display: flex;
-    flex-direction: column;
+    /*flex-direction: column;*/
   }
 
   .index-wrapper {
-    height: 36px;
-    flex: 0 0 36px;
+    /*display: flex;*/
+    margin: 0 8px;
+    height: 24px;
+    flex: 0 0 24px;
   }
 
   .shipment-wrapper {

@@ -1,5 +1,5 @@
 import {ShipmentTourActivity, TourActivity} from "@/engine/domain/Activity";
-import {MyLocationFactory} from "@/engine/domain/MyLocation";
+import {MyLocationPool} from "@/engine/domain/MyLocation";
 
 // export interface ShipmentPool {
 //   shipments: Array<TourActivity>;

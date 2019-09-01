@@ -1,12 +1,6 @@
 <template>
   <div class="driver-panel-wrapper">
-    <!--<div class="route-detail-row">-->
-      <!--<div class="route-detail-title">{{driver.name}}</div>-->
-      <!--<div class="route-detail-content">-->
-
-      <!--</div>-->
-    <!--</div>-->
-    <div style="height: 40px">
+    <div style="height: 32px">
       <div style="display: flex;">
         <div class="working-day-wrapper"></div>
         <div class="working-day-wrapper"></div>
@@ -55,7 +49,7 @@
   .working-day-wrapper {
     height: 12px;
     width: 12px;
-    margin: 4px 4px 0px 0;
+    margin: 0px 4px 4px 0;
     background: #4AB7BD;
   }
 

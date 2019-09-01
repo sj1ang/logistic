@@ -1,6 +1,6 @@
 import {convertMin2Time, genUID} from "@/utils/common";
 import {hasId} from "@/engine/domain/Id";
-import {MyLocation, MyLocationFactory} from "@/engine/domain/MyLocation";
+import {MyLocation, MyLocationPool} from "@/engine/domain/MyLocation";
 import {ActivityCaution, ActivityNoticeManager} from "@/engine/domain/Notice";
 import {Load, LoadImpl} from "@/engine/domain/Load";
 import {Task} from "@/engine/domain/Task";
@@ -118,7 +118,7 @@ export class DepotTourActivity implements TourActivity{
   constructor(operationTime: number, twStart: number, twEnd: number) {
     this.uid = genUID();
     this.name = "加工中心";
-    this.location = MyLocationFactory.getInstance().getLocation(0);
+    this.location = MyLocationPool.getInstance().getLocation(0);
     if(this.location) {
       this.locationId = this.location.id;
     }

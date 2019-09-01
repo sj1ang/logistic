@@ -3,8 +3,6 @@ import {Route, RoutePool} from "@/engine/domain/Route";
 import {hasId} from "@/engine/domain/Id";
 import {genUID} from "@/utils/common";
 import {Message} from 'element-ui';
-import {RouteError} from "@/engine/domain/Notice";
-import {Constants} from "@/engine/Constant/Constants";
 
 export interface Driver extends hasId{
   routeUids: Set<string>;
@@ -12,6 +10,7 @@ export interface Driver extends hasId{
   workEnd: number;
   vehicle: Vehicle | undefined;
   availableVehicles: Array<Vehicle>;
+  isAvailable: boolean;
 
   assign2Route(route: Route): void;
   cancel(route: Route): void;
@@ -25,9 +24,9 @@ export class DriverImpl implements Driver{
   workEnd: number;
   uid: string;
   name: string;
-
   vehicle: Vehicle | undefined;
   availableVehicles: Array<Vehicle>;
+  isAvailable: boolean;
 
   constructor(name: string){
     this.uid = genUID();
@@ -36,6 +35,7 @@ export class DriverImpl implements Driver{
     this.name = name;
     this.availableVehicles = new Array<Vehicle>();
     this.routeUids = new Set<string>();
+    this.isAvailable = true;
   }
 
   assign2Route(route: Route): void {
@@ -79,6 +79,20 @@ export class DriverImpl implements Driver{
   // plz update the corresponding route!
   assignVehicle(vehicle: Vehicle): void {
     this.vehicle = vehicle;
+  }
+
+  rest(){
+    this.isAvailable = false;
+    for(let routeUid of this.routeUids){
+      let route = RoutePool.getInstance().getRouteByUid(routeUid);
+      if(route) {
+        route.cancelDriver();
+      }
+    }
+  }
+
+  work(){
+    this.isAvailable = true;
   }
 }
 

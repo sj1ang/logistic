@@ -2,7 +2,7 @@ import {DepotTourActivity, TourActivity} from "@/engine/domain/Activity";
 import {hasId} from "@/engine/domain/Id";
 import {genUID} from "@/utils/common";
 import {
-  ActivityNoticeUpdater,
+  ActivityNoticeUpdater, CostUpdater,
   RouteInitUpdater,
   RouteLoadUpdater, RouteNoticeUpdater,
   RouteTimeUpdater,
@@ -27,8 +27,14 @@ export interface Route extends hasId{
   driver: Driver | undefined;
   showDetail: boolean;
   isLocked: boolean;
-  idFrozen: boolean;
+  isFrozen: boolean;
+  duration: number;
+  distance: number;
+  idleTime: number;
+  serviceTime: number;
+  cost: number;
   fee: number;
+  score: number;
   tasks: Array<Task>;
   deleteTourActivity(activity: TourActivity): number;
   assignDriver(driver: Driver): void;
@@ -47,8 +53,14 @@ export class RouteImpl implements Route{
   driver: Driver | undefined;
   showDetail: boolean = false;
   isLocked: boolean = false;
-  idFrozen: boolean = false;
+  isFrozen: boolean = false;
+  duration: number = 0;
+  distance: number = 0;
+  idleTime: number = 0;
+  serviceTime: number = 0;
+  cost: number = 0;
   fee: number = 0;
+  score: number = 0;
   tasks: Array<Task>;
 
   constructor(){
@@ -67,6 +79,7 @@ export class RouteImpl implements Route{
     this.updaterManager.addUpdater(new RouteInitUpdater());
     this.updaterManager.addUpdater(new RouteTimeUpdater());
     this.updaterManager.addUpdater(new RouteLoadUpdater());
+    this.updaterManager.addUpdater(new CostUpdater());
     this.updaterManager.addUpdater(new ActivityNoticeUpdater());
     this.updaterManager.addUpdater(new RouteNoticeUpdater());
     this.constraintManager.addConstraint(new TimeWindowConstraint());
@@ -108,7 +121,10 @@ export class RouteImpl implements Route{
   cancelDriver(){
     if(this.driver) {
       this.driver.cancel(this);
+      this.driver = undefined;
     }
+
+    this.updateRoute();
   }
 }
 

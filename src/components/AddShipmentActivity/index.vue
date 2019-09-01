@@ -11,7 +11,7 @@
   import { Component, Prop, Vue } from 'vue-property-decorator'
   import ShipmentActivity from "../ShipmentActivity/index"
   import {ShipmentTourActivity, TourActivity} from "../../engine/domain/Activity"
-  import {MyLocationFactory} from "../../engine/domain/MyLocation"
+  import {MyLocationPool} from "../../engine/domain/MyLocation"
   import ShipmentActivityDialog from "../ShipmentActivityDialog/index"
   import {genUID} from "../../utils/common"
   import {TaskPool} from "../../engine/domain/Task"
@@ -26,12 +26,12 @@
 
     constructor(){
       super();
-      let l = MyLocationFactory.getInstance().createLocation();
+      let l = MyLocationPool.getInstance().getLocation(1);
       this.activity = new ShipmentTourActivity("新建任务" + l.id, l, 1, 0, 100, [-1], undefined);
     }
 
     switchShipmentDialog(): void{
-      let l = MyLocationFactory.getInstance().createLocation();
+      let l = MyLocationPool.getInstance().getLocation(1);
       this.activity = new ShipmentTourActivity("新建任务" + l.id, l, 1, 0, 100, [-1], undefined);
 
       this.$refs.shipmentDialog.showDialog();

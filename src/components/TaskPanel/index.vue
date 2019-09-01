@@ -9,8 +9,14 @@
       </div>
     </div>
     <div class="task-detail-wrapper">
-      <div v-if="tasks[taskIndex]">
-        {{tasks[taskIndex].name}}
+      <div v-if="tasks[taskIndex]" class="order-outer-wrapper">
+        <div class="tabs-wrapper">
+          <div class="tab tab-active">订单一</div>
+          <div class="tab">订单二</div>
+          <div class="tab">订单三</div>
+          <div class="tab">订单四</div>
+          <div class="tab">订单五</div>
+        </div>
       </div>
     </div>
   </div>
@@ -58,6 +64,7 @@
   .task-panel-wrapper{
     height: 100%;
     display: flex;
+    user-select: none;
   }
   .task-menu-wrapper{
     flex: 0 0 80px;
@@ -102,6 +109,27 @@
 
   .task-detail-wrapper{
     flex: 1;
-    margin: 4px;
+    margin: 4px 0 4px 4px;
+  }
+
+  .order-outer-wrapper{
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #f5f5f5;
+    height: 100%;
+  }
+  .tabs-wrapper{
+    height: 32px;
+    background: #f5f5f5;
+    display: flex;
+  }
+  .tab{
+    width: 80px;
+    line-height: 32px;
+    font-size: 10px;
+    text-align: center;
+  }
+  .tab-active{
+    background: #ffffff;
   }
 </style>
