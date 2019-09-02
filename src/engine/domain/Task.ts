@@ -1,23 +1,41 @@
 import {hasId} from "@/engine/domain/Id";
-import {genUID} from "@/utils/common";
-import {Order} from "@/engine/domain/Order";
+import {convertTime2Min, genUID} from "@/utils/common";
 import {getTasks} from "@/api";
-import {AxiosRequestConfig} from "axios";
+import {SubTask, SubTaskImpl} from "@/engine/domain/SubTask";
+import {MyLocation, MyLocationPool} from "@/engine/domain/MyLocation";
+import {BillEntryImpl} from "@/engine/domain/BillEntry";
+import {VirtualBillImpl} from "@/engine/domain/VirtualBill";
 
 export interface Task extends hasId{
   name: string;
-  orders: Array<Order>;
+  location: MyLocation | undefined;
+  subTasks: Array<SubTask>;
+  serviceTime: number;
+  startTime: number;
+  endTime: number;
 }
 
 export class TaskImpl implements Task{
-  name: string;
   uid: string;
-  orders: Array<Order>;
+  name: string;
+  location: MyLocation | undefined;
+  subTasks: Array<SubTask>;
+  serviceTime: number;
+  startTime: number;
+  endTime: number;
 
-  constructor(name: string){
+  constructor(locationId: number, serviceTime: number, startTime: number, endTime: number){
     this.uid = genUID();
-    this.name = name;
-    this.orders = new Array<Order>()
+    this.location = MyLocationPool.getInstance().getLocation(locationId);
+    this.name = this.location ? this.location.alias : "no-name";
+    this.subTasks = new Array<SubTask>();
+    this.serviceTime = serviceTime;
+    this.startTime = startTime;
+    this.endTime = endTime;
+  }
+
+  addSubTask(subTask: SubTask){
+    this.subTasks.push(subTask);
   }
 }
 
@@ -41,17 +59,46 @@ export class TaskPool{
     this.tasks.push(task);
   }
 
-  createTask(name: string): Task{
-    let task = new TaskImpl(name);
+  createTask(locationId: number): Task{
+    let task = new TaskImpl(locationId, 0, 0, 0);
     this.addTask(task);
 
     return task;
   }
 
   fetchTasks() {
+    console.log("start fetching tasks...")
     let params: any = {};
-    getTasks(params).then(res=>{
-      console.log(res);
+
+    return getTasks(params).then(res=>{
+      for(let i in res){
+        let tmp = res[i];
+        let tmpSubTasks = res[i].subTasks;
+
+        let serviceTime = tmp.requirement.serviceTime;
+        let startTime = convertTime2Min(tmp.requirement.startTime);
+        let endTime = convertTime2Min(tmp.requirement.endTime);
+
+        let task = new TaskImpl(tmp.locationId, serviceTime, startTime, endTime);
+        for(let j in tmpSubTasks){
+          let tmpSubTask = tmpSubTasks[j];
+          let tmpBill = tmpSubTask.bill;
+          let tmpEntries = tmpBill.entries;
+
+          let bill = new VirtualBillImpl(new Date(), tmpBill.name);
+          for(let k in tmpEntries){
+            let rawEntry = tmpEntries[k];
+            let entry = new BillEntryImpl(rawEntry.billNo, rawEntry.prodCode, rawEntry.prodName, rawEntry.unit, rawEntry.qty, rawEntry.price, rawEntry.amount, rawEntry.remark);
+            bill.addBillEntry(entry);
+          }
+
+          let subTask = new SubTaskImpl(bill);
+          task.addSubTask(subTask);
+        }
+        TaskPool.getInstance().addTask(task);
+      }
+
+      return Promise.resolve("tasks fetched successfully!");
     });
   }
 }

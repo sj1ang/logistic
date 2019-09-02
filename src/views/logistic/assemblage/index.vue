@@ -8,6 +8,7 @@
   import {ProductPool} from "../../../engine/domain/Product"
   import {MyLocationPool} from "../../../engine/domain/MyLocation"
   import Scheduler from "../scheduler/index"
+  import {TaskPool} from "../../../engine/domain/Task"
 
   @Component({
     name: 'Assemblage',
@@ -24,8 +25,11 @@
     }
 
     assembly(){
-      MyLocationPool.getInstance().fetchLocations().then(ProductPool.getInstance().fetchProduct).then(res=>{
+      MyLocationPool.getInstance().fetchLocations().then(ProductPool.getInstance().fetchProduct).then(TaskPool.getInstance().fetchTasks).then(res=>{
         console.log(res);
+
+
+
         this.ready = true;
       })
     }

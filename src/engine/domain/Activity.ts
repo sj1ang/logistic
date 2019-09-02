@@ -168,7 +168,7 @@ export class TourActivityWrapper{
     this.load = new LoadImpl([0]);
 
     if(activity instanceof ShipmentTourActivity){
-      this.task = <ShipmentTourActivity>activity.task;
+      this.task = (<ShipmentTourActivity>activity).task;
     }
 
     if(activity instanceof ShipmentTourActivity) {

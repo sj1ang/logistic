@@ -1,5 +1,6 @@
 import {ShipmentTourActivity, TourActivity} from "@/engine/domain/Activity";
 import {MyLocationPool} from "@/engine/domain/MyLocation";
+import {TaskPool} from "@/engine/domain/Task";
 
 // export interface ShipmentPool {
 //   shipments: Array<TourActivity>;
@@ -34,6 +35,18 @@ export class ShipmentPool{
 
     for(let i in this.shipments){
       this.shipments[i].unassign();
+    }
+  }
+
+  initializeShipments(){
+    let tasks = TaskPool.getInstance().tasks;
+    for(let i in tasks){
+      let task = tasks[i];
+      if(task.location) {
+        let activity = new ShipmentTourActivity(task.name, task.location, task.serviceTime, task.startTime, task.endTime, [-1], task);
+
+        ShipmentPool.getInstance().addShipmentTourActivity(activity);
+      }
     }
   }
 

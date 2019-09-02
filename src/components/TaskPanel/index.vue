@@ -11,11 +11,9 @@
     <div class="task-detail-wrapper">
       <div v-if="tasks[taskIndex]" class="order-outer-wrapper">
         <div class="tabs-wrapper">
-          <div class="tab tab-active">订单一</div>
-          <div class="tab">订单二</div>
-          <div class="tab">订单三</div>
-          <div class="tab">订单四</div>
-          <div class="tab">订单五</div>
+          <div :class="['tab', {'tab-active': subTaskIndex == index}]" v-for="(subTask, index) in tasks[taskIndex].subTasks" @click="chooseSubTask(subTask, index)">
+            {{subTask.bill.name}}
+          </div>
         </div>
       </div>
     </div>
@@ -27,6 +25,7 @@
   import {Route} from "../../engine/domain/Route"
   import {Task} from "../../engine/domain/Task"
   import {ShipmentTourActivity} from "../../engine/domain/Activity"
+  import {SubTask} from "../../engine/domain/SubTask"
 
   @Component({
     name: 'TaskPanel'
@@ -34,7 +33,9 @@
   export default class extends Vue {
     @Prop() private tasks: Array<Task>;
     private taskIndex: number;
-    private taskUid: string| undefined;
+    private taskUid: string | undefined;
+    private subTask: SubTask |undefined;
+    private subTaskIndex: number;
 
     constructor(){
       super();
@@ -55,6 +56,11 @@
     chooseTask(task, index){
       this.taskUid = task.uid;
       this.taskIndex = index;
+    }
+
+    chooseSubTask(subTask, index){
+      this.subTask = subTask;
+      this.subTaskIndex = index;
     }
 
   }
@@ -124,7 +130,8 @@
     display: flex;
   }
   .tab{
-    width: 80px;
+    min-width: 80px;
+    padding: 0 8px;
     line-height: 32px;
     font-size: 10px;
     text-align: center;
