@@ -3,6 +3,11 @@
     <el-dialog title="配送信息" :visible.sync="dialogVisible" :append-to-body='true' width="50%"
                :close-on-click-modal="false">
       <el-form v-model="wrapper" ref="activityForm" size="mini" label-width="80px">
+        <el-form-item label="配送名称">
+          <el-col>
+            <el-input v-model="wrapper.name"></el-input>
+          </el-col>
+        </el-form-item>
         <el-form-item label="时间窗口">
           <el-col :span="11">
             <el-time-select
@@ -47,7 +52,7 @@
           </el-col>
         </el-form-item>
         <el-form-item label="配送任务">
-          <el-select v-model="wrapper.task" value-key="uid" style="width: 100%" :disabled="type == 'modification'">
+          <el-select v-model="wrapper.task" value-key="uid" style="width: 100%" :disabled="type == 'modification'" @change="changeTask">
             <el-option
               v-for="task in tasks"
               :key="task.uid"
@@ -88,7 +93,7 @@
     TourActivityWrapper,
     TourActivity, ShipmentTourActivity, DepotTourActivity
   } from '../../engine/domain/Activity'
-  import {convertTime2Min} from "../../utils/common"
+  import {convertMin2Time, convertTime2Min} from "../../utils/common"
   import {Route, RoutePool} from "../../engine/domain/Route"
   import {ShipmentPool} from "../../engine/domain/ShipmentPool"
   import {MyLocationPool} from "../../engine/domain/MyLocation"
@@ -145,6 +150,8 @@
             this.activity.load = this.wrapper.load.clone();
           }
 
+          this.activity.name = this.wrapper.name;
+
           let route: Route = RoutePool.getInstance().routes.find(x => {
             return x.uid == this.activity.routeUid;
           })
@@ -164,9 +171,18 @@
       this.activity.twStart = convertTime2Min(this.wrapper.twStartStr);
       this.activity.twEnd = convertTime2Min(this.wrapper.twEndStr);
       this.activity.operationTime = Number.parseInt(<string>this.wrapper.operationTime);
+
       if(this.activity instanceof ShipmentTourActivity){
         (<ShipmentTourActivity>this.activity).task = this.wrapper.task;
       }
+
+      if (this.activity instanceof ShipmentTourActivity) {
+        this.activity.load = this.wrapper.load.cloneAndReverse();
+      } else if (this.activity instanceof DepotTourActivity) {
+        this.activity.load = this.wrapper.load.clone();
+      }
+
+      this.activity.name = this.wrapper.name;
 
       ShipmentPool.getInstance().shipments.push(this.activity);
 
@@ -188,6 +204,15 @@
       }
 
 
+    }
+
+    changeTask(e){
+      let task = e;
+      this.wrapper.load = task.load.cloneAndReverse();
+      this.wrapper.name = task.name;
+      this.wrapper.operationTime = task.serviceTime;
+      this.wrapper.twStartStr = convertMin2Time(task.startTime);
+      this.wrapper.twEndStr = convertMin2Time(task.endTime);
     }
 
     private validateTWEndStr = (rule: any, value: string, callback: Function) => {

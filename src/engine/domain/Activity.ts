@@ -154,6 +154,7 @@ export class DepotTourActivity implements TourActivity{
 
 export class TourActivityWrapper{
   tourActivity: TourActivity;
+  name: string;
   twStartStr: string;
   twEndStr: string;
   operationTime: number;
@@ -161,6 +162,7 @@ export class TourActivityWrapper{
   task: Task | undefined;
 
   constructor(activity: TourActivity){
+    this.name = activity.name;
     this.tourActivity = activity;
     this.twStartStr = convertMin2Time(activity.twStart);
     this.twEndStr = convertMin2Time(activity.twEnd);
@@ -171,13 +173,17 @@ export class TourActivityWrapper{
       this.task = (<ShipmentTourActivity>activity).task;
     }
 
-    if(activity instanceof ShipmentTourActivity) {
-      for (let i = 0; i < activity.load.size.length; i++) {
-        this.load.size[i] = -activity.load.size[i];
+    this.setLoad();
+  }
+
+  setLoad(){
+    if(this.tourActivity instanceof ShipmentTourActivity) {
+      for (let i = 0; i < this.tourActivity.load.size.length; i++) {
+        this.load.size[i] = -this.tourActivity.load.size[i];
       }
-    }else if(activity instanceof DepotTourActivity){
-      for (let i = 0; i < activity.load.size.length; i++) {
-        this.load.size[i] = activity.load.size[i];
+    }else if(this.tourActivity instanceof DepotTourActivity){
+      for (let i = 0; i < this.tourActivity.load.size.length; i++) {
+        this.load.size[i] = this.tourActivity.load.size[i];
       }
     }
   }

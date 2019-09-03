@@ -44,10 +44,7 @@ export class ShipmentPool{
     for(let i in tasks){
       let task = tasks[i];
       if(task.location) {
-        let load: Load = new LoadImpl([0]);
-        for(let j in task.subTasks){
-          load = load.add(task.subTasks[j].load);
-        }
+        let load: Load = task.load;
 
         let activity = new ShipmentTourActivity(task.name, task.location, task.serviceTime, task.startTime, task.endTime, load.size, task);
 

@@ -8,7 +8,7 @@ import {VirtualBillImpl} from "@/engine/domain/VirtualBill";
 import {Box, BoxImpl} from "@/engine/domain/Box";
 import {ProductPool} from "@/engine/domain/Product";
 import {ContentItemImpl} from "@/engine/domain/ContentItem";
-import {LoadImpl} from "@/engine/domain/Load";
+import {Load, LoadImpl} from "@/engine/domain/Load";
 
 export interface Task extends hasId{
   name: string;
@@ -17,6 +17,9 @@ export interface Task extends hasId{
   serviceTime: number;
   startTime: number;
   endTime: number;
+  load: Load;
+
+  addSubTask(subTask: SubTask): void;
 }
 
 export class TaskImpl implements Task{
@@ -27,6 +30,7 @@ export class TaskImpl implements Task{
   serviceTime: number;
   startTime: number;
   endTime: number;
+  load: Load;
 
   constructor(locationId: number, serviceTime: number, startTime: number, endTime: number){
     this.uid = genUID();
@@ -36,10 +40,12 @@ export class TaskImpl implements Task{
     this.serviceTime = serviceTime;
     this.startTime = startTime;
     this.endTime = endTime;
+    this.load = new LoadImpl([0]);
   }
 
   addSubTask(subTask: SubTask){
     this.subTasks.push(subTask);
+    this.load = this.load.add(subTask.load);
   }
 }
 
