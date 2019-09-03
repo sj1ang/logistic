@@ -1,11 +1,11 @@
 import {Product} from "@/engine/domain/Product";
 
-export interface OrderItem {
+export interface ContentItem {
   product: Product;
   quantity: number;
 }
 
-export class OrderItemImpl implements OrderItem{
+export class ContentItemImpl implements ContentItem{
   product: Product;
   quantity: number;
 

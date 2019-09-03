@@ -5,6 +5,10 @@ import {SubTask, SubTaskImpl} from "@/engine/domain/SubTask";
 import {MyLocation, MyLocationPool} from "@/engine/domain/MyLocation";
 import {BillEntryImpl} from "@/engine/domain/BillEntry";
 import {VirtualBillImpl} from "@/engine/domain/VirtualBill";
+import {Box, BoxImpl} from "@/engine/domain/Box";
+import {ProductPool} from "@/engine/domain/Product";
+import {ContentItemImpl} from "@/engine/domain/ContentItem";
+import {LoadImpl} from "@/engine/domain/Load";
 
 export interface Task extends hasId{
   name: string;
@@ -74,7 +78,7 @@ export class TaskPool{
       for(let i in res){
         let tmp = res[i];
         let tmpSubTasks = res[i].subTasks;
-
+        console.log(tmp);
         let serviceTime = tmp.requirement.serviceTime;
         let startTime = convertTime2Min(tmp.requirement.startTime);
         let endTime = convertTime2Min(tmp.requirement.endTime);
@@ -84,6 +88,7 @@ export class TaskPool{
           let tmpSubTask = tmpSubTasks[j];
           let tmpBill = tmpSubTask.bill;
           let tmpEntries = tmpBill.entries;
+          let tmpBoxes = tmpSubTask.packedBoxes;
 
           let bill = new VirtualBillImpl(new Date(), tmpBill.name);
           for(let k in tmpEntries){
@@ -92,7 +97,23 @@ export class TaskPool{
             bill.addBillEntry(entry);
           }
 
-          let subTask = new SubTaskImpl(bill);
+          let subTask = new SubTaskImpl(bill, new LoadImpl(tmpSubTasks[j].load.size));
+
+          for(let p in tmpBoxes){
+            let tmpBox = tmpBoxes[p];
+            let box: Box = new BoxImpl(tmpBox.box);
+            for(let q in tmpBox.contents){
+              let tmpContent = tmpBox.contents[q];
+              let product = ProductPool.getInstance().map.get(tmpContent.prodcode);
+              let quantity = tmpContent.quantity;
+              if(product) {
+                let content = new ContentItemImpl(product, quantity);
+                box.addItem(content);
+              }
+            }
+            subTask.addBox(box);
+          }
+
           task.addSubTask(subTask);
         }
         TaskPool.getInstance().addTask(task);

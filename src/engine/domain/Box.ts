@@ -1,20 +1,21 @@
-import {OrderItem} from "@/engine/domain/OrderItem";
+import {ContentItem} from "@/engine/domain/ContentItem";
 
 export interface Box {
   type: string;
-  items: Array<OrderItem>;
+  items: Array<ContentItem>;
+  addItem(item: ContentItem): void;
 }
 
 export class BoxImpl implements Box{
-  items: Array<OrderItem>;
+  items: Array<ContentItem>;
   type: string;
 
   constructor(type: string){
-    this.items = new Array<OrderItem>();
+    this.items = new Array<ContentItem>();
     this.type = type;
   }
 
-  addItem(item: OrderItem){
+  addItem(item: ContentItem){
     this.items.push(item);
   }
 }
