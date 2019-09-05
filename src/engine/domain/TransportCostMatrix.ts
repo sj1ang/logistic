@@ -1,3 +1,5 @@
+import {getTransportCosts} from "@/api";
+
 export interface TransportCostMatrix {
 
 }
@@ -60,6 +62,19 @@ export class TransportCostMatrixManager implements DistanceTransportCostMatrix, 
     let duration = this.durationTransportCostMatrix.get(key);
     duration = duration ? duration : 0;
     return duration;
+  }
+
+  fetchTransportCostMatrix(){
+    let params = {};
+    return getTransportCosts(params).then(res=>{
+      for(let i in res){
+        let row = res[i];
+        TransportCostMatrixManager.getInstance().putDuration(row.fromId, row.toId, Math.ceil(row.duration));
+        TransportCostMatrixManager.getInstance().putDistance(row.fromId, row.toId, parseFloat(row.distance));
+      }
+
+      return Promise.resolve(res);
+    })
   }
 
 }

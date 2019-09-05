@@ -1,6 +1,7 @@
 import {Load, LoadImpl} from "@/engine/domain/Load";
 import {hasId} from "@/engine/domain/Id";
 import {genUID} from "@/utils/common";
+import {getVehicles} from "@/api";
 
 export interface Vehicle extends hasId{
   name: string;
@@ -20,8 +21,8 @@ export class VehicleImpl implements Vehicle{
   capacity: Load;
   uid: string;
 
-  constructor(name: string, fixedCost: number, distanceCost: number, serviceTimeCost: number, idleTimeCost: number, size: Array<number>){
-    this.uid = genUID();
+  constructor(name: string, fixedCost: number, distanceCost: number, serviceTimeCost: number, idleTimeCost: number, size: Array<number>, uid: string){
+    this.uid = uid;
     this.name = name;
     this.fixedCost = fixedCost;
     this.distanceCost = distanceCost;
@@ -65,10 +66,30 @@ export class VehiclePool{
     return this.instance;
   }
 
-  createVehicle(name: string, fixedCost: number, distanceCost: number, serviceTimeCost: number, idleTimeCost: number, size: Array<number>): Vehicle{
-    let vehicle = new VehicleImpl(name, fixedCost, distanceCost, serviceTimeCost, idleTimeCost, size);
+  createVehicle(name: string, fixedCost: number, distanceCost: number, serviceTimeCost: number, idleTimeCost: number, size: Array<number>, uid: string): Vehicle{
+    let vehicle = new VehicleImpl(name, fixedCost, distanceCost, serviceTimeCost, idleTimeCost, size, uid);
     this.vehicles.push(vehicle);
 
     return vehicle;
+  }
+
+  getVehicle(uid: string){
+    let vehicle = this.vehicles.find(x=>{
+      if(x.uid == uid)
+        return true;
+    })
+
+    return vehicle;
+  }
+
+  fetchVehicles(){
+    let params = {};
+    return getVehicles(params).then(res=>{
+      for(let i in res){
+        let row = res[i];
+        VehiclePool.getInstance().createVehicle(row.name, row.fixedCost, row.distanceCost, row.serviceCost, row.idleTimeCost, row.load.size, row.uid);
+      }
+      return Promise.resolve('vehicles fetched successfully...');
+    })
   }
 }

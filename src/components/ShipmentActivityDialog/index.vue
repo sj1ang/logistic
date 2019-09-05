@@ -1,7 +1,8 @@
 <template>
   <div>
-    <el-dialog title="配送信息" :visible.sync="dialogVisible" :append-to-body='true' width="50%"
+    <el-dialog title="配送信息" :visible.sync="dialogVisible" :append-to-body='true' :before-close="handleClose" width="50%"
                :close-on-click-modal="false">
+      <div v-if="!isSplitPanel">
       <el-form v-model="wrapper" ref="activityForm" size="mini" label-width="80px">
         <el-form-item label="配送名称">
           <el-col>
@@ -77,12 +78,23 @@
             </el-popover>
             <div>
               <el-button @click="cancel">取消</el-button>
+              <el-button @click="split" type="warning" v-if="type == 'modification'">拆分</el-button>
               <el-button type="primary" @click="confirm" v-if="type == 'modification'">修改</el-button>
               <el-button type="primary" @click="insert" v-if="type == 'insertion'">新增</el-button>
             </div>
           </div>
         </el-form-item>
       </el-form>
+      </div>
+      <div v-else>
+        <el-form>
+          <el-form-item v-for="(value, index) in loadTitle" :label="loadTitle[index]">
+            <el-col>
+
+            </el-col>
+          </el-form-item>
+        </el-form>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -112,6 +124,7 @@
     private loadTitle: Array<string>;
     private taskPool: TaskPool;
     private tasks: Array<Task>;
+    private isSplitPanel: boolean = false;
 
     constructor() {
       super();
@@ -136,30 +149,34 @@
       this.dialogVisible = false;
     }
 
+    confirmModification(){
+      this.activity.twStart = convertTime2Min(this.wrapper.twStartStr);
+      this.activity.twEnd = convertTime2Min(this.wrapper.twEndStr);
+      this.activity.operationTime = Number.parseInt(<string>this.wrapper.operationTime);
+
+      if (this.activity instanceof ShipmentTourActivity) {
+        this.activity.load = this.wrapper.load.cloneAndReverse();
+      } else if (this.activity instanceof DepotTourActivity) {
+        this.activity.load = this.wrapper.load.clone();
+      }
+
+      this.activity.name = this.wrapper.name;
+
+      let route: Route = RoutePool.getInstance().routes.find(x => {
+        return x.uid == this.activity.routeUid;
+      })
+
+      if (route) {
+        route.updateRoute();
+      }
+
+    }
+
     confirm() {
       // this.$refs['activityForm'].validate((valid) =>{
       //   console.log(valid)
       //   if(valid){
-          this.activity.twStart = convertTime2Min(this.wrapper.twStartStr);
-          this.activity.twEnd = convertTime2Min(this.wrapper.twEndStr);
-          this.activity.operationTime = Number.parseInt(<string>this.wrapper.operationTime);
-
-          if (this.activity instanceof ShipmentTourActivity) {
-            this.activity.load = this.wrapper.load.cloneAndReverse();
-          } else if (this.activity instanceof DepotTourActivity) {
-            this.activity.load = this.wrapper.load.clone();
-          }
-
-          this.activity.name = this.wrapper.name;
-
-          let route: Route = RoutePool.getInstance().routes.find(x => {
-            return x.uid == this.activity.routeUid;
-          })
-
-          if (route) {
-            route.updateRoute();
-          }
-
+          this.confirmModification();
           this.dialogVisible = false;
         // }else{
         //
@@ -186,6 +203,16 @@
 
       ShipmentPool.getInstance().shipments.push(this.activity);
 
+      this.dialogVisible = false;
+    }
+
+    split(){
+      this.confirmModification();
+      this.isSplitPanel = true;
+    }
+
+    handleClose(){
+      this.isSplitPanel = false;
       this.dialogVisible = false;
     }
 

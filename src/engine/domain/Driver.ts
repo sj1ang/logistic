@@ -1,8 +1,9 @@
-import {Vehicle} from "@/engine/domain/Vehicle";
+import {Vehicle, VehiclePool} from "@/engine/domain/Vehicle";
 import {Route, RoutePool} from "@/engine/domain/Route";
 import {hasId} from "@/engine/domain/Id";
 import {genUID} from "@/utils/common";
 import {Message} from 'element-ui';
+import {getDrivers} from "@/api";
 
 export interface Driver extends hasId{
   routeUids: Set<string>;
@@ -28,8 +29,8 @@ export class DriverImpl implements Driver{
   availableVehicles: Array<Vehicle>;
   isAvailable: boolean;
 
-  constructor(name: string){
-    this.uid = genUID();
+  constructor(name: string, uid: string){
+    this.uid = uid;
     this.workStart = 0;
     this.workEnd = 60 * 12;
     this.name = name;
@@ -77,6 +78,7 @@ export class DriverImpl implements Driver{
   // caution!
   // assign new vehicle to driver may affect the route properties!
   // plz update the corresponding route!
+  // route.update()
   assignVehicle(vehicle: Vehicle): void {
     this.vehicle = vehicle;
   }
@@ -112,10 +114,28 @@ export class DriverPool{
     return this.instance;
   }
 
-  createDriver(name: string): Driver{
-    let driver = new DriverImpl(name);
+  createDriver(name: string, uid: string): Driver{
+    let driver = new DriverImpl(name, uid);
     this.drivers.push(driver);
     return driver;
   }
 
+  fetchDrivers(){
+    let params = {};
+    return getDrivers(params).then(res=>{
+      for(let i in res){
+        let row = res[i];
+        let driver = DriverPool.getInstance().createDriver(row.name, row.uid);
+        for(let j in row.vehicleUidList){
+          let vehicleUid = row.vehicleUidList[j];
+          let vehicle = VehiclePool.getInstance().getVehicle(vehicleUid);
+          if(vehicle) {
+            driver.addAvailableVehicle(vehicle);
+          }
+        }
+      }
+
+      return Promise.resolve('drivers fetched successfully')
+    });
+  }
 }

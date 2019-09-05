@@ -91,7 +91,6 @@
   import {Route, RouteImpl, RoutePool} from "../../../engine/domain/Route"
   import {ShipmentPool} from '../../../engine/domain/ShipmentPool'
   import {MyLocationPool} from "../../../engine/domain/MyLocation"
-  import {convertMin2Time, convertTime2Min} from "../../../utils/common"
   import DriverSelector from "../../../components/DriverSelector/index"
   import {DriverPool} from '../../../engine/domain/Driver'
   import {VehiclePool} from '../../../engine/domain/Vehicle'
@@ -136,39 +135,27 @@
       this.routePool.addRoute();
       this.routePool.addRoute();
 
-      let d1 = this.driverPool.createDriver("司机1");
-      let d2 = this.driverPool.createDriver("司机2");
-      let d3 = this.driverPool.createDriver("司机3");
-      let d4 = this.driverPool.createDriver("司机4");
-      let d5 = this.driverPool.createDriver("司机5");
-      let d6 = this.driverPool.createDriver("司机6");
-      let d7 = this.driverPool.createDriver("司机7");
-      let d8 = this.driverPool.createDriver("司机8");
-      let d9 = this.driverPool.createDriver("司机9");
+      // let d1 = this.driverPool.createDriver("司机1");
+      // let d2 = this.driverPool.createDriver("司机2");
+      // let d3 = this.driverPool.createDriver("司机3");
+      // let d4 = this.driverPool.createDriver("司机4");
+      // let d5 = this.driverPool.createDriver("司机5");
+      // let d6 = this.driverPool.createDriver("司机6");
+      // let d7 = this.driverPool.createDriver("司机7");
+      // let d8 = this.driverPool.createDriver("司机8");
+      // let d9 = this.driverPool.createDriver("司机9");
 
-      let v1 = this.vehiclePool.createVehicle("车型1", 20, 4, 4, 1, [18]);
-      let v2 = this.vehiclePool.createVehicle("车型2", 20, 4, 4, 1, [21]);
-      let v3 = this.vehiclePool.createVehicle("车型3", 20, 4, 4, 1, [21]);
-      let v4 = this.vehiclePool.createVehicle("车型4", 20, 4, 4, 1, [21]);
-      let v5 = this.vehiclePool.createVehicle("车型5", 20, 4, 4, 1, [21]);
-      let v6 = this.vehiclePool.createVehicle("车型6", 20, 4, 4, 1, [21]);
-      let v7 = this.vehiclePool.createVehicle("车型7", 20, 4, 4, 1, [21]);
-      let v8 = this.vehiclePool.createVehicle("车型8", 20, 4, 4, 1, [21]);
-      let v9 = this.vehiclePool.createVehicle("车型9", 20, 4, 4, 1, [16]);
-      let v10 = this.vehiclePool.createVehicle("车型10", 20, 4, 4, 1, [21]);
-
-      d1.addAvailableVehicle(v1);
-      d2.addAvailableVehicle(v2);
-      d3.addAvailableVehicle(v3);
-      d4.addAvailableVehicle(v4);
-      d5.addAvailableVehicle(v5);
-      d6.addAvailableVehicle(v6);
-      d7.addAvailableVehicle(v7);
-      d8.addAvailableVehicle(v8);
-      d9.addAvailableVehicle(v9);
-      d9.addAvailableVehicle(v10);
-
-
+      // let v1 = VehiclePool.getInstance().getVehicle("4504aa8a-4bef-4d83-bacc-241af119ea5d");
+      //
+      // d1.addAvailableVehicle(v1);
+      // d2.addAvailableVehicle(v1);
+      // d3.addAvailableVehicle(v1);
+      // d4.addAvailableVehicle(v1);
+      // d5.addAvailableVehicle(v1);
+      // d6.addAvailableVehicle(v1);
+      // d7.addAvailableVehicle(v1);
+      // d8.addAvailableVehicle(v1);
+      // d9.addAvailableVehicle(v1);
     }
 
     created() {
