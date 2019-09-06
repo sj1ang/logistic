@@ -10,7 +10,7 @@
 <script lang="ts">
   import { Component, Prop, Vue } from 'vue-property-decorator'
   import ShipmentActivity from "../ShipmentActivity/index"
-  import {ShipmentTourActivity, TourActivity} from "../../engine/domain/Activity"
+  import {AdditionalShipmentTourActivity, ShipmentTourActivity, TourActivity} from "../../engine/domain/Activity"
   import {MyLocationPool} from "../../engine/domain/MyLocation"
   import ShipmentActivityDialog from "../ShipmentActivityDialog/index"
   import {genUID} from "../../utils/common"
@@ -26,14 +26,11 @@
 
     constructor(){
       super();
-      let l = MyLocationPool.getInstance().getLocation(1);
-      this.activity = new ShipmentTourActivity("新建任务" + l.id, l, 1, 0, 100, [-1], undefined);
+      this.activity = new AdditionalShipmentTourActivity("新建任务", null, 1, 0, 100, [0], undefined);
     }
 
     switchShipmentDialog(): void{
-      let l = MyLocationPool.getInstance().getLocation(1);
-      this.activity = new ShipmentTourActivity("新建任务" + l.id, l, 1, 0, 100, [-1], undefined);
-
+      this.activity = new AdditionalShipmentTourActivity("新建任务", null, 1, 0, 100, [0], undefined);
       this.$refs.shipmentDialog.showDialog();
     }
 

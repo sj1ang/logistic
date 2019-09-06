@@ -1,5 +1,7 @@
 <template>
   <div class="indices-wrapper">
+    <index-cell title="补货" :value="route.additionalFee.toFixed(2)" unit="rmb"></index-cell>
+    <index-cell title="总价" :value="totalFee.toFixed(2)" unit="rmb"></index-cell>
     <index-cell title="里程" :value="route.distance.toFixed(2)" unit="km"></index-cell>
     <index-cell title="等待" :value="route.idleTime.toFixed(0)" unit="min"></index-cell>
     <index-cell title="装卸" :value="route.distance.toFixed(0)" unit="min"></index-cell>
@@ -19,6 +21,10 @@
   export default class extends Vue {
     @Prop() private route: Route;
 
+    get totalFee(){
+      let fee = this.route.fee == "" ? 0 : this.route.fee;
+      return Number.parseFloat(<string>fee) + this.route.additionalFee
+    }
   }
 </script>
 

@@ -89,6 +89,11 @@
     private dialogVisible: boolean = false;
     // private wrapper: TourActivityWrapper;
 
+    @Watch('activity', {deep: true})
+    onchanged(){
+      console.log('changed...');
+    }
+
     constructor() {
       super();
       if (this.activity instanceof DepotTourActivity) {

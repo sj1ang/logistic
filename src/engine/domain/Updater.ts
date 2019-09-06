@@ -1,5 +1,10 @@
 import {Route, RouteImpl} from "@/engine/domain/Route";
-import {DepotTourActivity, ShipmentTourActivity, TourActivity} from "@/engine/domain/Activity";
+import {
+  AdditionalShipmentTourActivity,
+  DepotTourActivity,
+  ShipmentTourActivity,
+  TourActivity
+} from "@/engine/domain/Activity";
 import {convertMin2Time} from "@/utils/common";
 import {TransportCostMatrixManager} from "@/engine/domain/TransportCostMatrix";
 import {ActivityNotice, RouteNotice} from "@/engine/domain/Notice";
@@ -143,6 +148,7 @@ export class CostUpdater implements Updater{
     let distance: number = 0;
     let cost: number = 0;
     let score: number = 0;
+    let additionalFee: number = 0;
 
     let vehicle;
 
@@ -158,6 +164,12 @@ export class CostUpdater implements Updater{
 
       if(prevAct && currAct){
         distance += matrix.getDistance(prevAct.locationId, currAct.locationId);
+      }
+
+      console.log(currAct);
+      if(currAct instanceof AdditionalShipmentTourActivity){
+        console.log('additional fee');
+        additionalFee += (<AdditionalShipmentTourActivity>currAct).additionalFee;
       }
     }
 
@@ -178,6 +190,7 @@ export class CostUpdater implements Updater{
     route.distance = distance;
     route.cost = cost;
     route.score = score;
+    route.additionalFee = additionalFee;
   }
 }
 

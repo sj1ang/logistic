@@ -1,4 +1,5 @@
 import {Constants} from "@/engine/Constant/Constants";
+import Vue from 'vue'
 
 export interface Load {
   size: Array<number>;
@@ -8,6 +9,7 @@ export interface Load {
   calOverload(capacity: Load): Load;
   reverse(): void;
   clone(): Load;
+  copy(load: Load): void;
   cloneAndReverse(): Load;
 }
 
@@ -68,6 +70,15 @@ export class LoadImpl implements Load{
 
   clone(): Load{
     return new LoadImpl(this.size);
+  }
+
+  // cause rendering failure
+  // use vue.set plz
+  copy(load: Load){
+    for(let i in load.size){
+      this.size[i] = load.size[i];
+      // Vue.set(this.size, i, load.size[i]);
+    }
   }
 
   cloneAndReverse(): Load{

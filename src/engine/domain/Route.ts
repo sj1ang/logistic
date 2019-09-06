@@ -36,6 +36,7 @@ export interface Route extends hasId{
   fee: number;
   score: number;
   tasks: Array<Task>;
+  additionalFee: number;
   deleteTourActivity(activity: TourActivity): number;
   assignDriver(driver: Driver): void;
   cancelDriver(): void;
@@ -62,6 +63,7 @@ export class RouteImpl implements Route{
   fee: number = 0;
   score: number = 0;
   tasks: Array<Task>;
+  additionalFee: number = 0;
 
   constructor(){
     this.uid = genUID();
@@ -153,6 +155,13 @@ export class RoutePool{
 
   getRoute(index: number): Route{
     return this.routes[index];
+  }
+
+  findRouteByUid(uid: string): Route | undefined{
+    let route = RoutePool.getInstance().routes.find(x => {
+      return x.uid == uid;
+    })
+    return route;
   }
 
   getRouteByUid(uid: string): Route | undefined{

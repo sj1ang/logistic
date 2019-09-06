@@ -4,6 +4,8 @@ import {MyLocation, MyLocationPool} from "@/engine/domain/MyLocation";
 import {ActivityCaution, ActivityNoticeManager} from "@/engine/domain/Notice";
 import {Load, LoadImpl} from "@/engine/domain/Load";
 import {Task} from "@/engine/domain/Task";
+import {ShipmentPool} from "@/engine/domain/ShipmentPool";
+import {RoutePool} from "@/engine/domain/Route";
 
 export interface TourActivity extends hasId{
   uid: string;
@@ -56,11 +58,11 @@ export class ShipmentTourActivity implements TourActivity{
 
   task: Task | undefined;
 
-  constructor(name: string, location: MyLocation, operationTime: number, twStart: number, twEnd: number, size: Array<number>, task: Task) {
+  constructor(name: string, location: MyLocation | undefined, operationTime: number, twStart: number, twEnd: number, size: Array<number>, task: Task | undefined) {
     this.uid = genUID();
     this.name = name;
     this.location = location;
-    this.locationId = this.location.id;
+    this.locationId = this.location ? this.location.id : -1;
     this.operationTime = operationTime;
     this.twStart = twStart;
     this.twEnd = twEnd;
@@ -89,6 +91,22 @@ export class ShipmentTourActivity implements TourActivity{
     this.noticeManager = new ActivityNoticeManager();
   }
 
+  split(load1: Load, load2: Load){
+    this.load = load1;
+    if(this.routeUid) {
+      let route = RoutePool.getInstance().findRouteByUid(this.routeUid);
+      if(route)
+        route.updateRoute();
+    }
+
+    let newAct = new ShipmentTourActivity(this.name, this.location, this.operationTime, this.twStart, this.twEnd, load2.size, this.task);
+    ShipmentPool.getInstance().addShipmentTourActivity(newAct);
+  }
+
+}
+
+export class AdditionalShipmentTourActivity extends ShipmentTourActivity{
+  additionalFee: number = 0;
 }
 
 export class DepotTourActivity implements TourActivity{

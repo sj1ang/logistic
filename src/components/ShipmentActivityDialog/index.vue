@@ -63,6 +63,11 @@
             </el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="补货费用">
+          <el-col>
+            <el-input type="number" min=0 v-model="additionalFee"></el-input>
+          </el-col>
+        </el-form-item>
         <el-form-item>
           <div style="display: flex; justify-content: space-between">
             <el-popover
@@ -78,7 +83,7 @@
             </el-popover>
             <div>
               <el-button @click="cancel">取消</el-button>
-              <el-button @click="split" type="warning" v-if="type == 'modification'">拆分</el-button>
+              <el-button @click="trySplit" type="warning" v-if="type == 'modification' && isShipmentTourActivity && !isAdditionalShipmentTourActivity">拆分</el-button>
               <el-button type="primary" @click="confirm" v-if="type == 'modification'">修改</el-button>
               <el-button type="primary" @click="insert" v-if="type == 'insertion'">新增</el-button>
             </div>
@@ -86,12 +91,23 @@
         </el-form-item>
       </el-form>
       </div>
+      <!-- #################### for splitting shipments #################### -->
       <div v-else>
-        <el-form>
-          <el-form-item v-for="(value, index) in loadTitle" :label="loadTitle[index]">
-            <el-col>
-
+        <el-form size="mini" label-width="88px">
+          <el-form-item v-for="(value, index) in totalLoad.size" :label="loadTitle[index] + ' (' + value +')'">
+            <el-col :span="11">
+              <el-input type="number" v-model="load1.size[index]" min=0 :max="value"></el-input>
             </el-col>
+            <el-col :span="2" style="text-align: center">-</el-col>
+            <el-col :span="11">
+              <el-input type="number" v-model="load2.size[index]" min=0 :max="value"></el-input>
+            </el-col>
+          </el-form-item>
+          <el-form-item>
+            <div style="text-align: right">
+              <el-button @click="back">返回</el-button>
+              <el-button type="primary" @click="split">确定</el-button>
+            </div>
           </el-form-item>
         </el-form>
       </div>
@@ -103,14 +119,14 @@
   import {Component, Prop, Vue, Watch} from 'vue-property-decorator'
   import {
     TourActivityWrapper,
-    TourActivity, ShipmentTourActivity, DepotTourActivity
+    TourActivity, ShipmentTourActivity, DepotTourActivity, AdditionalShipmentTourActivity
   } from '../../engine/domain/Activity'
   import {convertMin2Time, convertTime2Min} from "../../utils/common"
   import {Route, RoutePool} from "../../engine/domain/Route"
   import {ShipmentPool} from "../../engine/domain/ShipmentPool"
-  import {MyLocationPool} from "../../engine/domain/MyLocation"
   import {Constants} from "../../engine/Constant/Constants"
   import {Task, TaskPool} from "../../engine/domain/Task"
+  import {Load, LoadImpl} from "../../engine/domain/Load"
 
   @Component({
     name: 'ShipmentActivityDialog'
@@ -125,6 +141,14 @@
     private taskPool: TaskPool;
     private tasks: Array<Task>;
     private isSplitPanel: boolean = false;
+    private totalLoad: Load;
+    private load1: Load;
+    private load2: Load;
+    private isTied: boolean = true;
+    private isShipmentTourActivity: boolean;
+    private isAdditionalShipmentTourActivity: boolean;
+    private additionalFee: number = 0;
+
 
     constructor() {
       super();
@@ -132,11 +156,35 @@
       this.wrapper = new TourActivityWrapper(this.activity);
       this.loadTitle = Constants.LOAD_TITLE;
       this.tasks = this.taskPool.tasks;
+
+
+      this.totalLoad = new LoadImpl([0]);
+      this.load1 = new LoadImpl([0]);
+      this.load2 = new LoadImpl([0]);
+
+      this.isShipmentTourActivity = this.activity instanceof ShipmentTourActivity;
+      this.isAdditionalShipmentTourActivity = this.activity instanceof AdditionalShipmentTourActivity;
     }
 
     @Watch('activity', {deep: true})
     onActivityChanged() {
       this.wrapper = new TourActivityWrapper(this.activity);
+    }
+
+    @Watch('load1', {deep: true})
+    onLoad1Changed(){
+      if(this.isTied){
+        let tmpLoad = this.totalLoad.minus(this.load1);
+        this.load2.copy(tmpLoad);
+      }
+    }
+
+    @Watch('load2', {deep: true})
+    onLoad2Changed(){
+      if (this.isTied){
+        let tmpLoad = this.totalLoad.minus(this.load2);
+        this.load1.copy(tmpLoad);
+      }
     }
 
     showDialog() {
@@ -195,6 +243,8 @@
 
       if (this.activity instanceof ShipmentTourActivity) {
         this.activity.load = this.wrapper.load.cloneAndReverse();
+        if(this.activity instanceof AdditionalShipmentTourActivity)
+          (<AdditionalShipmentTourActivity>this.activity).additionalFee = Number.parseFloat(<string>this.additionalFee);
       } else if (this.activity instanceof DepotTourActivity) {
         this.activity.load = this.wrapper.load.clone();
       }
@@ -206,14 +256,36 @@
       this.dialogVisible = false;
     }
 
-    split(){
-      this.confirmModification();
+    trySplit(){
+      // this.confirmModification();
       this.isSplitPanel = true;
+
+      this.totalLoad.copy(this.wrapper.load);
+      this.load1.copy(this.wrapper.load);
+      this.load2.copy(new LoadImpl([0]));
+    }
+
+    copyLoad(target: Load, source: Load){
+      for(let i = 0; i < source.size.length; i++){
+        Vue.set(target.size, i, source.size[i])
+      }
+    }
+
+    back(){
+      this.isSplitPanel = false;
+    }
+
+    split(){
+      if(this.activity instanceof ShipmentTourActivity){
+        (<ShipmentTourActivity>this.activity).split(this.load1.cloneAndReverse(), this.load2.cloneAndReverse());
+        this.handleClose();
+      }
     }
 
     handleClose(){
-      this.isSplitPanel = false;
       this.dialogVisible = false;
+      this.isSplitPanel = false;
+
     }
 
     deleteActivity(activity: TourActivity){
@@ -235,8 +307,8 @@
 
     changeTask(e){
       let task = e;
-      this.wrapper.load = task.load.cloneAndReverse();
-      this.wrapper.name = task.name;
+      this.wrapper.load = new LoadImpl([0]);
+      this.wrapper.name = task.name + '-补货';
       this.wrapper.operationTime = task.serviceTime;
       this.wrapper.twStartStr = convertMin2Time(task.startTime);
       this.wrapper.twEndStr = convertMin2Time(task.endTime);
