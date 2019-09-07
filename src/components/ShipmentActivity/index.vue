@@ -6,7 +6,7 @@
         {{activity.name}} ({{activity.load.size[0]}})
       </div>
       <div class="left-bottom-wrapper" v-if="activity.routeUid">
-        {{activity.arriveTimeStr}} <span v-if="type != 'depotTourActivity'">{{activity.startTimeStr}} {{activity.endTimeStr}}</span>
+        <span v-if="type == 'depotTourActivity'"> {{loadTime}} </span> <span v-if="type != 'depotTourActivity'"> {{activity.arriveTimeStr}} {{activity.startTimeStr}} </span> {{activity.endTimeStr}}
       </div>
       <div class="left-bottom-wrapper" v-else>
         {{twStartStr}}-{{twEndStr}}
@@ -78,6 +78,7 @@
   import {convertMin2Time, convertTime2Min} from "../../utils/common"
   import {Route, RoutePool} from "../../engine/domain/Route"
   import ShipmentActivityDialog from "../ShipmentActivityDialog/index"
+  import {Constants} from "../../engine/Constant/Constants"
 
   @Component({
     name: 'ShipmentActivity',
@@ -89,9 +90,16 @@
     private dialogVisible: boolean = false;
     // private wrapper: TourActivityWrapper;
 
-    @Watch('activity', {deep: true})
-    onchanged(){
-      console.log('changed...');
+    get loadTime(){
+      if(this.activity instanceof DepotTourActivity) {
+
+        let theoraticalTime = (<DepotTourActivity>this.activity).isOrigin ? this.activity.endTime - 30 : this.activity.arriveTime;
+
+        if(theoraticalTime > 0)
+          return convertMin2Time(theoraticalTime);
+        else
+          return Constants.WORK_START_TIME;
+      }
     }
 
     constructor() {
@@ -114,6 +122,8 @@
     }
 
     showDialog() {
+      console.log(this.activity.startTime);
+      console.log(this.activity.endTime);
       // this.dialogVisible = true;
       this.$refs.dialog.showDialog();
     }
@@ -160,7 +170,7 @@
   }
 
   .depot-activity-wrapper {
-    width: 80px;
+    width: 96px;
   }
 
   .left-wrapper {

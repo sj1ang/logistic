@@ -1,6 +1,9 @@
 <template>
-  <div v-if="!ready">assembling</div>
-  <scheduler v-else></scheduler>
+  <div class="scheduler-container">
+    <assemblage-panel v-if="step == 0"></assemblage-panel>
+    <mode-selector v-if="step == 1"></mode-selector>
+    <scheduler v-if="step == 2"></scheduler>
+  </div>
 </template>
 
 <script lang="ts">
@@ -12,36 +15,26 @@
   import {TransportCostMatrixManager} from "../../../engine/domain/TransportCostMatrix"
   import {VehiclePool} from "../../../engine/domain/Vehicle"
   import {DriverPool} from "../../../engine/domain/Driver"
+  import ModeSelector from "../../../components/ModeSelector/index"
+  import AssemblagePanel from "../../../components/AssemblagePanel/index"
 
   @Component({
     name: 'Assemblage',
-    components: {Scheduler}
+    components: {AssemblagePanel, ModeSelector, Scheduler}
   })
   export default class extends Vue {
-    productPool: ProductPool;
-    locationPool: MyLocationPool;
-    ready: boolean = false;
+    step: number = 0;
 
-    created(){
-      this.ready = false;
-      this.assembly();
-    }
-
-    assembly(){
-      MyLocationPool.getInstance().fetchLocations()
-        .then(ProductPool.getInstance().fetchProduct)
-        .then(TransportCostMatrixManager.getInstance().fetchTransportCostMatrix)
-        .then(VehiclePool.getInstance().fetchVehicles)
-        .then(DriverPool.getInstance().fetchDrivers)
-        .then(TaskPool.getInstance().fetchTasks).then(res=>{
-          console.log(res);
-          this.ready = true;
-      })
+    moveForward(){
+      if(this.step < 3)
+        this.step ++;
     }
   }
 </script>
 
 <style lang="scss" scoped>
+  .scheduler-container{
 
+  }
 </style>
 

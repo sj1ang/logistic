@@ -4,7 +4,7 @@ import {genUID} from "@/utils/common";
 import {
   ActivityNoticeUpdater, CostUpdater,
   RouteInitUpdater,
-  RouteLoadUpdater, RouteNoticeUpdater,
+  RouteLoadUpdater, RouteNoticeLevelUpdater, RouteNoticeUpdater,
   RouteTimeUpdater,
   UpdaterManager
 } from "@/engine/domain/Updater";
@@ -22,6 +22,8 @@ import {Task} from "@/engine/domain/Task";
 export interface Route extends hasId{
   activities: Array<TourActivity>;
   noticeManager: RouteNoticeManager;
+  // route & activities
+  noticeLevel: number;
   constraintManager: ConstraintManager;
   load: Load;
   driver: Driver | undefined;
@@ -47,6 +49,7 @@ export class RouteImpl implements Route{
 
   activities: Array<TourActivity>;
   noticeManager: RouteNoticeManager;
+  noticeLevel: number;
   uid: string;
   updaterManager: UpdaterManager;
   constraintManager: ConstraintManager;
@@ -71,6 +74,7 @@ export class RouteImpl implements Route{
     this.tasks = new Array<Task>();
     this.updaterManager = new UpdaterManager();
     this.noticeManager = new RouteNoticeManager();
+    this.noticeLevel = 0;
     this.constraintManager = new ConstraintManager();
     this.load = new LoadImpl([0]);
     this.init();
@@ -84,6 +88,7 @@ export class RouteImpl implements Route{
     this.updaterManager.addUpdater(new CostUpdater());
     this.updaterManager.addUpdater(new ActivityNoticeUpdater());
     this.updaterManager.addUpdater(new RouteNoticeUpdater());
+    this.updaterManager.addUpdater(new RouteNoticeLevelUpdater());
     this.constraintManager.addConstraint(new TimeWindowConstraint());
     this.constraintManager.addConstraint(new LoadConstraint());
     this.constraintManager.addConstraint(new DriverAssignmentConstraint());

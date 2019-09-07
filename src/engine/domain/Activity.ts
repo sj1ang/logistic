@@ -132,6 +132,7 @@ export class DepotTourActivity implements TourActivity{
 
   noticeManager: ActivityNoticeManager;
   load: Load;
+  isOrigin: boolean;
 
   constructor(operationTime: number, twStart: number, twEnd: number) {
     this.uid = genUID();
@@ -151,6 +152,8 @@ export class DepotTourActivity implements TourActivity{
     this.noticeManager = new ActivityNoticeManager();
 
     this.load = new LoadImpl([0]);
+
+    this.isOrigin = false;
   }
 
   unassign(): void{

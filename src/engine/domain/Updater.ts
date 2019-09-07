@@ -35,8 +35,12 @@ export class RouteInitUpdater implements Updater{
 
       let ids2Remove: Array<String> = new Array<String>();
       let flag: boolean = false;
-      for (let i in acts) {
+      for (let i = 0; i < acts.length; i++) {
         if (acts[i] instanceof DepotTourActivity) {
+          if(i == 0){
+            (<DepotTourActivity>acts[i]).isOrigin = true;
+          }
+
           if (flag) {
             ids2Remove.push(acts[i].uid);
           }
@@ -58,8 +62,17 @@ export class RouteInitUpdater implements Updater{
     for(let act of route.activities){
       if(act instanceof ShipmentTourActivity){
         let shipmentAct = <ShipmentTourActivity>act;
-        if(shipmentAct.task)
-          route.tasks.push(shipmentAct.task);
+        if(shipmentAct.task) {
+          let index = route.tasks.findIndex(x=>{
+            if(shipmentAct.task) {
+              if (x.uid == shipmentAct.task.uid)
+                return true;
+            }
+          })
+
+          if(index == -1)
+            route.tasks.push(shipmentAct.task);
+        }
       }
     }
 
@@ -239,6 +252,18 @@ export class RouteNoticeUpdater implements Updater{
     //     route.noticeManager.addNotice(<RouteNotice>hardResults[i].notice);
     //   }
     // }
+  }
+}
+
+export class RouteNoticeLevelUpdater implements Updater{
+  update(route: Route): void {
+    let noticeLevel = 0;
+    noticeLevel = route.noticeManager.noticeLevel > noticeLevel ? route.noticeManager.noticeLevel : noticeLevel;
+    for(let i in route.activities){
+      noticeLevel = route.activities[i].noticeManager.noticeLevel > noticeLevel ? route.activities[i].noticeManager.noticeLevel : noticeLevel;
+    }
+
+    route.noticeLevel = noticeLevel;
   }
 }
 

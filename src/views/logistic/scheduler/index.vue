@@ -35,7 +35,7 @@
       <div v-for="(route, index) in routePool.routes">
         <div class="route-wrapper">
           <div
-            :class="['notice-wrapper', {'notice-wrapper-caution': route.noticeManager.noticeLevel == 3}, {'notice-wrapper-error': route.noticeManager.noticeLevel == 5}]"></div>
+            :class="['notice-wrapper', {'notice-wrapper-caution': route.noticeLevel == 3}, {'notice-wrapper-error': route.noticeLevel == 5}]"></div>
           <div style="flex: 1">
             <draggable v-model="routePool.routes[index].activities" group="1" @change="insertActivity($event, index)"
                        style="padding-top: 4px; padding-left: 4px; min-height: 40px; display: flex; flex-wrap: wrap; flex: 1">
@@ -192,7 +192,7 @@
       // this.shipmentPool.addShipmentTourActivity(sta6);
       // })
 
-      this.shipmentPool.initializeShipments();
+      // this.shipmentPool.initializeShipments();
     }
 
     insertActivity(evt, index) {

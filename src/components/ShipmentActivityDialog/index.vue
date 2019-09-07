@@ -63,7 +63,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="补货费用">
+        <el-form-item label="补货费用" v-if="isAdditionalShipmentTourActivity">
           <el-col>
             <el-input type="number" min=0 v-model="additionalFee"></el-input>
           </el-col>
@@ -154,9 +154,9 @@
       super();
       this.taskPool = TaskPool.getInstance();
       this.wrapper = new TourActivityWrapper(this.activity);
+      this.additionalFee = (<AdditionalShipmentTourActivity>this.activity).additionalFee;
       this.loadTitle = Constants.LOAD_TITLE;
       this.tasks = this.taskPool.tasks;
-
 
       this.totalLoad = new LoadImpl([0]);
       this.load1 = new LoadImpl([0]);
@@ -204,6 +204,8 @@
 
       if (this.activity instanceof ShipmentTourActivity) {
         this.activity.load = this.wrapper.load.cloneAndReverse();
+        if(this.activity instanceof AdditionalShipmentTourActivity)
+          (<AdditionalShipmentTourActivity>this.activity).additionalFee = Number.parseFloat(<string>this.additionalFee);
       } else if (this.activity instanceof DepotTourActivity) {
         this.activity.load = this.wrapper.load.clone();
       }
@@ -217,7 +219,6 @@
       if (route) {
         route.updateRoute();
       }
-
     }
 
     confirm() {

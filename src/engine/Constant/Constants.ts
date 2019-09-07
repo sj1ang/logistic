@@ -14,4 +14,6 @@ export class Constants{
   static DELAY_ERROR_CODE: number = 4011;
   static OVERLOAD_CAUTION_CODE: number = 5001;
   static OVERLOAD_ERROR_CODE: number = 5011;
+
+  static WORK_START_TIME: string = "05:00";
 }

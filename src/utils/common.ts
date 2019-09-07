@@ -1,9 +1,11 @@
+import {Constants} from "@/engine/Constant/Constants";
+
 export function genUID(): string {
   var uuid = require('node-uuid');
   return uuid.v1();
 }
 
-let workStartTime = "05:00";
+let workStartTime = Constants.WORK_START_TIME;
 
 export function convertMin2Time(min: number) {
   let a = Math.floor(min / 60);
