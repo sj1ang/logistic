@@ -6,7 +6,7 @@
         <span class= "depot-left-upper-wrapper" v-if="type == 'depotTourActivity'"><svg-icon name="pickup"/></span>
         <span class= "shipment-left-upper-wrapper" v-if="type == 'shipmentTourActivity'"><svg-icon name="delivery"/></span>
         <span class= "additional-left-upper-wrapper" v-if="type == 'additionalShipmentTourActivity'"><svg-icon name="additional"/></span>
-        {{activity.name}} ({{activity.load.size[0]}})
+        {{activity.name}} ({{activity.load.size[0]}}) <span style="font-size: 10px; color: #409EFF" v-if="activity.hasFish"><svg-icon name="fish" v-if="type != 'depotTourActivity'"/></span>
       </div>
       <div class="left-bottom-wrapper" v-if="activity.routeUid">
         <!--<span v-if="type == 'depotTourActivity'"> {{loadTime}} </span> -->
@@ -18,9 +18,9 @@
       </div>
     </div>
     <div class="right-wrapper" v-if="type != 'depotTourActivity'">
-      <div style="height: 28px;line-height: 28px; font-size: 10px; text-align: center; color: #409EFF">
-        <svg-icon name="fish"/>
-      </div>
+      <!--<div style="height: 28px;line-height: 28px; font-size: 10px; text-align: center; color: #409EFF">-->
+        <!--<svg-icon name="fish"/>-->
+      <!--</div>-->
       <div :class="['triangle-wrapper', {'triangle-wrapper-caution': activity.noticeManager.noticeLevel == 3}, {'triangle-wrapper-error': activity.noticeManager.noticeLevel == 5}]"></div>
       <!--{{activity.noticeManager.noticeLevel}}-->
     </div>
@@ -217,7 +217,7 @@
 
   .right-wrapper {
     position: relative;
-    flex: 0 0 40px;
+    flex: 0 0 28px;
   }
 
   .triangle-wrapper{
@@ -239,4 +239,5 @@
     border-top: 8px solid  #C03639;
     border-left: 8px solid #f8f8f8;
   }
+
 </style>

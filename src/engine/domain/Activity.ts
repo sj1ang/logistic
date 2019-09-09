@@ -57,6 +57,7 @@ export class ShipmentTourActivity implements TourActivity{
   load: Load;
 
   task: Task | undefined;
+  hasFish: boolean= false;
 
   constructor(name: string, location: MyLocation | undefined, operationTime: number, twStart: number, twEnd: number, size: Array<number>, task: Task | undefined) {
     this.uid = genUID();

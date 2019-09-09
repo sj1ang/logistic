@@ -48,7 +48,16 @@
           </el-col>
         </el-form-item>
         <el-form-item v-for="(value, index) in wrapper.load.size" :label="loadTitle[index]">
-          <el-col>
+          <div v-if="index == 0 && isShipmentTourActivity">
+            <el-col :span="18">
+              <el-input type="number" min=0 v-model="wrapper.load.size[index]"></el-input>
+            </el-col>
+            <el-col :span="2">&nbsp;</el-col>
+            <el-col :span="4">
+              <el-checkbox v-model="hasFish">含有水产</el-checkbox>
+            </el-col>
+          </div>
+          <el-col v-else>
             <el-input type="number" min=0 v-model="wrapper.load.size[index]"></el-input>
           </el-col>
         </el-form-item>
@@ -155,13 +164,13 @@
     private additionalFee: number = 0;
     private additionalDeliveryReasons: Array<string>;
     private reason: number = 0;
+    private hasFish: boolean = false;
 
 
     constructor() {
       super();
       this.taskPool = TaskPool.getInstance();
       this.wrapper = new TourActivityWrapper(this.activity);
-      this.additionalFee = (<AdditionalShipmentTourActivity>this.activity).additionalFee;
       this.loadTitle = Constants.LOAD_TITLE;
       this.tasks = this.taskPool.tasks;
 
@@ -173,7 +182,15 @@
       this.isAdditionalShipmentTourActivity = this.activity instanceof AdditionalShipmentTourActivity;
 
       this.additionalDeliveryReasons = Constants.ADDITIONAL_DELIVERY_REASONS;
-      this.reason = (<AdditionalShipmentTourActivity>this.activity).reason;
+
+      if(this.isShipmentTourActivity){
+        this.hasFish = (<ShipmentTourActivity>this.activity).hasFish;
+      }
+
+      if(this.isAdditionalShipmentTourActivity) {
+        this.reason = (<AdditionalShipmentTourActivity>this.activity).reason;
+        this.additionalFee = (<AdditionalShipmentTourActivity>this.activity).additionalFee;
+      }
     }
 
     @Watch('activity', {deep: true})
@@ -181,6 +198,7 @@
       this.wrapper = new TourActivityWrapper(this.activity);
       this.additionalFee = 0;
       this.reason = 0;
+      this.hasFish = false;
     }
 
     @Watch('load1', {deep: true})
@@ -202,8 +220,13 @@
     // caution: don't forget to update additional properties
     showDialog() {
       this.wrapper = new TourActivityWrapper(this.activity);
-      this.additionalFee = (<AdditionalShipmentTourActivity>this.activity).additionalFee;
-      this.reason = (<AdditionalShipmentTourActivity>this.activity).reason;
+      if(this.activity instanceof ShipmentTourActivity){
+        this.hasFish = (<ShipmentTourActivity>this.activity).hasFish;
+        if(this.activity instanceof AdditionalShipmentTourActivity) {
+          this.additionalFee = (<AdditionalShipmentTourActivity>this.activity).additionalFee;
+          this.reason = (<AdditionalShipmentTourActivity>this.activity).reason;
+        }
+      }
       this.dialogVisible = true;
     }
 
@@ -211,6 +234,7 @@
       this.wrapper = new TourActivityWrapper(this.activity);
       this.additionalFee = 0;
       this.reason = 0;
+      this.hasFish = false;
       this.dialogVisible = false;
     }
 
@@ -221,6 +245,7 @@
 
       if (this.activity instanceof ShipmentTourActivity) {
         this.activity.load = this.wrapper.load.cloneAndReverse();
+        (<ShipmentTourActivity>this.activity).hasFish = this.hasFish;
         if(this.activity instanceof AdditionalShipmentTourActivity) {
           (<AdditionalShipmentTourActivity>this.activity).additionalFee = Number.parseFloat(<string>this.additionalFee);
           (<AdditionalShipmentTourActivity>this.activity).reason = Number.parseInt(<string>this.reason);
@@ -270,6 +295,7 @@
 
       if (this.activity instanceof ShipmentTourActivity) {
         this.activity.load = this.wrapper.load.cloneAndReverse();
+        (<ShipmentTourActivity>this.activity).hasFish = this.hasFish;
         if(this.activity instanceof AdditionalShipmentTourActivity) {
           (<AdditionalShipmentTourActivity>this.activity).additionalFee = Number.parseFloat(<string>this.additionalFee);
           (<AdditionalShipmentTourActivity>this.activity).reason = Number.parseInt(<string>this.reason);
@@ -435,5 +461,13 @@
   .triangle-wrapper-error {
     border-top: 8px solid #C03639;
     border-left: 8px solid #f8f8f8;
+  }
+
+  .el-checkbox{
+    font-weight: 400;
+  }
+
+  .el-radio{
+    font-weight: 400;
   }
 </style>
