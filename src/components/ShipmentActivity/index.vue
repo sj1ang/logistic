@@ -2,17 +2,25 @@
   <div :class="type != 'depotTourActivity' ? 'activity-wrapper' : 'activity-wrapper depot-activity-wrapper'"
        @click="showDialog">
     <div class="left-wrapper">
-      <div class="left-upper-wrapper">
+      <div :class="['left-upper-wrapper']">
+        <span class= "depot-left-upper-wrapper" v-if="type == 'depotTourActivity'"><svg-icon name="pickup"/></span>
+        <span class= "shipment-left-upper-wrapper" v-if="type == 'shipmentTourActivity'"><svg-icon name="delivery"/></span>
+        <span class= "additional-left-upper-wrapper" v-if="type == 'additionalShipmentTourActivity'"><svg-icon name="additional"/></span>
         {{activity.name}} ({{activity.load.size[0]}})
       </div>
       <div class="left-bottom-wrapper" v-if="activity.routeUid">
-        <span v-if="type == 'depotTourActivity'"> {{loadTime}} </span> <span v-if="type != 'depotTourActivity'"> {{activity.arriveTimeStr}} {{activity.startTimeStr}} </span> {{activity.endTimeStr}}
+        <!--<span v-if="type == 'depotTourActivity'"> {{loadTime}} </span> -->
+        {{activity.arriveTimeStr}}
+        <span v-if="type != 'depotTourActivity'"> {{activity.startTimeStr}} </span> {{activity.endTimeStr}}
       </div>
       <div class="left-bottom-wrapper" v-else>
         {{twStartStr}}-{{twEndStr}}
       </div>
     </div>
     <div class="right-wrapper" v-if="type != 'depotTourActivity'">
+      <div style="height: 28px;line-height: 28px; font-size: 10px; text-align: center; color: #409EFF">
+        <svg-icon name="fish"/>
+      </div>
       <div :class="['triangle-wrapper', {'triangle-wrapper-caution': activity.noticeManager.noticeLevel == 3}, {'triangle-wrapper-error': activity.noticeManager.noticeLevel == 5}]"></div>
       <!--{{activity.noticeManager.noticeLevel}}-->
     </div>
@@ -73,7 +81,7 @@
     DepotTourActivity,
     ShipmentTourActivity,
     TourActivityWrapper,
-    TourActivity
+    TourActivity, AdditionalShipmentTourActivity
   } from '../../engine/domain/Activity'
   import {convertMin2Time, convertTime2Min} from "../../utils/common"
   import {Route, RoutePool} from "../../engine/domain/Route"
@@ -108,6 +116,9 @@
         this.type = "depotTourActivity";
       } else if (this.activity instanceof ShipmentTourActivity) {
         this.type = "shipmentTourActivity";
+        if(this.activity instanceof AdditionalShipmentTourActivity){
+          this.type = "additionalShipmentTourActivity"
+        }
       }
 
       // this.wrapper = new TourActivityWrapper(this.activity);
@@ -183,6 +194,18 @@
     flex: 1;
     line-height: 16px;
     font-size: 12px;
+  }
+
+  .depot-left-upper-wrapper{
+    color: #4AB7BD;
+  }
+
+  .shipment-left-upper-wrapper{
+    color: #E6A23C;
+  }
+
+  .additional-left-upper-wrapper{
+    color: #E65D6E;
   }
 
   .left-bottom-wrapper {

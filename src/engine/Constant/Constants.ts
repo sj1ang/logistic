@@ -16,4 +16,8 @@ export class Constants{
   static OVERLOAD_ERROR_CODE: number = 5011;
 
   static WORK_START_TIME: string = "05:00";
+
+  static ADDITIONAL_DELIVERY_REASONS = ['客户加单','退换货品','二次补货'];
+  static FIRST_TIME_PICKUP_OPERATION_TIME = 30;
+  static REPICKUP_OPERATION_TIME = 15;
 }

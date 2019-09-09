@@ -107,6 +107,7 @@ export class ShipmentTourActivity implements TourActivity{
 
 export class AdditionalShipmentTourActivity extends ShipmentTourActivity{
   additionalFee: number = 0;
+  reason: number = 0;
 }
 
 export class DepotTourActivity implements TourActivity{

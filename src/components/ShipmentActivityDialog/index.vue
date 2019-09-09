@@ -68,6 +68,11 @@
             <el-input type="number" min=0 v-model="additionalFee"></el-input>
           </el-col>
         </el-form-item>
+        <el-form-item label="补货原因" v-if="isAdditionalShipmentTourActivity">
+          <el-col>
+            <el-radio v-for="(item, index) in additionalDeliveryReasons" :label="index" v-model="reason">{{item}}</el-radio>
+          </el-col>
+        </el-form-item>
         <el-form-item>
           <div style="display: flex; justify-content: space-between">
             <el-popover
@@ -148,6 +153,8 @@
     private isShipmentTourActivity: boolean;
     private isAdditionalShipmentTourActivity: boolean;
     private additionalFee: number = 0;
+    private additionalDeliveryReasons: Array<string>;
+    private reason: number = 0;
 
 
     constructor() {
@@ -164,11 +171,16 @@
 
       this.isShipmentTourActivity = this.activity instanceof ShipmentTourActivity;
       this.isAdditionalShipmentTourActivity = this.activity instanceof AdditionalShipmentTourActivity;
+
+      this.additionalDeliveryReasons = Constants.ADDITIONAL_DELIVERY_REASONS;
+      this.reason = (<AdditionalShipmentTourActivity>this.activity).reason;
     }
 
     @Watch('activity', {deep: true})
     onActivityChanged() {
       this.wrapper = new TourActivityWrapper(this.activity);
+      this.additionalFee = 0;
+      this.reason = 0;
     }
 
     @Watch('load1', {deep: true})
@@ -187,13 +199,18 @@
       }
     }
 
+    // caution: don't forget to update additional properties
     showDialog() {
       this.wrapper = new TourActivityWrapper(this.activity);
+      this.additionalFee = (<AdditionalShipmentTourActivity>this.activity).additionalFee;
+      this.reason = (<AdditionalShipmentTourActivity>this.activity).reason;
       this.dialogVisible = true;
     }
 
     cancel() {
       this.wrapper = new TourActivityWrapper(this.activity);
+      this.additionalFee = 0;
+      this.reason = 0;
       this.dialogVisible = false;
     }
 
@@ -204,8 +221,12 @@
 
       if (this.activity instanceof ShipmentTourActivity) {
         this.activity.load = this.wrapper.load.cloneAndReverse();
-        if(this.activity instanceof AdditionalShipmentTourActivity)
+        if(this.activity instanceof AdditionalShipmentTourActivity) {
           (<AdditionalShipmentTourActivity>this.activity).additionalFee = Number.parseFloat(<string>this.additionalFee);
+          (<AdditionalShipmentTourActivity>this.activity).reason = Number.parseInt(<string>this.reason);
+
+          console.log(this.activity);
+        }
       } else if (this.activity instanceof DepotTourActivity) {
         this.activity.load = this.wrapper.load.clone();
       }
@@ -238,14 +259,21 @@
       this.activity.twEnd = convertTime2Min(this.wrapper.twEndStr);
       this.activity.operationTime = Number.parseInt(<string>this.wrapper.operationTime);
 
-      if(this.activity instanceof ShipmentTourActivity){
-        (<ShipmentTourActivity>this.activity).task = this.wrapper.task;
+      if(this.activity instanceof ShipmentTourActivity && this.wrapper.task){
+        let task = this.wrapper.task;
+        let sta = (<ShipmentTourActivity>this.activity);
+
+        sta.task = task;
+        sta.locationId = task.location.id;
+        sta.location = task.location;
       }
 
       if (this.activity instanceof ShipmentTourActivity) {
         this.activity.load = this.wrapper.load.cloneAndReverse();
-        if(this.activity instanceof AdditionalShipmentTourActivity)
+        if(this.activity instanceof AdditionalShipmentTourActivity) {
           (<AdditionalShipmentTourActivity>this.activity).additionalFee = Number.parseFloat(<string>this.additionalFee);
+          (<AdditionalShipmentTourActivity>this.activity).reason = Number.parseInt(<string>this.reason);
+        }
       } else if (this.activity instanceof DepotTourActivity) {
         this.activity.load = this.wrapper.load.clone();
       }
@@ -311,8 +339,8 @@
       this.wrapper.load = new LoadImpl([0]);
       this.wrapper.name = task.name + '-补货';
       this.wrapper.operationTime = task.serviceTime;
-      this.wrapper.twStartStr = convertMin2Time(task.startTime);
-      this.wrapper.twEndStr = convertMin2Time(task.endTime);
+      // this.wrapper.twStartStr = convertMin2Time(task.startTime);
+      // this.wrapper.twEndStr = convertMin2Time(task.endTime);
     }
 
     private validateTWEndStr = (rule: any, value: string, callback: Function) => {

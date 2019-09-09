@@ -11,6 +11,7 @@ import {ActivityNotice, RouteNotice} from "@/engine/domain/Notice";
 import {LoadImpl} from "@/engine/domain/Load";
 import {Task} from "@/engine/domain/Task";
 import {Vehicle} from "@/engine/domain/Vehicle";
+import {Constants} from "@/engine/Constant/Constants";
 
 export interface Updater {
   update(route: Route): void;
@@ -39,6 +40,9 @@ export class RouteInitUpdater implements Updater{
         if (acts[i] instanceof DepotTourActivity) {
           if(i == 0){
             (<DepotTourActivity>acts[i]).isOrigin = true;
+            acts[i].operationTime = Constants.FIRST_TIME_PICKUP_OPERATION_TIME;
+          }else{
+            acts[i].operationTime = Constants.REPICKUP_OPERATION_TIME;
           }
 
           if (flag) {
@@ -59,6 +63,7 @@ export class RouteInitUpdater implements Updater{
 
     route.tasks = new Array<Task>();
 
+    //update task
     for(let act of route.activities){
       if(act instanceof ShipmentTourActivity){
         let shipmentAct = <ShipmentTourActivity>act;
@@ -104,7 +109,7 @@ export class RouteTimeUpdater implements Updater{
         if(acts[i].arriveTime < acts[i].startTime) {
           acts[i].arriveTime = acts[i].startTime;
           acts[i - 1].endTime = acts[i].arriveTime - duration;
-          acts[i - 1].startTime = acts[i - 1].endTime - acts[i - 1].operationTime;
+          acts[i - 1].startTime = acts[i - 1].endTime - acts[i - 1].operationTime > 0 ? acts[i - 1].endTime - acts[i - 1].operationTime : 0;
           acts[i - 1].arriveTime = acts[i - 1].startTime;
 
           this.convertTime2Str(acts[i - 1]);
