@@ -26,18 +26,28 @@
     <div class="driver-summary-wrapper">
       无投诉
     </div>
+    <div>
+      <el-button size="mini" type="danger" style="width: 100%; height: 32px" @click="switchDriverPenaltyDialog">司机考核</el-button>
+    </div>
+    <driver-penalty-dialog ref="driverPenaltyDialog"></driver-penalty-dialog>
   </div>
 </template>
 
 <script lang="ts">
   import {Component, Prop, Vue} from 'vue-property-decorator'
   import {Driver} from '../../engine/domain/Driver'
+  import DriverPenaltyDialog from "../DriverPenaltyDialog/index"
 
   @Component({
-    name: 'DriverPanel'
+    name: 'DriverPanel',
+    components: {DriverPenaltyDialog}
   })
   export default class extends Vue {
     @Prop() private driver: Driver
+
+    switchDriverPenaltyDialog(){
+      this.$refs.driverPenaltyDialog.showDialog();
+    }
   }
 </script>
 
@@ -76,7 +86,7 @@
   .driver-summary-wrapper{
     height: 24px;
     background: #f5f5f5;
-    margin-top: 4px;
+    margin-bottom: 4px;
     font-size: 12px;
     color: #909399;
     line-height: 16px;

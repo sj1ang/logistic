@@ -2,6 +2,7 @@ import {ShipmentTourActivity, TourActivity} from "@/engine/domain/Activity";
 import {MyLocationPool} from "@/engine/domain/MyLocation";
 import {TaskPool} from "@/engine/domain/Task";
 import {Load, LoadImpl} from "@/engine/domain/Load";
+import {genUID} from "@/utils/common";
 
 // export interface ShipmentPool {
 //   shipments: Array<TourActivity>;
@@ -46,7 +47,7 @@ export class ShipmentPool{
       if(task.location) {
         let load: Load = task.load;
 
-        let activity = new ShipmentTourActivity(task.name, task.location, task.serviceTime, task.startTime, task.endTime, load.size, task);
+        let activity = new ShipmentTourActivity(task.name, task.location, task.serviceTime, task.startTime, task.endTime, load.size, task, genUID());
 
         ShipmentPool.getInstance().addShipmentTourActivity(activity);
       }

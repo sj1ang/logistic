@@ -136,7 +136,7 @@
 
   .load-index-error{
     width: 100%;
-    background: #C03639;
+    background: #F56C6C;
   }
 
   .driver-list-wrapper{

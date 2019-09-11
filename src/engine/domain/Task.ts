@@ -84,7 +84,6 @@ export class TaskPool{
       for(let i in res){
         let tmp = res[i];
         let tmpSubTasks = res[i].subTasks;
-        console.log(tmp);
         let serviceTime = tmp.requirement.serviceTime;
         let startTime = convertTime2Min(tmp.requirement.startTime);
         let endTime = convertTime2Min(tmp.requirement.endTime);

@@ -4,9 +4,11 @@
     <div class="left-wrapper">
       <div :class="['left-upper-wrapper']">
         <span class= "depot-left-upper-wrapper" v-if="type == 'depotTourActivity'"><svg-icon name="pickup"/></span>
-        <span class= "shipment-left-upper-wrapper" v-if="type == 'shipmentTourActivity'"><svg-icon name="delivery"/></span>
-        <span class= "additional-left-upper-wrapper" v-if="type == 'additionalShipmentTourActivity'"><svg-icon name="additional"/></span>
-        {{activity.name}} ({{activity.load.size[0]}}) <span style="font-size: 10px; color: #409EFF" v-if="activity.hasFish"><svg-icon name="fish" v-if="type != 'depotTourActivity'"/></span>
+        <span class= "shipment-left-upper-wrapper" v-if="type == 'shipmentTourActivity' && !activity.hasFish"><svg-icon name="pickup"/></span>
+        <span class= "additional-left-upper-wrapper" v-if="type == 'additionalShipmentTourActivity' && !activity.hasFish"><svg-icon name="pickup"/></span>
+        <span class= "fish-left-upper-wrapper" v-if="activity.hasFish"><svg-icon name="pickup"/></span>
+        {{activity.name}} ({{activity.load.size[0]}})
+        <!--<span style="font-size: 10px; color: #409EFF" v-if="activity.hasFish"><svg-icon name="fish" v-if="type != 'depotTourActivity'"/></span>-->
       </div>
       <div class="left-bottom-wrapper" v-if="activity.routeUid">
         <!--<span v-if="type == 'depotTourActivity'"> {{loadTime}} </span> -->
@@ -208,6 +210,10 @@
     color: #E65D6E;
   }
 
+  .fish-left-upper-wrapper{
+    color: #409EFF;
+  }
+
   .left-bottom-wrapper {
     flex: 0 0 12px;
     line-height: 12px;
@@ -236,7 +242,7 @@
   }
 
   .triangle-wrapper-error{
-    border-top: 8px solid  #C03639;
+    border-top: 8px solid  #F56C6C;
     border-left: 8px solid #f8f8f8;
   }
 

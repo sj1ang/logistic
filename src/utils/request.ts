@@ -14,6 +14,10 @@ service.interceptors.request.use(
     if (UserModule.token) {
       config.headers['X-Access-Token'] = UserModule.token
     }
+
+    config.headers["Content-Type"] = "application/json";
+    config.headers.Accept = "application/json";
+
     return config
   },
   (error) => {

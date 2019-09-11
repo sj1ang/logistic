@@ -68,8 +68,9 @@ export class RouteImpl implements Route{
   tasks: Array<Task>;
   additionalFee: number = 0;
 
-  constructor(){
-    this.uid = genUID();
+  constructor(uid: string){
+    // this.uid = genUID();
+    this.uid = uid;
     this.activities = new Array<TourActivity>();
     this.tasks = new Array<Task>();
     this.updaterManager = new UpdaterManager();
@@ -81,7 +82,7 @@ export class RouteImpl implements Route{
   }
 
   init(){
-    this.activities.push(new DepotTourActivity(0, 0, Number.MAX_VALUE));
+    this.activities.push(new DepotTourActivity(0, 0, Number.MAX_VALUE, genUID()));
     this.updaterManager.addUpdater(new RouteInitUpdater());
     this.updaterManager.addUpdater(new RouteTimeUpdater());
     this.updaterManager.addUpdater(new RouteLoadUpdater());
@@ -102,7 +103,7 @@ export class RouteImpl implements Route{
   }
 
   addDepotTourActivity(index: number): void{
-    this.activities.splice(index, 0, new DepotTourActivity(0, 0, Number.MAX_VALUE));
+    this.activities.splice(index, 0, new DepotTourActivity(0, 0, Number.MAX_VALUE, genUID()));
   }
 
   deleteTourActivity(activity: TourActivity): number{
@@ -152,7 +153,7 @@ export class RoutePool{
   }
 
   addRoute(): Route{
-    let route: Route = new RouteImpl();
+    let route: Route = new RouteImpl(genUID());
     this.routes.push(route);
 
     return route;

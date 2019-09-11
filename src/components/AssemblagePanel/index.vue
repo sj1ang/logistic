@@ -4,10 +4,13 @@
       <el-radio v-model="type" label="order">按当日订单装框（计划排线）</el-radio>
     </div>
     <div class="option-wrapper">
-      <el-radio v-model="type" label="delivery">按当日发货单装框</el-radio>
+      <el-radio v-model="type" label="delivery">按当日发货单装框（套用排线计划）</el-radio>
     </div>
     <div class="option-wrapper">
-      <el-radio v-model="type" label="other-delivery">按指定日期发货单装框</el-radio>
+      <el-radio v-model="type" label="template">生成模拟装框（创建模板）</el-radio>
+    </div>
+    <div class="option-wrapper">
+      <el-radio v-model="type" label="scenario" @click="fetchScenario">导入Scenario（修改已有的物流清单）</el-radio>
     </div>
     <div class="option-wrapper" style="text-align: right; margin-top: 40px">
       <el-button size="mini" style="width: 100%" type="primary" @click="assembleTask">执行</el-button>
@@ -23,6 +26,9 @@
   import {VehiclePool} from "../../engine/domain/Vehicle"
   import {DriverPool} from "../../engine/domain/Driver"
   import {TaskPool} from "../../engine/domain/Task"
+  import {getScenario} from "../../api"
+  import {Scenario} from '../../engine/domain/Scenario'
+  import {ScenarioHandler} from "../../engine/domain/ScenarioHandler"
 
   @Component({
     name: 'AssemblagePanel'
@@ -59,6 +65,11 @@
       // })
     }
 
+    fetchScenario(): Promise{
+      let params = {'params': {id: 1}};
+      return new ScenarioHandler().fetchScenario(params);
+    }
+
     assembleTask(){
       const loading = this.$loading({
         lock: true,
@@ -71,6 +82,8 @@
 
       if(this.type == 'order'){
         promise = this.assembleOrderTask();
+      }else if(this.type = 'scenario'){
+        promise = this.fetchScenario();
       }
 
       if(promise) {
@@ -83,6 +96,10 @@
         console.log("error!");
         loading.close();
       }
+    }
+
+    importScenario(){
+
     }
   }
 </script>

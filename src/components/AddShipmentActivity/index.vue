@@ -1,7 +1,14 @@
 <template>
   <div>
-    <div class="function-button" @click="switchShipmentDialog"></div>
-    <div class="function-button" @click="switchConfigurationDialog"></div>
+    <div class="function-button" @click="switchShipmentDialog">
+      <i class="el-icon-circle-plus"></i>
+    </div>
+    <div class="function-button" @click="switchConfigurationDialog">
+      <i class="el-icon-info"></i>
+    </div>
+    <div class="function-button" @click="saveScenario">
+      <i class="el-icon-upload"></i>
+    </div>
     <shipment-activity-dialog :activity="activity" :type="'insertion'" ref="shipmentDialog"></shipment-activity-dialog>
     <configuration-dialog ref="configurationDialog"></configuration-dialog>
   </div>
@@ -16,6 +23,8 @@
   import {genUID} from "../../utils/common"
   import {TaskPool} from "../../engine/domain/Task"
   import ConfigurationDialog from "../ConfigurationDialog/index"
+  import {ScenarioDTO, ScenarioImpl} from '../../engine/domain/Scenario'
+  import {postScenario} from "../../api"
 
   @Component({
     name: 'AddShipmentActivity',
@@ -26,17 +35,25 @@
 
     constructor(){
       super();
-      this.activity = new AdditionalShipmentTourActivity("新建任务", null, 0, 0, 720, [0], undefined);
+      this.activity = new AdditionalShipmentTourActivity("新建任务", null, 0, 0, 720, [0], undefined, genUID());
     }
 
     switchShipmentDialog(): void{
-      this.activity = new AdditionalShipmentTourActivity("新建任务", null, 0, 0, 720, [0], undefined);
+      this.activity = new AdditionalShipmentTourActivity("新建任务", null, 0, 0, 720, [0], undefined, genUID());
       this.$refs.shipmentDialog.showDialog();
     }
 
     switchConfigurationDialog(): void{
       console.log('switching...');
       this.$refs.configurationDialog.showDialog();
+    }
+
+    saveScenario(): void{
+      let scenario = new ScenarioImpl();
+      let scenarioDTO = new ScenarioDTO(scenario);
+      console.log(JSON.stringify(scenarioDTO));
+      let params = JSON.stringify(scenarioDTO);
+      postScenario(params);
     }
   }
 </script>
@@ -47,5 +64,9 @@
     width: 32px;
     background: #d8d8d8;
     margin: 4px;
+    line-height: 32px;
+    text-align: center;
+    font-size: 20px;
+    color: #ffffff;
   }
 </style>

@@ -97,7 +97,7 @@
             </el-popover>
             <div>
               <el-button @click="cancel">取消</el-button>
-              <el-button @click="trySplit" type="warning" v-if="type == 'modification' && isShipmentTourActivity && !isAdditionalShipmentTourActivity">拆分</el-button>
+              <el-button @click="trySplit" type="primary" v-if="type == 'modification' && isShipmentTourActivity && !isAdditionalShipmentTourActivity">拆分</el-button>
               <el-button type="primary" @click="confirm" v-if="type == 'modification'">修改</el-button>
               <el-button type="primary" @click="insert" v-if="type == 'insertion'">新增</el-button>
             </div>
@@ -459,7 +459,7 @@
   }
 
   .triangle-wrapper-error {
-    border-top: 8px solid #C03639;
+    border-top: 8px solid #F56C6C;
     border-left: 8px solid #f8f8f8;
   }
 

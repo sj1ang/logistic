@@ -19,15 +19,15 @@
             <add-shipment-activity></add-shipment-activity>
           </div>
           <!--<add-shipment-activity></add-shipment-activity>-->
-          <div class="setting-button" @click="addShipmentTourActivity">
-            +
-          </div>
+          <!--<div class="setting-button" @click="addShipmentTourActivity">-->
+            <!--+-->
+          <!--</div>-->
           <div class="setting-button" @click="tryFun">
             try
           </div>
-          <div class="setting-button" @click="editVehicles">
-            vcl
-          </div>
+          <!--<div class="setting-button" @click="editVehicles">-->
+            <!--vcl-->
+          <!--</div>-->
         </div>
       </div>
     </sticky>
@@ -73,7 +73,7 @@
           </div>
           <div class="route-detail-right-wrapper">
             <driver-panel :driver="route.driver" v-if="route.driver"></driver-panel>
-            <div style="font-size: 12px; height: 24px; background: #f5f5f5; line-height: 16px; padding: 4px" v-else>请分配司机</div>
+            <div style="font-size: 12px; height: 32px; background: #f5f5f5; line-height: 24px; padding: 4px" v-else>请分配司机</div>
           </div>
         </div>
       </div>
@@ -199,11 +199,11 @@
       this.routePool.getRoute(index).updateRoute();
     }
 
-    addShipmentTourActivity() {
-      let l = this.locationPool.getLocation(1);
-      let tourActivity = new ShipmentTourActivity("新建任务" + l.id, l, 1, 0, 100, [-1], undefined);
-      this.shipmentPool.addShipmentTourActivity(tourActivity);
-    }
+    // addShipmentTourActivity() {
+    //   let l = this.locationPool.getLocation(1);
+    //   let tourActivity = new ShipmentTourActivity("新建任务" + l.id, l, 1, 0, 100, [-1], undefined);
+    //   this.shipmentPool.addShipmentTourActivity(tourActivity);
+    // }
 
     addTourActivity2ShipmentPool() {
       this.shipmentPool.update();
@@ -217,9 +217,9 @@
 
     }
 
-    editVehicles() {
-
-    }
+    // editVehicles() {
+    //
+    // }
 
     switchDetail(route: Route){
       route.showDetail = !route.showDetail;
@@ -310,7 +310,7 @@
   }
 
   .notice-wrapper-error {
-    background: #C03639;
+    background: #F56C6C;
   }
 
   .expand-icon-wrapper {
@@ -321,7 +321,7 @@
   }
 
   .route-detail-wrapper{
-    max-height: 160px;
+    max-height: 256px;
     background: #ffffff;
     display: flex;
   }

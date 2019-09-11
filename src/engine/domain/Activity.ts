@@ -59,8 +59,9 @@ export class ShipmentTourActivity implements TourActivity{
   task: Task | undefined;
   hasFish: boolean= false;
 
-  constructor(name: string, location: MyLocation | undefined, operationTime: number, twStart: number, twEnd: number, size: Array<number>, task: Task | undefined) {
-    this.uid = genUID();
+  constructor(name: string, location: MyLocation | undefined, operationTime: number, twStart: number, twEnd: number, size: Array<number>, task: Task | undefined, uid: string) {
+    // this.uid = genUID();
+    this.uid = uid;
     this.name = name;
     this.location = location;
     this.locationId = this.location ? this.location.id : -1;
@@ -100,7 +101,7 @@ export class ShipmentTourActivity implements TourActivity{
         route.updateRoute();
     }
 
-    let newAct = new ShipmentTourActivity(this.name, this.location, this.operationTime, this.twStart, this.twEnd, load2.size, this.task);
+    let newAct = new ShipmentTourActivity(this.name, this.location, this.operationTime, this.twStart, this.twEnd, load2.size, this.task, genUID());
     ShipmentPool.getInstance().addShipmentTourActivity(newAct);
   }
 
@@ -136,8 +137,9 @@ export class DepotTourActivity implements TourActivity{
   load: Load;
   isOrigin: boolean;
 
-  constructor(operationTime: number, twStart: number, twEnd: number) {
-    this.uid = genUID();
+  constructor(operationTime: number, twStart: number, twEnd: number, uid: string) {
+    // this.uid = genUID();
+    this.uid = uid;
     this.name = "加工中心";
     this.location = MyLocationPool.getInstance().getLocation(0);
     if(this.location) {
