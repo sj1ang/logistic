@@ -37,10 +37,16 @@ export class ProductPool{
     this.map.set(product.code, product);
   }
 
+  static cleanPool(): void{
+    this.instance = new ProductPool();
+  }
+
   fetchProduct(){
     let params = {};
 
     return getProducts(params).then(res => {
+      ProductPool.cleanPool();
+
       for(let p in res){
         let product : Product = new ProductImpl(res[p].prodCode, res[p].prodName, res[p].unit);
         ProductPool.getInstance().addProduct(product);

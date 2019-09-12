@@ -20,4 +20,8 @@ export class Constants{
   static ADDITIONAL_DELIVERY_REASONS = ['客户加单','退换货品','二次补货'];
   static FIRST_TIME_PICKUP_OPERATION_TIME = 30;
   static REPICKUP_OPERATION_TIME = 15;
+
+  static DEPOT_ACTIVITY_TYPE = 'dta';
+  static SHIPMENT_ACTIVITY_TYPE = 'sta';
+  static ADDITIONAL_SHIPMENT_ACTIVITY_TYPE = 'asta';
 }

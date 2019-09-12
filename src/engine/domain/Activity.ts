@@ -3,9 +3,10 @@ import {hasId} from "@/engine/domain/Id";
 import {MyLocation, MyLocationPool} from "@/engine/domain/MyLocation";
 import {ActivityCaution, ActivityNoticeManager} from "@/engine/domain/Notice";
 import {Load, LoadImpl} from "@/engine/domain/Load";
-import {Task} from "@/engine/domain/Task";
+import {Task, TaskPool} from "@/engine/domain/Task";
 import {ShipmentPool} from "@/engine/domain/ShipmentPool";
 import {RoutePool} from "@/engine/domain/Route";
+import {Constants} from "@/engine/Constant/Constants";
 
 export interface TourActivity extends hasId{
   uid: string;
@@ -175,6 +176,21 @@ export class DepotTourActivity implements TourActivity{
   }
 
 
+}
+
+export class ActivityFactory4Scenario{
+  static generateActivity(source: any): TourActivity | undefined{
+    let activity = undefined;
+    let type = source.activityType;
+    if(type == Constants.DEPOT_ACTIVITY_TYPE){
+      activity = new DepotTourActivity(source.operationTime, source.twStart, source.twEnd, source.uid);
+    }else if(type == Constants.SHIPMENT_ACTIVITY_TYPE || type == Constants.ADDITIONAL_SHIPMENT_ACTIVITY_TYPE){
+      let location = MyLocationPool.getInstance().getLocation(source.locationId);
+      let task = TaskPool.getInstance().getTask(source.task.uid);
+      activity = new ShipmentTourActivity(source.name, location, source.operationTime, source.twStart, source.twEnd, source.load.size, task, source.uid);
+    }
+    return activity;
+  }
 }
 
 export class TourActivityWrapper{

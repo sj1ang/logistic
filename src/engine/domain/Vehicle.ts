@@ -82,14 +82,28 @@ export class VehiclePool{
     return vehicle;
   }
 
+  static cleanPool(): void{
+    this.instance = new VehiclePool();
+  }
+
   fetchVehicles(){
     let params = {};
     return getVehicles(params).then(res=>{
+      VehiclePool.cleanPool();
+
       for(let i in res){
         let row = res[i];
         VehiclePool.getInstance().createVehicle(row.name, row.fixedCost, row.distanceCost, row.serviceCost, row.idleTimeCost, row.load.size, row.uid);
       }
       return Promise.resolve('vehicles fetched successfully...');
     })
+  }
+
+  assembleVehiclesFromScenario(scenario: any){
+    let vehicles = scenario.vehicles;
+    for(let i in vehicles){
+      let vehicle = vehicles[i];
+      VehiclePool.getInstance().createVehicle(vehicle.name, vehicle.fixedCost, vehicle.distanceCost, vehicle.serviceCost, vehicle.idleTimeCost, vehicle.capacity.size, vehicle.uid)
+    }
   }
 }

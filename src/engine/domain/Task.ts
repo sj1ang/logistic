@@ -69,6 +69,12 @@ export class TaskPool{
     this.tasks.push(task);
   }
 
+  getTask(uid: string): Task | undefined{
+    return this.tasks.find(x=>{
+      return x.uid == uid;
+    })
+  }
+
   createTask(locationId: number): Task{
     let task = new TaskImpl(locationId, 0, 0, 0);
     this.addTask(task);
@@ -76,11 +82,17 @@ export class TaskPool{
     return task;
   }
 
+  static cleanPool(): void{
+    this.instance = new TaskPool();
+  }
+
   fetchTasks() {
     console.log("start fetching tasks...")
     let params: any = {};
 
     return getTasks(params).then(res=>{
+      TaskPool.cleanPool();
+
       for(let i in res){
         let tmp = res[i];
         let tmpSubTasks = res[i].subTasks;
@@ -126,5 +138,16 @@ export class TaskPool{
 
       return Promise.resolve("tasks fetched successfully!");
     });
+  }
+
+  assembleTasksFromScenario(scenario: any){
+    TaskPool.cleanPool();
+
+    let tasks = scenario.tasks;
+    for(let i in tasks){
+      let task = tasks[i];
+      task.location = MyLocationPool.getInstance().getLocation(task.location.id);
+      TaskPool.getInstance().addTask(task);
+    }
   }
 }

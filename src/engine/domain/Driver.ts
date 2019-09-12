@@ -17,6 +17,8 @@ export interface Driver extends hasId{
   cancel(route: Route): void;
   assignVehicle(vehicle: Vehicle): void;
   addAvailableVehicle(vehicle: Vehicle): void;
+  emptyVehicles(): void;
+  addRouteUids(uid: string): void;
 }
 
 export class DriverImpl implements Driver{
@@ -68,11 +70,19 @@ export class DriverImpl implements Driver{
     this.routeUids.delete(route.uid);
   }
 
+  emptyVehicles(){
+    this.availableVehicles = new Array<Vehicle>();
+  }
+
   addAvailableVehicle(vehicle: Vehicle): void {
     if(this.availableVehicles.length == 0){
       this.vehicle = vehicle;
     }
     this.availableVehicles.push(vehicle);
+  }
+
+  addRouteUids(uid: string){
+    this.routeUids.add(uid);
   }
 
   // caution!
@@ -120,9 +130,19 @@ export class DriverPool{
     return driver;
   }
 
+  addDriver(driver: Driver){
+    this.drivers.push(driver);
+  }
+
+  static cleanPool(): void{
+    this.instance = new DriverPool();
+  }
+
   fetchDrivers(){
     let params = {};
     return getDrivers(params).then(res=>{
+      DriverPool.cleanPool();
+
       for(let i in res){
         let row = res[i];
         let driver = DriverPool.getInstance().createDriver(row.name, row.uid);
@@ -137,5 +157,35 @@ export class DriverPool{
 
       return Promise.resolve('drivers fetched successfully')
     });
+  }
+
+  assembleDriversFromScenario(scenario: any){
+    DriverPool.cleanPool();
+
+    let drivers = scenario.drivers;
+    for(let i in drivers){
+      let tmp = drivers[i];
+
+      let driver = DriverPool.getInstance().createDriver(tmp.name, tmp.uid);
+      let tmpVehicles = tmp.availableVehicles;
+      for(let j in tmpVehicles){
+        let vehicleUid = tmpVehicles[j].uid;
+        let vehicle = VehiclePool.getInstance().getVehicle(vehicleUid);
+        if(vehicle){
+          driver.addAvailableVehicle(vehicle);
+        }
+      }
+      driver.isAvailable = tmp.isAvailable;
+      for(let k in tmp.routeUids){
+        driver.addRouteUids(tmp.routeUids[k]);
+      }
+
+      let assignedVehicle = VehiclePool.getInstance().getVehicle(tmp.vehicle.uid);
+      if(assignedVehicle)
+        driver.assignVehicle(assignedVehicle);
+
+      driver.workStart = tmp.workStart;
+      driver.workEnd = tmp.workEnd;
+    }
   }
 }

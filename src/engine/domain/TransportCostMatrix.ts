@@ -64,9 +64,14 @@ export class TransportCostMatrixManager implements DistanceTransportCostMatrix, 
     return duration;
   }
 
+  static cleanManager(): void{
+    this.instance = new TransportCostMatrixManager();
+  }
+
   fetchTransportCostMatrix(){
     let params = {};
     return getTransportCosts(params).then(res=>{
+      TransportCostMatrixManager.cleanManager();
       for(let i in res){
         let row = res[i];
         TransportCostMatrixManager.getInstance().putDuration(row.fromId, row.toId, Math.ceil(row.duration));

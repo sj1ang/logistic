@@ -29,6 +29,11 @@
       if(this.step < 3)
         this.step ++;
     }
+
+    moveTwoSteps(){
+      if(this.step < 2)
+        this.step += 2;
+    }
   }
 </script>
 

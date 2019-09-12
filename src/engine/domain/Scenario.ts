@@ -15,6 +15,24 @@ import {Load} from "@/engine/domain/Load";
 import {UpdaterManager} from "@/engine/domain/Updater";
 import {ConstraintManager} from "@/engine/domain/Constraint";
 
+export class ScenarioFile{
+  id: number;
+  name: string;
+  createTime: Date;
+  lastModificationTime: Date;
+  creator: string;
+  baseVersion: string;
+
+  constructor(id: number, name: string, createTime: Date, lastModificationTime: Date, creator: string, baseVersion: string){
+    this.id = id;
+    this.name = name;
+    this.createTime = createTime;
+    this.lastModificationTime = lastModificationTime;
+    this.creator = creator;
+    this.baseVersion = baseVersion;
+  }
+}
+
 export interface Scenario {
   // locations: Array<MyLocation>;
   vehicles: Array<Vehicle>;
@@ -38,16 +56,6 @@ export class ScenarioImpl implements Scenario{
     this.shipments = ShipmentPool.getInstance().shipments;
     this.tasks = TaskPool.getInstance().tasks;
     this.vehicles = VehiclePool.getInstance().vehicles;
-
-    // this.locations = new Array<MyLocation>();
-
-    // let locationMap = MyLocationPool.getInstance().locationMap;
-    // locationMap.forEach(x=>{
-    //   this.locations.push(x);
-    // })
-
-    console.log(this.shipments[0]);
-    console.log(this.routes[0]);
   }
 }
 
