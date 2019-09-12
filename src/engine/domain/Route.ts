@@ -1,4 +1,4 @@
-import {DepotTourActivity, TourActivity} from "@/engine/domain/Activity";
+import {ActivityFactory4Scenario, DepotTourActivity, TourActivity} from "@/engine/domain/Activity";
 import {hasId} from "@/engine/domain/Id";
 import {genUID} from "@/utils/common";
 import {
@@ -16,7 +16,7 @@ import {
   TimeWindowConstraint
 } from "@/engine/domain/Constraint";
 import {Load, LoadImpl} from "@/engine/domain/Load";
-import {Driver} from "@/engine/domain/Driver";
+import {Driver, DriverPool} from "@/engine/domain/Driver";
 import {Task} from "@/engine/domain/Task";
 
 export interface Route extends hasId{
@@ -152,11 +152,19 @@ export class RoutePool{
     this.routes = new Array<Route>();
   }
 
-  addRoute(): Route{
+  addNewRoute(): Route{
     let route: Route = new RouteImpl(genUID());
     this.routes.push(route);
 
     return route;
+  }
+
+  addRoute(route: Route){
+    this.routes.push(route);
+  }
+
+  static cleanPool(){
+    this.instance = new RoutePool();
   }
 
   getRoute(index: number): Route{
@@ -174,5 +182,38 @@ export class RoutePool{
     return this.routes.find(x=>{
       if(x.uid == uid) return true;
     });
+  }
+
+  assembleRoutesFromScenario(scenario: any){
+    RoutePool.cleanPool();
+
+    let tmps = scenario.routes;
+
+    for(let i in tmps){
+      let tmp = tmps[i];
+      let route = new RouteImpl(tmp.uid);
+
+      let acts = tmp.activities;
+      for(let j in acts){
+        let activity = ActivityFactory4Scenario.generateActivity(acts[j]);
+        if(activity)
+          route.activities.push(activity);
+      }
+
+      route.additionalFee = tmp.additionalFee;
+      route.fee = tmp.fee;
+      route.isFrozen = tmp.isFrozen;
+      route.isLocked = tmp.isLocked;
+
+      if(tmp.driver){
+        let driver = DriverPool.getInstance().getDriver(tmp.driver.uid);
+        if(driver)
+          route.assignDriver(driver);
+      }
+
+      route.updateRoute();
+
+      RoutePool.getInstance().addRoute(route);
+    }
   }
 }

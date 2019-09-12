@@ -71,6 +71,8 @@ import { getScenario } from "../../api";
 import { Scenario, ScenarioFile } from "../../engine/domain/Scenario";
 import { ScenarioHandler } from "../../engine/domain/ScenarioHandler";
 import { genUID } from "../../utils/common";
+import {RoutePool} from "../../engine/domain/Route"
+import {ShipmentPool} from "../../engine/domain/ShipmentPool"
 
 @Component({
   name: "AssemblagePanel"
@@ -126,6 +128,8 @@ export default class extends Vue {
         TaskPool.getInstance().assembleTasksFromScenario(scenario);
         VehiclePool.getInstance().assembleVehiclesFromScenario(scenario);
         DriverPool.getInstance().assembleDriversFromScenario(scenario);
+        RoutePool.getInstance().assembleRoutesFromScenario(scenario);
+        ShipmentPool.getInstance().assembleShipmentsFromScenario(scenario);
         return Promise.resolve("assemble from scenario successfully...");
       });
   }
@@ -150,8 +154,7 @@ export default class extends Vue {
       promise.then(res => {
         loading.close();
         if (this.type == "scenario") {
-          // this.$parent.moveTwoSteps();
-          this.$parent.moveForward();
+          this.$parent.moveTwoSteps();
         } else {
           this.$parent.moveForward();
         }

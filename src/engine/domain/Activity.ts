@@ -182,13 +182,23 @@ export class ActivityFactory4Scenario{
   static generateActivity(source: any): TourActivity | undefined{
     let activity = undefined;
     let type = source.activityType;
+
     if(type == Constants.DEPOT_ACTIVITY_TYPE){
       activity = new DepotTourActivity(source.operationTime, source.twStart, source.twEnd, source.uid);
-    }else if(type == Constants.SHIPMENT_ACTIVITY_TYPE || type == Constants.ADDITIONAL_SHIPMENT_ACTIVITY_TYPE){
+    }else if(type == Constants.SHIPMENT_ACTIVITY_TYPE){
       let location = MyLocationPool.getInstance().getLocation(source.locationId);
-      let task = TaskPool.getInstance().getTask(source.task.uid);
+      let task = TaskPool.getInstance().getTask(source.taskId);
       activity = new ShipmentTourActivity(source.name, location, source.operationTime, source.twStart, source.twEnd, source.load.size, task, source.uid);
+      activity.hasFish = source.hasFish;
+    }else if(type == Constants.ADDITIONAL_SHIPMENT_ACTIVITY_TYPE){
+      let location = MyLocationPool.getInstance().getLocation(source.locationId);
+      let task = TaskPool.getInstance().getTask(source.taskId);
+      activity = new AdditionalShipmentTourActivity(source.name, location, source.operationTime, source.twStart, source.twEnd, source.load.size, task, source.uid);
+      activity.hasFish = source.hasFish;
+      activity.additionalFee = source.additionalFee;
+      activity.reason = source.reason;
     }
+
     return activity;
   }
 }

@@ -77,7 +77,7 @@
           </div>
         </div>
       </div>
-      <div class="route-wrapper route-add-button-wrapper" @click="addRoute">添加线路</div>
+      <div class="route-wrapper route-add-button-wrapper" @click="addNewRoute">添加线路</div>
     </div>
   </div>
 </template>
@@ -131,68 +131,6 @@
       this.taskPool = TaskPool.getInstance();
       this.productPool = ProductPool.getInstance();
       this.locationPool = MyLocationPool.getInstance();
-
-      this.routePool.addRoute();
-      this.routePool.addRoute();
-
-      // let d1 = this.driverPool.createDriver("司机1");
-      // let d2 = this.driverPool.createDriver("司机2");
-      // let d3 = this.driverPool.createDriver("司机3");
-      // let d4 = this.driverPool.createDriver("司机4");
-      // let d5 = this.driverPool.createDriver("司机5");
-      // let d6 = this.driverPool.createDriver("司机6");
-      // let d7 = this.driverPool.createDriver("司机7");
-      // let d8 = this.driverPool.createDriver("司机8");
-      // let d9 = this.driverPool.createDriver("司机9");
-
-      // let v1 = VehiclePool.getInstance().getVehicle("4504aa8a-4bef-4d83-bacc-241af119ea5d");
-      //
-      // d1.addAvailableVehicle(v1);
-      // d2.addAvailableVehicle(v1);
-      // d3.addAvailableVehicle(v1);
-      // d4.addAvailableVehicle(v1);
-      // d5.addAvailableVehicle(v1);
-      // d6.addAvailableVehicle(v1);
-      // d7.addAvailableVehicle(v1);
-      // d8.addAvailableVehicle(v1);
-      // d9.addAvailableVehicle(v1);
-    }
-
-    created() {
-      this.assembly();
-    }
-
-    assembly() {
-      // let l1 = this.locationPool.getLocation(1);
-      // let l2 = this.locationPool.getLocation(2);
-      // let l3 = this.locationPool.getLocation(3);
-      // let l4 = this.locationPool.getLocation(4);
-      // let l5 = this.locationPool.getLocation(5);
-      // let l6 = this.locationPool.getLocation(6);
-      //
-      // let t1 = this.taskPool.createTask("任务1");
-      // let t2 = this.taskPool.createTask("任务2");
-      // let t3 = this.taskPool.createTask("任务3");
-      // let t4 = this.taskPool.createTask("任务4");
-      // let t5 = this.taskPool.createTask("任务5");
-      // let t6 = this.taskPool.createTask("任务6");
-      //
-      // let sta1 = new ShipmentTourActivity("配送" + l1.id, l1, 1, 2, 6, [-1], t1);
-      // let sta2 = new ShipmentTourActivity("配送" + l2.id, l2, 2, 3, 8, [-2], t2);
-      // let sta3 = new ShipmentTourActivity("配送" + l3.id, l3, 1, 4, 10, [-3], t3);
-      // let sta4 = new ShipmentTourActivity("配送" + l4.id, l4, 2, 6, 12, [-4], t4);
-      // let sta5 = new ShipmentTourActivity("配送" + l5.id, l5, 2, 4, 14, [-5], t5);
-      // let sta6 = new ShipmentTourActivity("配送" + l6.id, l6, 2, 8, 12, [-6], t6);
-      //
-      // this.shipmentPool.addShipmentTourActivity(sta1);
-      // this.shipmentPool.addShipmentTourActivity(sta2);
-      // this.shipmentPool.addShipmentTourActivity(sta3);
-      // this.shipmentPool.addShipmentTourActivity(sta4);
-      // this.shipmentPool.addShipmentTourActivity(sta5);
-      // this.shipmentPool.addShipmentTourActivity(sta6);
-      // })
-
-      // this.shipmentPool.initializeShipments();
     }
 
     insertActivity(evt, index) {
@@ -209,8 +147,8 @@
       this.shipmentPool.update();
     }
 
-    addRoute() {
-      this.routePool.addRoute();
+    addNewRoute() {
+      this.routePool.addNewRoute();
     }
 
     tryFun() {

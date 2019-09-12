@@ -184,9 +184,7 @@ export class CostUpdater implements Updater{
         distance += matrix.getDistance(prevAct.locationId, currAct.locationId);
       }
 
-      console.log(currAct);
       if(currAct instanceof AdditionalShipmentTourActivity){
-        console.log('additional fee');
         additionalFee += (<AdditionalShipmentTourActivity>currAct).additionalFee;
       }
     }

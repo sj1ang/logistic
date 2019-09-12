@@ -134,6 +134,12 @@ export class DriverPool{
     this.drivers.push(driver);
   }
 
+  getDriver(uid: string): Driver | undefined{
+    return this.drivers.find(x=>{
+      return x.uid == uid;
+    })
+  }
+
   static cleanPool(): void{
     this.instance = new DriverPool();
   }
@@ -162,9 +168,9 @@ export class DriverPool{
   assembleDriversFromScenario(scenario: any){
     DriverPool.cleanPool();
 
-    let drivers = scenario.drivers;
-    for(let i in drivers){
-      let tmp = drivers[i];
+    let tmps = scenario.drivers;
+    for(let i in tmps){
+      let tmp = tmps[i];
 
       let driver = DriverPool.getInstance().createDriver(tmp.name, tmp.uid);
       let tmpVehicles = tmp.availableVehicles;
@@ -176,9 +182,11 @@ export class DriverPool{
         }
       }
       driver.isAvailable = tmp.isAvailable;
-      for(let k in tmp.routeUids){
-        driver.addRouteUids(tmp.routeUids[k]);
-      }
+
+      // ----------assign in route !!!----------
+      // for(let k in tmp.routeUids){
+      //   driver.addRouteUids(tmp.routeUids[k]);
+      // }
 
       let assignedVehicle = VehiclePool.getInstance().getVehicle(tmp.vehicle.uid);
       if(assignedVehicle)

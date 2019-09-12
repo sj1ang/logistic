@@ -1,4 +1,4 @@
-import {ShipmentTourActivity, TourActivity} from "@/engine/domain/Activity";
+import {ActivityFactory4Scenario, ShipmentTourActivity, TourActivity} from "@/engine/domain/Activity";
 import {MyLocationPool} from "@/engine/domain/MyLocation";
 import {TaskPool} from "@/engine/domain/Task";
 import {Load, LoadImpl} from "@/engine/domain/Load";
@@ -40,6 +40,10 @@ export class ShipmentPool{
     }
   }
 
+  static cleanPool(){
+    this.instance = new ShipmentPool();
+  }
+
   initializeShipments(){
     let tasks = TaskPool.getInstance().tasks;
     for(let i in tasks){
@@ -54,6 +58,17 @@ export class ShipmentPool{
     }
   }
 
+  assembleShipmentsFromScenario(scenario: any){
+    ShipmentPool.cleanPool();
+
+    let tmps = scenario.shipments;
+    for(let i in tmps){
+      let tmp = tmps[i];
+      let activity = ActivityFactory4Scenario.generateActivity(tmp);
+      if(activity)
+        ShipmentPool.getInstance().addShipmentTourActivity(activity);
+    }
+  }
 }
 
 
