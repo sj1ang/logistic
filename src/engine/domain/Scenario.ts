@@ -18,18 +18,28 @@ import {ConstraintManager} from "@/engine/domain/Constraint";
 export class ScenarioFile{
   id: number;
   name: string;
+  type: number;
+  targetDate: Date;
   createTime: Date;
   lastModificationTime: Date;
+  scenarioId: number;
+  isOfficial: number;
   creator: string;
-  baseVersion: string;
+  productVersion: string;
+  geoVersion: string;
 
-  constructor(id: number, name: string, createTime: Date, lastModificationTime: Date, creator: string, baseVersion: string){
+  constructor(id: number, name: string, type: number, targetDate: Date, createTime: Date, lastModificationTime: Date, scenarioId: number, isOfficial: number, creator: string, productVersion: string, geoVersion: string){
     this.id = id;
     this.name = name;
+    this.type = type;
+    this.targetDate = targetDate;
     this.createTime = createTime;
     this.lastModificationTime = lastModificationTime;
+    this.scenarioId = scenarioId;
+    this.isOfficial = isOfficial;
     this.creator = creator;
-    this.baseVersion = baseVersion;
+    this.productVersion = productVersion;
+    this.geoVersion = geoVersion;
   }
 }
 

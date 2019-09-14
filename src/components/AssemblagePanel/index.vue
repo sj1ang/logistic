@@ -2,31 +2,36 @@
   <div class="assemblage-container">
     <div class="option-wrapper">
       <el-radio v-model="type" label="order"
-        >按当日订单装框（计划排线）</el-radio
+        >按配送日订单装框（创建物流计划单）</el-radio
       >
     </div>
     <div class="option-wrapper">
       <el-radio v-model="type" label="delivery"
-        >按当日发货单装框（套用排线计划）</el-radio
+        >按配送日发货单装框（创建物流结单）</el-radio
       >
     </div>
     <div class="option-wrapper">
-      <el-radio v-model="type" label="template"
+      <el-radio v-model="type" label="mock"
         >生成模拟装框（创建模板）</el-radio
       >
     </div>
     <div class="option-wrapper">
       <el-radio v-model="type" label="scenario"
-        >导入Scenario（修改已有的物流清单）</el-radio
+        >导入Scenario（修改已有的物流单）</el-radio
       >
-      <div
-        style="margin-left: 24px"
-        v-if="type == 'scenario' && scenarioFiles.length > 0"
-      >
+      <div style="margin-left: 24px">
+        <el-date-picker
+          v-if="type == 'order' || type == 'delivery'"
+          size="mini"
+          v-model="selectedDate"
+          :picker-options="pickerOptions"
+        >
+        </el-date-picker>
         <el-select
           size="mini"
           v-model="scenarioIndex"
           placeholder="选择scenario"
+          v-if="type == 'scenario' && scenarioFiles.length > 0"
         >
           <el-option
             v-for="(item, index) in scenarioFiles"
@@ -60,19 +65,19 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { ProductPool } from "../../engine/domain/Product";
 import { MyLocationPool } from "../../engine/domain/MyLocation";
 import { TransportCostMatrixManager } from "../../engine/domain/TransportCostMatrix";
 import { VehiclePool } from "../../engine/domain/Vehicle";
-import {Driver, DriverPool} from "../../engine/domain/Driver";
+import { Driver, DriverPool } from "../../engine/domain/Driver";
 import { TaskPool } from "../../engine/domain/Task";
 import { getScenario } from "../../api";
 import { Scenario, ScenarioFile } from "../../engine/domain/Scenario";
 import { ScenarioHandler } from "../../engine/domain/ScenarioHandler";
 import { genUID } from "../../utils/common";
-import {RoutePool} from "../../engine/domain/Route"
-import {ShipmentPool} from "../../engine/domain/ShipmentPool"
+import { RoutePool } from "../../engine/domain/Route";
+import { ShipmentPool } from "../../engine/domain/ShipmentPool";
 
 @Component({
   name: "AssemblagePanel"
@@ -81,27 +86,56 @@ export default class extends Vue {
   productPool: ProductPool;
   locationPool: MyLocationPool;
   date: Date;
-  type: string;
+  type: string = "order";
   scenarioFiles: Array<ScenarioFile>;
   scenarioIndex: number = 0;
-  // result: string;
+  selectedDate: Date;
+  pickerOptions: Object = {
+    disabledDate(time): boolean {
+      let dateTime = new Date();
+      dateTime.setDate(dateTime.getDate() + 1);
+      return time.getTime() > dateTime;
+    }
+  };
 
   constructor() {
     super();
     this.date = new Date();
     this.type = "order";
     this.scenarioFiles = new Array<ScenarioFile>();
-    this.scenarioFiles.push(
-      new ScenarioFile(
-        1,
-        "2019-9-12 物流清单",
-        new Date(),
-        new Date(),
-        "蔡徐坤",
-        genUID()
-      )
-    );
-    // this.result = '连接至服务器...'
+
+    let dateTime = new Date();
+    dateTime.setDate(dateTime.getDate() + 1);
+    this.selectedDate = dateTime;
+  }
+
+  @Watch("type")
+  onTypeChanged() {
+    if (this.type == "order") {
+      let dateTime = new Date();
+      dateTime.setDate(dateTime.getDate() + 1);
+      this.selectedDate = dateTime;
+    } else if (this.type == "delivery") {
+      this.selectedDate = new Date();
+    }
+  }
+
+  created() {
+    const loading = this.$loading({
+      lock: true,
+      text: "Loading",
+      spinner: "el-icon-loading",
+      background: "rgba(0, 0, 0, 0.7)"
+    });
+
+    ScenarioHandler.getInstance()
+      .fetchScenarioFileList()
+      .then(res => {
+        this.scenarioFiles = ScenarioHandler.getInstance().files;
+        console.log(this.scenarioFiles);
+        console.log(res);
+        loading.close();
+      });
   }
 
   assembleEssentials(): Promise {
@@ -114,14 +148,21 @@ export default class extends Vue {
   }
 
   assembleOrderTask(): Promise {
-    return this.assembleEssentials().then(TaskPool.getInstance().fetchTasks);
+    return this.assembleEssentials().then(res => {
+      return TaskPool.getInstance().fetchTasks(true);
+    });
+  }
+
+  assembleMockTask(): Promise {
+    return this.assembleEssentials().then(res => {
+      return TaskPool.getInstance().fetchTasks(false);
+    });
   }
 
   assembleFromScenario(): Promise {
     let sid = this.scenarioFiles[this.scenarioIndex].id;
     let params = { params: { id: sid } };
-    // let params = { params: { id: 4 } };
-    return new ScenarioHandler()
+    return ScenarioHandler.getInstance()
       .fetchEssentialsAndScenario(params)
       .then(scenario => {
         console.log(scenario);
@@ -142,11 +183,16 @@ export default class extends Vue {
       background: "rgba(0, 0, 0, 0.7)"
     });
 
+    ScenarioHandler.getInstance().setSelectedScenarioFile(
+      this.scenarioFiles[this.scenarioIndex]
+    );
     let promise: Promise;
 
     if (this.type == "order") {
       promise = this.assembleOrderTask();
-    } else if ((this.type = "scenario")) {
+    } else if(this.type == "mock"){
+      promise = this.assembleMockTask();
+    }else if ((this.type = "scenario")) {
       promise = this.assembleFromScenario();
     }
 

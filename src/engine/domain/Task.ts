@@ -86,10 +86,9 @@ export class TaskPool{
     this.instance = new TaskPool();
   }
 
-  fetchTasks() {
+  fetchTasks(isReal: boolean) {
     console.log("start fetching tasks...")
-    let params: any = {};
-
+    let params = { params: { isReal: isReal } };
     return getTasks(params).then(res=>{
       TaskPool.cleanPool();
 

@@ -46,3 +46,4 @@ export function convertTime2Min(time: string) {
 export function prefixInteger(num: number, length: number) {
   return (Array(length).join("0") + num).slice(-length);
 }
+

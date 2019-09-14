@@ -25,6 +25,7 @@
   import ConfigurationDialog from "../ConfigurationDialog/index"
   import {ScenarioDTO, ScenarioImpl} from '../../engine/domain/Scenario'
   import {postScenario} from "../../api"
+  import {ScenarioHandler} from "../../engine/domain/ScenarioHandler"
 
   @Component({
     name: 'AddShipmentActivity',
@@ -49,24 +50,24 @@
     }
 
     saveScenario(): void{
-      const loading = this.$loading({
-        lock: true,
-        text: "Loading",
-        spinner: "el-icon-loading",
-        background: "rgba(0, 0, 0, 0.7)"
-      });
+      // const loading = this.$loading({
+      //   lock: true,
+      //   text: "Loading",
+      //   spinner: "el-icon-loading",
+      //   background: "rgba(0, 0, 0, 0.7)"
+      // });
+      //
+      // let scenario = new ScenarioImpl();
+      // let scenarioDTO = new ScenarioDTO(scenario);
+      // let transData = {id: 1, content: scenarioDTO};
+      // // console.log(JSON.stringify(scenarioDTO));
+      // let params = JSON.stringify(transData);
+      // postScenario(params).then(res=>{
+      //   console.log(res);
+      //   loading.close();
+      // })
 
-      let scenario = new ScenarioImpl();
-      let scenarioDTO = new ScenarioDTO(scenario);
-      let transData = {id: 1, content: scenarioDTO};
-      // console.log(JSON.stringify(scenarioDTO));
-      let params = JSON.stringify(transData);
-      postScenario(params).then(res=>{
-        console.log(res);
-        loading.close();
-      }).catch(err=>{
-
-      })
+      ScenarioHandler.getInstance().saveScenario();
     }
   }
 </script>
