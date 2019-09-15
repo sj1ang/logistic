@@ -9,6 +9,7 @@ import {Box, BoxImpl} from "@/engine/domain/Box";
 import {ProductPool} from "@/engine/domain/Product";
 import {ContentItemImpl} from "@/engine/domain/ContentItem";
 import {Load, LoadImpl} from "@/engine/domain/Load";
+import {AdditionalShipmentTourActivity, ShipmentTourActivity} from "@/engine/domain/Activity";
 
 export interface Task extends hasId{
   name: string;
@@ -52,9 +53,13 @@ export class TaskImpl implements Task{
 export class TaskPool{
   static instance: TaskPool;
   tasks: Array<Task>;
+  taskShipmentMap: Map<string, Array<string>>;
+  taskAdditionalShipmentMap: Map<string, Array<string>>;
 
   constructor(){
     this.tasks = new Array<Task>();
+    this.taskShipmentMap = new Map();
+    this.taskAdditionalShipmentMap = new Map();
   }
 
   static getInstance(): TaskPool{
@@ -67,6 +72,8 @@ export class TaskPool{
 
   addTask(task: Task){
     this.tasks.push(task);
+    this.taskShipmentMap.set(task.uid, new Array<string>());
+    this.taskAdditionalShipmentMap.set(task.uid, new Array<string>());
   }
 
   getTask(uid: string): Task | undefined{
@@ -80,6 +87,38 @@ export class TaskPool{
     this.addTask(task);
 
     return task;
+  }
+
+  // tasks must be added first!
+  shipmentTourActivityAdded(activity: ShipmentTourActivity){
+    let task = activity.task;
+
+    let map = activity instanceof AdditionalShipmentTourActivity ? this.taskAdditionalShipmentMap : this.taskShipmentMap;
+
+    if(task){
+      let activities = map.get(task.uid);
+      if(activities)
+        activities.push(task.uid);
+    }
+  }
+
+  shipmentTourActivityRemoved(activity: ShipmentTourActivity){
+    let task = activity.task;
+
+    let map = activity instanceof AdditionalShipmentTourActivity ? this.taskAdditionalShipmentMap : this.taskShipmentMap;
+
+    if(task){
+      let activities = map.get(task.uid);
+      if(activities) {
+        let newActivities = activities.filter(x => {
+          if (x == activity.uid)
+            return false;
+          return true;
+        })
+
+        map.set(task.uid, newActivities);
+      }
+    }
   }
 
   static cleanPool(): void{

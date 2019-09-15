@@ -152,7 +152,8 @@
     }
 
     tryFun() {
-
+      console.log(TaskPool.getInstance().taskShipmentMap);
+      console.log(TaskPool.getInstance().taskAdditionalShipmentMap);
     }
 
     // editVehicles() {

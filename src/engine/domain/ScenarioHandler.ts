@@ -1,10 +1,8 @@
 import {getRecords, getScenario, postScenario} from "@/api";
 import { MyLocationPool } from "@/engine/domain/MyLocation";
 import { TransportCostMatrixManager } from "@/engine/domain/TransportCostMatrix";
-import { TaskPool } from "@/engine/domain/Task";
 import { ProductPool } from "@/engine/domain/Product";
 import {ScenarioDTO, ScenarioFile, ScenarioImpl} from "@/engine/domain/Scenario";
-import {IgnorePluginOptions} from "webpack/declarations/plugins/IgnorePlugin";
 
 export class ScenarioHandler {
   static instance: ScenarioHandler;

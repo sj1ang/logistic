@@ -50,6 +50,8 @@ export interface Scenario {
   tasks: Array<Task>;
   routes: Array<Route>;
   shipments: Array<TourActivity>;
+  taskShipmentMap: Map<string, Array<string>>;
+  taskAdditionalShipmentMap: Map<string, Array<string>>;
 }
 
 export class ScenarioImpl implements Scenario{
@@ -59,6 +61,8 @@ export class ScenarioImpl implements Scenario{
   shipments: Array<TourActivity>;
   tasks: Array<Task>;
   vehicles: Array<Vehicle>;
+  taskShipmentMap: Map<string, Array<string>>;
+  taskAdditionalShipmentMap: Map<string, Array<string>>;
 
   constructor(){
     this.drivers = DriverPool.getInstance().drivers;
@@ -66,6 +70,8 @@ export class ScenarioImpl implements Scenario{
     this.shipments = ShipmentPool.getInstance().shipments;
     this.tasks = TaskPool.getInstance().tasks;
     this.vehicles = VehiclePool.getInstance().vehicles;
+    this.taskShipmentMap = TaskPool.getInstance().taskShipmentMap;
+    this.taskAdditionalShipmentMap = TaskPool.getInstance().taskAdditionalShipmentMap;
   }
 }
 
@@ -76,6 +82,8 @@ export class ScenarioDTO{
   shipments: Array<TourActivityDTO>;
   tasks: Array<Task>;
   vehicles: Array<Vehicle>;
+  taskShipmentMap: Map<string, Array<string>>;
+  taskAdditionalShipmentMap: Map<string, Array<string>>;
 
   constructor(scenario: Scenario){
     this.drivers = scenario.drivers;
@@ -95,6 +103,10 @@ export class ScenarioDTO{
     for(let j in ss){
       this.shipments.push(ActivityHandler.convert(ss[j]));
     }
+
+    this.taskShipmentMap = scenario.taskShipmentMap;
+    this.taskAdditionalShipmentMap = scenario.taskAdditionalShipmentMap;
+
   }
 }
 

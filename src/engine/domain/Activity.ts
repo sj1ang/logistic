@@ -32,6 +32,8 @@ export interface TourActivity extends hasId{
   load: Load;
 
   unassign(): void;
+
+  removeSelf(): void;
 }
 
 export class ShipmentTourActivity implements TourActivity{
@@ -81,6 +83,12 @@ export class ShipmentTourActivity implements TourActivity{
     this.task = task;
   }
 
+  static createShipmentTourActivity(name: string, location: MyLocation | undefined, operationTime: number, twStart: number, twEnd: number, size: Array<number>, task: Task | undefined, uid: string): ShipmentTourActivity{
+    let activity = new ShipmentTourActivity(name, location, operationTime, twStart, twEnd, size, task, uid);
+    TaskPool.getInstance().shipmentTourActivityAdded(activity);
+    return activity;
+  }
+
   unassign():void{
     this.arriveTime = 0;
     this.startTime = 0;
@@ -102,8 +110,26 @@ export class ShipmentTourActivity implements TourActivity{
         route.updateRoute();
     }
 
-    let newAct = new ShipmentTourActivity(this.name, this.location, this.operationTime, this.twStart, this.twEnd, load2.size, this.task, genUID());
+    let newAct = ShipmentTourActivity.createShipmentTourActivity(this.name, this.location, this.operationTime, this.twStart, this.twEnd, load2.size, this.task, genUID());
     ShipmentPool.getInstance().addShipmentTourActivity(newAct);
+  }
+
+  removeSelf(){
+    let routeUid = this.routeUid;
+
+    if(routeUid){
+      let route = RoutePool.getInstance().getRouteByUid(routeUid);
+      if(route)
+        route.deleteTourActivity(this);
+    }else {
+      let shipmentPool = ShipmentPool.getInstance();
+      shipmentPool.shipments = shipmentPool.shipments.filter(x => {
+        if (x.uid == this.uid) return false;
+        return true;
+      })
+    }
+
+    TaskPool.getInstance().shipmentTourActivityRemoved(this);
   }
 
 }
@@ -111,6 +137,16 @@ export class ShipmentTourActivity implements TourActivity{
 export class AdditionalShipmentTourActivity extends ShipmentTourActivity{
   additionalFee: number = 0;
   reason: number = 0;
+
+  constructor(name: string, location: MyLocation | undefined, operationTime: number, twStart: number, twEnd: number, size: Array<number>, task: Task | undefined, uid: string){
+    super(name, location, operationTime, twStart, twEnd, size, task, uid);
+  }
+
+  static createAdditionalShipmentTourActivity(name: string, location: MyLocation | undefined, operationTime: number, twStart: number, twEnd: number, size: Array<number>, task: Task | undefined, uid: string): AdditionalShipmentTourActivity{
+    let activity = new AdditionalShipmentTourActivity(name, location, operationTime, twStart, twEnd, size, task, uid);
+    TaskPool.getInstance().shipmentTourActivityAdded(activity);
+    return activity;
+  }
 }
 
 export class DepotTourActivity implements TourActivity{
@@ -175,7 +211,21 @@ export class DepotTourActivity implements TourActivity{
     this.noticeManager = new ActivityNoticeManager();
   }
 
+  removeSelf(){
+    let routeUid = this.routeUid;
 
+    if(routeUid){
+      let route = RoutePool.getInstance().getRouteByUid(routeUid);
+      if(route)
+        route.deleteTourActivity(this);
+    }else {
+      let shipmentPool = ShipmentPool.getInstance();
+      shipmentPool.shipments = shipmentPool.shipments.filter(x => {
+        if (x.uid == this.uid) return false;
+        return true;
+      })
+    }
+  }
 }
 
 export class ActivityFactory4Scenario{
@@ -188,12 +238,12 @@ export class ActivityFactory4Scenario{
     }else if(type == Constants.SHIPMENT_ACTIVITY_TYPE){
       let location = MyLocationPool.getInstance().getLocation(source.locationId);
       let task = TaskPool.getInstance().getTask(source.taskId);
-      activity = new ShipmentTourActivity(source.name, location, source.operationTime, source.twStart, source.twEnd, source.load.size, task, source.uid);
+      activity = ShipmentTourActivity.createShipmentTourActivity(source.name, location, source.operationTime, source.twStart, source.twEnd, source.load.size, task, source.uid);
       activity.hasFish = source.hasFish;
     }else if(type == Constants.ADDITIONAL_SHIPMENT_ACTIVITY_TYPE){
       let location = MyLocationPool.getInstance().getLocation(source.locationId);
       let task = TaskPool.getInstance().getTask(source.taskId);
-      activity = new AdditionalShipmentTourActivity(source.name, location, source.operationTime, source.twStart, source.twEnd, source.load.size, task, source.uid);
+      activity = AdditionalShipmentTourActivity.createAdditionalShipmentTourActivity(source.name, location, source.operationTime, source.twStart, source.twEnd, source.load.size, task, source.uid);
       activity.hasFish = source.hasFish;
       activity.additionalFee = source.additionalFee;
       activity.reason = source.reason;

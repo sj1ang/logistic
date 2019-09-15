@@ -299,6 +299,9 @@
         if(this.activity instanceof AdditionalShipmentTourActivity) {
           (<AdditionalShipmentTourActivity>this.activity).additionalFee = Number.parseFloat(<string>this.additionalFee);
           (<AdditionalShipmentTourActivity>this.activity).reason = Number.parseInt(<string>this.reason);
+          // TO-DO: inserting new additional tour activity mechanism should be changed for updating task-activity-map;
+          // now: a new asta without task created first, then added to task pool here!
+          TaskPool.getInstance().shipmentTourActivityAdded(this.activity);
         }
       } else if (this.activity instanceof DepotTourActivity) {
         this.activity.load = this.wrapper.load.clone();
@@ -344,20 +347,19 @@
     }
 
     deleteActivity(activity: TourActivity){
-      let routeUid = activity.routeUid;
-
-      if(routeUid){
-        let route = RoutePool.getInstance().getRouteByUid(routeUid);
-        route.deleteTourActivity(activity);
-      }else {
-        let shipmentPool = ShipmentPool.getInstance();
-        shipmentPool.shipments = shipmentPool.shipments.filter(x => {
-          if (x.uid == activity.uid) return false;
-          return true;
-        })
-      }
-
-
+      // let routeUid = activity.routeUid;
+      //
+      // if(routeUid){
+      //   let route = RoutePool.getInstance().getRouteByUid(routeUid);
+      //   route.deleteTourActivity(activity);
+      // }else {
+      //   let shipmentPool = ShipmentPool.getInstance();
+      //   shipmentPool.shipments = shipmentPool.shipments.filter(x => {
+      //     if (x.uid == activity.uid) return false;
+      //     return true;
+      //   })
+      // }
+      activity.removeSelf();
     }
 
     changeTask(e){

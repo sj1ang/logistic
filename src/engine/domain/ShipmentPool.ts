@@ -51,7 +51,7 @@ export class ShipmentPool{
       if(task.location) {
         let load: Load = task.load;
 
-        let activity = new ShipmentTourActivity(task.name, task.location, task.serviceTime, task.startTime, task.endTime, load.size, task, genUID());
+        let activity = ShipmentTourActivity.createShipmentTourActivity(task.name, task.location, task.serviceTime, task.startTime, task.endTime, load.size, task, genUID());
 
         ShipmentPool.getInstance().addShipmentTourActivity(activity);
       }

@@ -36,11 +36,11 @@
 
     constructor(){
       super();
-      this.activity = new AdditionalShipmentTourActivity("新建任务", null, 0, 0, 720, [0], undefined, genUID());
+      this.activity = AdditionalShipmentTourActivity.createAdditionalShipmentTourActivity("新建任务", null, 0, 0, 720, [0], undefined, genUID());
     }
 
     switchShipmentDialog(): void{
-      this.activity = new AdditionalShipmentTourActivity("新建任务", null, 0, 0, 720, [0], undefined, genUID());
+      this.activity = AdditionalShipmentTourActivity.createAdditionalShipmentTourActivity("新建任务", null, 0, 0, 720, [0], undefined, genUID());
       this.$refs.shipmentDialog.showDialog();
     }
 
