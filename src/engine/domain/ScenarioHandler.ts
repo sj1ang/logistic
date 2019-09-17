@@ -2,13 +2,15 @@ import {getRecords, getScenario, postScenario} from "@/api";
 import { MyLocationPool } from "@/engine/domain/MyLocation";
 import { TransportCostMatrixManager } from "@/engine/domain/TransportCostMatrix";
 import { ProductPool } from "@/engine/domain/Product";
-import {ScenarioDTO, ScenarioFile, ScenarioImpl} from "@/engine/domain/Scenario";
+import {ScenarioDTO, ScenarioFile, ScenarioImpl, TemplateFile} from "@/engine/domain/Scenario";
 
 export class ScenarioHandler {
   static instance: ScenarioHandler;
 
   files: Array<ScenarioFile>;
   file: ScenarioFile |undefined;
+
+  type: string | undefined;
 
   static getInstance() {
     if (!this.instance) {
@@ -80,6 +82,25 @@ export class ScenarioHandler {
       transData.targetDate = this.file.targetDate.Format('yyyy-MM-dd hh:mm:ss');
     }
     console.log(transData);
+    let params = JSON.stringify(transData);
+    return postScenario(params);
+  }
+
+  saveTemplate(file: TemplateFile){
+    let scenario = new ScenarioImpl();
+    let scenarioDTO = new ScenarioDTO(scenario);
+
+    let transData = {...file, content: scenarioDTO};
+
+    // @ts-ignore
+    transData.createTime = file.createTime.Format('yyyy-MM-dd hh:mm:ss');
+    // @ts-ignore
+    transData.lastModificationTime = file.lastModificationTime.Format('yyyy-MM-dd hh:mm:ss');
+    // @ts-ignore
+    transData.targetDate = file.targetDate.Format('yyyy-MM-dd hh:mm:ss');
+
+    console.log(transData);
+
     let params = JSON.stringify(transData);
     return postScenario(params);
   }

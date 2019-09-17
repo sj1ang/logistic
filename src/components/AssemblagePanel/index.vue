@@ -186,6 +186,9 @@ export default class extends Vue {
     ScenarioHandler.getInstance().setSelectedScenarioFile(
       this.scenarioFiles[this.scenarioIndex]
     );
+
+    ScenarioHandler.getInstance().type = this.type;
+
     let promise: Promise;
 
     if (this.type == "order") {

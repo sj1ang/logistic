@@ -43,6 +43,28 @@ export class ScenarioFile{
   }
 }
 
+export class TemplateFile{
+  id: number | undefined;
+  name: string;
+  createTime: Date;
+  lastModificationTime: Date;
+  templateId: number | undefined;
+  creator: string;
+  productVersion: string;
+  geoVersion: string;
+
+  constructor(id: number, name: string, createTime: Date, lastModificationTime: Date, templateId: number, creator: string, productVersion: string, geoVersion: string){
+    this.id = id;
+    this.name = name;
+    this.createTime = createTime;
+    this.lastModificationTime = lastModificationTime;
+    this.templateId = templateId;
+    this.creator = creator;
+    this.productVersion = productVersion;
+    this.geoVersion = geoVersion;
+  }
+}
+
 export interface Scenario {
   // locations: Array<MyLocation>;
   vehicles: Array<Vehicle>;

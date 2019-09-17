@@ -6,11 +6,21 @@
     <div class="function-button" @click="switchConfigurationDialog">
       <i class="el-icon-info"></i>
     </div>
-    <div class="function-button" @click="saveScenario">
+    <div class="function-button" @click="saveScenario" v-if="type == 'scenario'">
+      <i class="el-icon-s-promotion"></i>
+    </div>
+    <div class="function-button" @click="saveTemplate" v-if="type == 'mock'">
       <i class="el-icon-upload"></i>
     </div>
     <shipment-activity-dialog :activity="activity" :type="'insertion'" ref="shipmentDialog"></shipment-activity-dialog>
     <configuration-dialog ref="configurationDialog"></configuration-dialog>
+    <el-dialog el-dialog title="保存新的模板" :visible.sync="templateDialogVisible" :append-to-body='true' width="50%" v-if="templateDialogVisible">
+      <el-form v-model="templateFile" size="mini" label-width="80px">
+        <el-form-item label="模板名称">
+          <el-input v-model="templateFile.name"></el-input>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
@@ -23,7 +33,7 @@
   import {genUID} from "../../utils/common"
   import {TaskPool} from "../../engine/domain/Task"
   import ConfigurationDialog from "../ConfigurationDialog/index"
-  import {ScenarioDTO, ScenarioImpl} from '../../engine/domain/Scenario'
+  import {ScenarioDTO, ScenarioImpl, TemplateFile} from '../../engine/domain/Scenario'
   import {postScenario} from "../../api"
   import {ScenarioHandler} from "../../engine/domain/ScenarioHandler"
 
@@ -33,10 +43,15 @@
   })
   export default class extends Vue {
     private activity: TourActivity;
+    private type: string;
+
+    private templateFile: TemplateFile;
+    templateDialogVisible: boolean = false;
 
     constructor(){
       super();
       this.activity = AdditionalShipmentTourActivity.createAdditionalShipmentTourActivity("新建任务", null, 0, 0, 720, [0], undefined, genUID());
+      this.type = ScenarioHandler.getInstance().type;
     }
 
     switchShipmentDialog(): void{
@@ -50,24 +65,27 @@
     }
 
     saveScenario(): void{
-      // const loading = this.$loading({
-      //   lock: true,
-      //   text: "Loading",
-      //   spinner: "el-icon-loading",
-      //   background: "rgba(0, 0, 0, 0.7)"
-      // });
-      //
-      // let scenario = new ScenarioImpl();
-      // let scenarioDTO = new ScenarioDTO(scenario);
-      // let transData = {id: 1, content: scenarioDTO};
-      // // console.log(JSON.stringify(scenarioDTO));
-      // let params = JSON.stringify(transData);
-      // postScenario(params).then(res=>{
-      //   console.log(res);
-      //   loading.close();
-      // })
+      const loading = this.$loading({
+        lock: true,
+        text: "Loading",
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0.7)"
+      });
 
-      ScenarioHandler.getInstance().saveScenario();
+      ScenarioHandler.getInstance().saveScenario().then(res=>{
+        loading.close();
+      });
+    }
+
+    saveTemplate(): void{
+
+      if(!this.templateFile){
+        this.templateFile = new TemplateFile(undefined, "新建模板", new Date(), new Date(), undefined, "蔡徐坤", genUID(), genUID());
+        console.log(this.templateFile);
+      }
+
+      this.templateDialogVisible = true;
+      console.log('template...');
     }
   }
 </script>
