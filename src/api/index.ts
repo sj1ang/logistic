@@ -12,6 +12,7 @@ const postScenario = post(domain + '/logistic/scenario')
 const getRecords = get(domain + '/logistic/records')
 const getTemplate = get(domain + '/logistic/template')
 const postTemplate = post(domain + '/logistic/template')
+const getTemplateRecords = get(domain + '/logistic/template-records')
 
 export {
   getTasks,
@@ -24,5 +25,6 @@ export {
   postScenario,
   getRecords,
   getTemplate,
-  postTemplate
+  postTemplate,
+  getTemplateRecords
 }

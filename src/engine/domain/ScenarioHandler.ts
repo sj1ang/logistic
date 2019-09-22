@@ -1,13 +1,16 @@
-import {getRecords, getScenario, postScenario} from "@/api";
+import {getRecords, getScenario, getTemplate, getTemplateRecords, postScenario, postTemplate} from "@/api";
 import { MyLocationPool } from "@/engine/domain/MyLocation";
 import { TransportCostMatrixManager } from "@/engine/domain/TransportCostMatrix";
 import { ProductPool } from "@/engine/domain/Product";
 import {ScenarioDTO, ScenarioFile, ScenarioImpl, TemplateFile} from "@/engine/domain/Scenario";
+import {Vehicle, VehiclePool} from "@/engine/domain/Vehicle";
+import {DriverPool} from "@/engine/domain/Driver";
 
 export class ScenarioHandler {
   static instance: ScenarioHandler;
 
   files: Array<ScenarioFile>;
+  templateFiles: Array<TemplateFile>;
   file: ScenarioFile |undefined;
 
   type: string | undefined;
@@ -21,6 +24,7 @@ export class ScenarioHandler {
 
   constructor() {
     this.files = new Array<ScenarioFile>();
+    this.templateFiles = new Array<TemplateFile>();
   }
 
   setSelectedScenarioFile(file: ScenarioFile){
@@ -45,8 +49,6 @@ export class ScenarioHandler {
     });
   }
 
-  // constructor(id: number, name: string, targetDate: Date, createTime: Date, lastModificationTime: Date, scenarioId: number,
-  //             isOfficial: number, creator: string, productVersion: string, geoVersion: string){
   fetchScenarioFileList() {
     let params = {};
     this.files = new Array<ScenarioFile>();
@@ -57,6 +59,36 @@ export class ScenarioHandler {
           new Date(row.lastModificationTime), row.scenarioId, row.isOfficial, row.creator, row.productVersion, row.geoVersion));
       }
       return Promise.resolve('files received successfully');
+    });
+  }
+
+  fetchTemplateFileList(){
+    let params = {};
+    this.templateFiles = new Array<TemplateFile>();
+    return getTemplateRecords(params).then(res=>{
+      for(let i in res){
+        let row = res[i];
+        this.templateFiles.push(new TemplateFile(row.id, row.name, new Date(row.createTime),
+          new Date(row.lastModificationTime), row.templateId, row.creator, row.productVersion, row.geoVersion));
+      }
+
+      return Promise.resolve('template files received successfully');
+    })
+  }
+
+  fetchTemplate(params: any){
+    return getTemplate(params);
+  }
+
+  fetchAllEssentials(){
+    return this.fetchEssentials()
+      .then(VehiclePool.getInstance().fetchVehicles)
+      .then(DriverPool.getInstance().fetchDrivers);
+  }
+
+  fetchAllEssentialsAndTemplate(params: any){
+    return this.fetchAllEssentials().then(res=>{
+      return this.fetchTemplate(params);
     });
   }
 
@@ -96,13 +128,11 @@ export class ScenarioHandler {
     transData.createTime = file.createTime.Format('yyyy-MM-dd hh:mm:ss');
     // @ts-ignore
     transData.lastModificationTime = file.lastModificationTime.Format('yyyy-MM-dd hh:mm:ss');
-    // @ts-ignore
-    transData.targetDate = file.targetDate.Format('yyyy-MM-dd hh:mm:ss');
 
     console.log(transData);
 
     let params = JSON.stringify(transData);
-    return postScenario(params);
+    return postTemplate(params);
   }
 }
 

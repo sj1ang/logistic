@@ -139,12 +139,14 @@ export default class extends Vue {
   }
 
   assembleEssentials(): Promise {
-    return MyLocationPool.getInstance()
-      .fetchLocations()
-      .then(ProductPool.getInstance().fetchProduct)
-      .then(TransportCostMatrixManager.getInstance().fetchTransportCostMatrix)
-      .then(VehiclePool.getInstance().fetchVehicles)
-      .then(DriverPool.getInstance().fetchDrivers);
+    // return MyLocationPool.getInstance()
+    //   .fetchLocations()
+    //   .then(ProductPool.getInstance().fetchProduct)
+    //   .then(TransportCostMatrixManager.getInstance().fetchTransportCostMatrix)
+    //   .then(VehiclePool.getInstance().fetchVehicles)
+    //   .then(DriverPool.getInstance().fetchDrivers);
+
+    return ScenarioHandler.getInstance().fetchAllEssentials();
   }
 
   assembleOrderTask(): Promise {

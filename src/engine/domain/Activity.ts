@@ -1,4 +1,4 @@
-import {convertMin2Time, genUID} from "@/utils/common";
+import {convertMin2Time, convertTime2Min, genUID} from "@/utils/common";
 import {hasId} from "@/engine/domain/Id";
 import {MyLocation, MyLocationPool} from "@/engine/domain/MyLocation";
 import {ActivityCaution, ActivityNoticeManager} from "@/engine/domain/Notice";
@@ -288,7 +288,175 @@ export class TourActivityWrapper{
       }
     }
   }
+}
 
+export interface MyTourActivityWrapper{
+  tourActivity: TourActivity;
+  name: string;
+  twStartStr: string;
+  twEndStr: string;
+  operationTime: number;
 
+  confirmModification(): void;
+}
+
+// export class TourActivityWrapperImpl implements MyTourActivityWrapper{
+//   name: string;
+//   operationTime: number;
+//   tourActivity: TourActivity;
+//   twEndStr: string;
+//   twStartStr: string;
+//
+//   constructor(activity: TourActivity){
+//     this.name = activity.name;
+//     this.tourActivity = activity;
+//     this.twStartStr = convertMin2Time(activity.twStart);
+//     this.twEndStr = convertMin2Time(activity.twEnd);
+//     this.operationTime = activity.operationTime;
+//   }
+//
+//   confirmModification(): void {
+//
+//   }
+// }
+
+export class DepotTourActivityWrapper implements MyTourActivityWrapper{
+  name: string;
+  operationTime: number;
+  tourActivity: TourActivity;
+  twEndStr: string;
+  twStartStr: string;
+
+  load: Load;
+
+  constructor(activity: DepotTourActivity){
+    this.name = activity.name;
+    this.twStartStr = convertMin2Time(activity.twStart);
+    this.twEndStr = convertMin2Time(activity.twEnd);
+    this.operationTime = activity.operationTime;
+    this.tourActivity = activity;
+
+    this.load = activity.load.clone();
+  }
+
+  confirmModification(): void {
+    this.tourActivity.name = this.name;
+    this.tourActivity.twStart = convertTime2Min(this.twStartStr);
+    this.tourActivity.twEnd = convertTime2Min(this.twEndStr);
+
+    //to solve vue bind-bug
+    let tmpOperationTime: any = this.operationTime;
+    this.tourActivity.operationTime = Number.parseInt(<string>tmpOperationTime);
+    this.tourActivity.load = this.load.clone();
+  }
+}
+
+export class ShipmentTourActivityWrapper implements MyTourActivityWrapper{
+  name: string;
+  operationTime: number;
+  tourActivity: ShipmentTourActivity;
+  twEndStr: string;
+  twStartStr: string;
+
+  load: Load;
+  task: Task | undefined;
+
+  hasFish: boolean;
+
+  constructor(activity: ShipmentTourActivity){
+    this.name = activity.name;
+    this.twStartStr = convertMin2Time(activity.twStart);
+    this.twEndStr = convertMin2Time(activity.twEnd);
+    this.operationTime = activity.operationTime;
+    this.tourActivity = activity;
+
+    this.load = activity.load.cloneAndReverse();
+    this.task = activity.task;
+    this.hasFish = activity.hasFish;
+  }
+
+  confirmModification(): void {
+    this.tourActivity.name = this.name;
+    this.tourActivity.twStart = convertTime2Min(this.twStartStr);
+    this.tourActivity.twEnd = convertTime2Min(this.twEndStr);
+
+    //to solve vue bind-bug
+    let tmpOperationTime: any = this.operationTime;
+    this.tourActivity.operationTime = Number.parseInt(<string>tmpOperationTime);
+    this.tourActivity.load = this.load.cloneAndReverse();
+    this.tourActivity.task = this.task;
+    console.log(this.hasFish);
+    this.tourActivity.hasFish = this.hasFish;
+  }
+
+}
+
+export class AdditionalShipmentTourActivityWrapper implements MyTourActivityWrapper{
+  name: string;
+  operationTime: number;
+  tourActivity: AdditionalShipmentTourActivity;
+  twEndStr: string;
+  twStartStr: string;
+
+  load: Load;
+  task: Task | undefined;
+
+  hasFish: boolean;
+  reason: number;
+  additionalFee: number;
+
+  constructor(activity: AdditionalShipmentTourActivity){
+    this.name = activity.name;
+    this.twStartStr = convertMin2Time(activity.twStart);
+    this.twEndStr = convertMin2Time(activity.twEnd);
+    this.operationTime = activity.operationTime;
+    this.tourActivity = activity;
+
+    this.load = activity.load.cloneAndReverse();
+    this.task = activity.task;
+
+    this.hasFish = activity.hasFish;
+    this.reason = activity.reason;
+    this.additionalFee = activity.additionalFee;
+  }
+
+  confirmModification(): void {
+    this.tourActivity.name = this.name;
+    this.tourActivity.twStart = convertTime2Min(this.twStartStr);
+    this.tourActivity.twEnd = convertTime2Min(this.twEndStr);
+
+    //to solve vue bind-bug
+    let tmpOperationTime: any = this.operationTime;
+    this.tourActivity.operationTime = Number.parseInt(tmpOperationTime);
+
+    this.tourActivity.load = this.load.cloneAndReverse();
+    this.tourActivity.task = this.task;
+    this.tourActivity.hasFish = this.hasFish;
+
+    //to solve vue bind-bug
+    let tmpReason: any = this.reason;
+    this.tourActivity.reason = Number.parseInt(tmpReason);
+    //to solve vue bind-bug
+    let tmpAdditionalFee:any = this.additionalFee;
+    this.tourActivity.additionalFee = Number.parseFloat(tmpAdditionalFee);
+  }
+
+  insert(): void{
+    this.confirmModification();
+    console.log(this.tourActivity);
+    ShipmentPool.getInstance().shipments.push(this.tourActivity);
+  }
+}
+
+export class TourActivityWrapperFactory{
+
+  static createWrapper(activity: TourActivity): MyTourActivityWrapper{
+    if(activity instanceof DepotTourActivity){
+      return new DepotTourActivityWrapper(<DepotTourActivity>activity);
+    }else if(activity instanceof AdditionalShipmentTourActivity){
+      return new AdditionalShipmentTourActivityWrapper(<AdditionalShipmentTourActivity>activity);
+    }else
+      return new ShipmentTourActivityWrapper(<ShipmentTourActivity>activity);
+  }
 
 }

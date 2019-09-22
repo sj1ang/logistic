@@ -9,7 +9,7 @@
     <div class="function-button" @click="saveScenario" v-if="type == 'scenario'">
       <i class="el-icon-s-promotion"></i>
     </div>
-    <div class="function-button" @click="saveTemplate" v-if="type == 'mock'">
+    <div class="function-button" @click="switchTemplateDialog" v-if="type == 'mock'">
       <i class="el-icon-upload"></i>
     </div>
     <shipment-activity-dialog :activity="activity" :type="'insertion'" ref="shipmentDialog"></shipment-activity-dialog>
@@ -17,7 +17,15 @@
     <el-dialog el-dialog title="保存新的模板" :visible.sync="templateDialogVisible" :append-to-body='true' width="50%" v-if="templateDialogVisible">
       <el-form v-model="templateFile" size="mini" label-width="80px">
         <el-form-item label="模板名称">
-          <el-input v-model="templateFile.name"></el-input>
+          <el-input v-model="name"></el-input>
+        </el-form-item>
+        <el-form-item label="创建者">
+          <el-input v-model="templateFile.creator" :disabled="true"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <div style="text-align: right">
+            <el-button type="primary" @click="saveTemplate">创建</el-button>
+          </div>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -25,7 +33,7 @@
 </template>
 
 <script lang="ts">
-  import { Component, Prop, Vue } from 'vue-property-decorator'
+  import {Component, Prop, Vue, Watch} from 'vue-property-decorator'
   import ShipmentActivity from "../ShipmentActivity/index"
   import {AdditionalShipmentTourActivity, ShipmentTourActivity, TourActivity} from "../../engine/domain/Activity"
   import {MyLocationPool} from "../../engine/domain/MyLocation"
@@ -48,11 +56,22 @@
     private templateFile: TemplateFile;
     templateDialogVisible: boolean = false;
 
+    private name: string = '';
+    private isReady: boolean = true;
+
     constructor(){
       super();
       this.activity = AdditionalShipmentTourActivity.createAdditionalShipmentTourActivity("新建任务", null, 0, 0, 720, [0], undefined, genUID());
       this.type = ScenarioHandler.getInstance().type;
     }
+
+    // @Watch('name')
+    // onNameChanged(){
+    //   if(this.templateFile) {
+    //     console.log(this.name);
+    //     this.templateFile.name = this.name;
+    //   }
+    // }
 
     switchShipmentDialog(): void{
       this.activity = AdditionalShipmentTourActivity.createAdditionalShipmentTourActivity("新建任务", null, 0, 0, 720, [0], undefined, genUID());
@@ -77,15 +96,27 @@
       });
     }
 
-    saveTemplate(): void{
-
+    switchTemplateDialog(): void{
       if(!this.templateFile){
         this.templateFile = new TemplateFile(undefined, "新建模板", new Date(), new Date(), undefined, "蔡徐坤", genUID(), genUID());
-        console.log(this.templateFile);
+        this.templateDialogVisible = true;
+      }else{
+        this.saveTemplate();
       }
+    }
 
-      this.templateDialogVisible = true;
-      console.log('template...');
+    saveTemplate(): void{
+      if(this.templateFile && this.isReady) {
+        this.isReady = false;
+        this.templateFile.name = this.name;
+        ScenarioHandler.getInstance().saveTemplate(this.templateFile).then(res => {
+          this.templateFile.id = res.id;
+          this.templateFile.templateId = res.templateId;
+          this.isReady = true;
+        });
+      }else{
+
+      }
     }
   }
 </script>

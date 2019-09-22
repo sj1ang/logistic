@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-dialog title="配送信息" :visible.sync="dialogVisible" :append-to-body='true' :before-close="handleClose" width="50%"
-               :close-on-click-modal="false">
+               :close-on-click-modal="false" v-if="dialogVisible">
       <div v-if="!isSplitPanel">
       <el-form v-model="wrapper" ref="activityForm" size="mini" label-width="80px">
         <el-form-item label="配送名称">
@@ -54,14 +54,14 @@
             </el-col>
             <el-col :span="2">&nbsp;</el-col>
             <el-col :span="4">
-              <el-checkbox v-model="hasFish">含有水产</el-checkbox>
+              <el-checkbox v-model="wrapper.hasFish">含有水产</el-checkbox>
             </el-col>
           </div>
           <el-col v-else>
-            <el-input type="number" min=0 v-model="wrapper.load.size[index]"></el-input>
+            <el-input type="number" min=0 v-model="wrapper.load.size[index]" :disabled="!isShipmentTourActivity"></el-input>
           </el-col>
         </el-form-item>
-        <el-form-item label="配送任务">
+        <el-form-item label="配送任务" v-if="isShipmentTourActivity">
           <el-select v-model="wrapper.task" value-key="uid" style="width: 100%" :disabled="type == 'modification'" @change="changeTask">
             <el-option
               v-for="task in tasks"
@@ -74,12 +74,12 @@
         </el-form-item>
         <el-form-item label="补货费用" v-if="isAdditionalShipmentTourActivity">
           <el-col>
-            <el-input type="number" min=0 v-model="additionalFee"></el-input>
+            <el-input type="number" min=0 v-model="wrapper.additionalFee"></el-input>
           </el-col>
         </el-form-item>
         <el-form-item label="补货原因" v-if="isAdditionalShipmentTourActivity">
           <el-col>
-            <el-radio v-for="(item, index) in additionalDeliveryReasons" :label="index" v-model="reason">{{item}}</el-radio>
+            <el-radio v-for="(item, index) in additionalDeliveryReasons" :label="index" v-model="wrapper.reason">{{item}}</el-radio>
           </el-col>
         </el-form-item>
         <el-form-item>
@@ -133,7 +133,12 @@
   import {Component, Prop, Vue, Watch} from 'vue-property-decorator'
   import {
     TourActivityWrapper,
-    TourActivity, ShipmentTourActivity, DepotTourActivity, AdditionalShipmentTourActivity
+    TourActivity,
+    ShipmentTourActivity,
+    DepotTourActivity,
+    AdditionalShipmentTourActivity,
+    MyTourActivityWrapper,
+    TourActivityWrapperFactory, AdditionalShipmentTourActivityWrapper, ShipmentTourActivityWrapper
   } from '../../engine/domain/Activity'
   import {convertMin2Time, convertTime2Min} from "../../utils/common"
   import {Route, RoutePool} from "../../engine/domain/Route"
@@ -148,9 +153,11 @@
   export default class extends Vue {
     @Prop() private activity: TourActivity;
     @Prop() private type: string;
+
     private dialogVisible: boolean = false;
     private popoverVisible: boolean = false;
-    private wrapper: TourActivityWrapper;
+    // private wrapper: MyTourActivityWrapper;
+    private wrapper: MyTourActivityWrapper;
     private loadTitle: Array<string>;
     private taskPool: TaskPool;
     private tasks: Array<Task>;
@@ -170,7 +177,8 @@
     constructor() {
       super();
       this.taskPool = TaskPool.getInstance();
-      this.wrapper = new TourActivityWrapper(this.activity);
+      // this.wrapper = new TourActivityWrapper(this.activity);
+      this.wrapper= TourActivityWrapperFactory.createWrapper(this.activity);
       this.loadTitle = Constants.LOAD_TITLE;
       this.tasks = this.taskPool.tasks;
 
@@ -193,13 +201,10 @@
       }
     }
 
-    @Watch('activity', {deep: true})
-    onActivityChanged() {
-      this.wrapper = new TourActivityWrapper(this.activity);
-      this.additionalFee = 0;
-      this.reason = 0;
-      this.hasFish = false;
-    }
+    // @Watch('activity', {deep: true})
+    // onActivityChanged() {
+    //   this.wrapper = TourActivityWrapperFactory.createWrapper(this.activity);
+    // }
 
     @Watch('load1', {deep: true})
     onLoad1Changed(){
@@ -219,19 +224,21 @@
 
     // caution: don't forget to update additional properties
     showDialog() {
-      this.wrapper = new TourActivityWrapper(this.activity);
-      if(this.activity instanceof ShipmentTourActivity){
-        this.hasFish = (<ShipmentTourActivity>this.activity).hasFish;
-        if(this.activity instanceof AdditionalShipmentTourActivity) {
-          this.additionalFee = (<AdditionalShipmentTourActivity>this.activity).additionalFee;
-          this.reason = (<AdditionalShipmentTourActivity>this.activity).reason;
-        }
-      }
+      // this.wrapper = new TourActivityWrapper(this.activity);
+      this.wrapper = TourActivityWrapperFactory.createWrapper(this.activity);
+      // if(this.activity instanceof ShipmentTourActivity){
+      //   this.hasFish = (<ShipmentTourActivity>this.activity).hasFish;
+      //   if(this.activity instanceof AdditionalShipmentTourActivity) {
+      //     this.additionalFee = (<AdditionalShipmentTourActivity>this.activity).additionalFee;
+      //     this.reason = (<AdditionalShipmentTourActivity>this.activity).reason;
+      //   }
+      // }
       this.dialogVisible = true;
     }
 
     cancel() {
-      this.wrapper = new TourActivityWrapper(this.activity);
+      // this.wrapper = new TourActivityWrapper(this.activity);
+      this.wrapper = TourActivityWrapperFactory.createWrapper(this.activity);
       this.additionalFee = 0;
       this.reason = 0;
       this.hasFish = false;
@@ -239,24 +246,26 @@
     }
 
     confirmModification(){
-      this.activity.twStart = convertTime2Min(this.wrapper.twStartStr);
-      this.activity.twEnd = convertTime2Min(this.wrapper.twEndStr);
-      this.activity.operationTime = Number.parseInt(<string>this.wrapper.operationTime);
+      // this.activity.twStart = convertTime2Min(this.wrapper.twStartStr);
+      // this.activity.twEnd = convertTime2Min(this.wrapper.twEndStr);
+      // this.activity.operationTime = Number.parseInt(<string>this.wrapper.operationTime);
+      //
+      // if (this.activity instanceof ShipmentTourActivity) {
+      //   this.activity.load = this.wrapper.load.cloneAndReverse();
+      //   (<ShipmentTourActivity>this.activity).hasFish = this.hasFish;
+      //   if(this.activity instanceof AdditionalShipmentTourActivity) {
+      //     (<AdditionalShipmentTourActivity>this.activity).additionalFee = Number.parseFloat(<string>this.additionalFee);
+      //     (<AdditionalShipmentTourActivity>this.activity).reason = Number.parseInt(<string>this.reason);
+      //
+      //     console.log(this.activity);
+      //   }
+      // } else if (this.activity instanceof DepotTourActivity) {
+      //   this.activity.load = this.wrapper.load.clone();
+      // }
+      //
+      // this.activity.name = this.wrapper.name;
 
-      if (this.activity instanceof ShipmentTourActivity) {
-        this.activity.load = this.wrapper.load.cloneAndReverse();
-        (<ShipmentTourActivity>this.activity).hasFish = this.hasFish;
-        if(this.activity instanceof AdditionalShipmentTourActivity) {
-          (<AdditionalShipmentTourActivity>this.activity).additionalFee = Number.parseFloat(<string>this.additionalFee);
-          (<AdditionalShipmentTourActivity>this.activity).reason = Number.parseInt(<string>this.reason);
-
-          console.log(this.activity);
-        }
-      } else if (this.activity instanceof DepotTourActivity) {
-        this.activity.load = this.wrapper.load.clone();
-      }
-
-      this.activity.name = this.wrapper.name;
+      this.wrapper.confirmModification();
 
       let route: Route = RoutePool.getInstance().routes.find(x => {
         return x.uid == this.activity.routeUid;
@@ -280,47 +289,52 @@
     }
 
     insert() {
-      this.activity.twStart = convertTime2Min(this.wrapper.twStartStr);
-      this.activity.twEnd = convertTime2Min(this.wrapper.twEndStr);
-      this.activity.operationTime = Number.parseInt(<string>this.wrapper.operationTime);
-
-      if(this.activity instanceof ShipmentTourActivity && this.wrapper.task){
-        let task = this.wrapper.task;
-        let sta = (<ShipmentTourActivity>this.activity);
-
-        sta.task = task;
-        sta.locationId = task.location.id;
-        sta.location = task.location;
+      // this.activity.twStart = convertTime2Min(this.wrapper.twStartStr);
+      // this.activity.twEnd = convertTime2Min(this.wrapper.twEndStr);
+      // this.activity.operationTime = Number.parseInt(<string>this.wrapper.operationTime);
+      //
+      // if(this.activity instanceof ShipmentTourActivity && this.wrapper.task){
+      //   let task = this.wrapper.task;
+      //   let sta = (<ShipmentTourActivity>this.activity);
+      //
+      //   sta.task = task;
+      //   sta.locationId = task.location.id;
+      //   sta.location = task.location;
+      // }
+      //
+      // if (this.activity instanceof ShipmentTourActivity) {
+      //   this.activity.load = this.wrapper.load.cloneAndReverse();
+      //   (<ShipmentTourActivity>this.activity).hasFish = this.hasFish;
+      //   if(this.activity instanceof AdditionalShipmentTourActivity) {
+      //     (<AdditionalShipmentTourActivity>this.activity).additionalFee = Number.parseFloat(<string>this.additionalFee);
+      //     (<AdditionalShipmentTourActivity>this.activity).reason = Number.parseInt(<string>this.reason);
+      //     // TO-DO: inserting new additional tour activity mechanism should be changed for updating task-activity-map;
+      //     // now: a new asta without task created first, then added to task pool here!
+      //     TaskPool.getInstance().shipmentTourActivityAdded(this.activity);
+      //   }
+      // } else if (this.activity instanceof DepotTourActivity) {
+      //   this.activity.load = this.wrapper.load.clone();
+      // }
+      //
+      // this.activity.name = this.wrapper.name;
+      //
+      // ShipmentPool.getInstance().shipments.push(this.activity);
+      //
+      if(this.wrapper instanceof AdditionalShipmentTourActivityWrapper){
+        (<AdditionalShipmentTourActivityWrapper>this.wrapper).insert();
       }
-
-      if (this.activity instanceof ShipmentTourActivity) {
-        this.activity.load = this.wrapper.load.cloneAndReverse();
-        (<ShipmentTourActivity>this.activity).hasFish = this.hasFish;
-        if(this.activity instanceof AdditionalShipmentTourActivity) {
-          (<AdditionalShipmentTourActivity>this.activity).additionalFee = Number.parseFloat(<string>this.additionalFee);
-          (<AdditionalShipmentTourActivity>this.activity).reason = Number.parseInt(<string>this.reason);
-          // TO-DO: inserting new additional tour activity mechanism should be changed for updating task-activity-map;
-          // now: a new asta without task created first, then added to task pool here!
-          TaskPool.getInstance().shipmentTourActivityAdded(this.activity);
-        }
-      } else if (this.activity instanceof DepotTourActivity) {
-        this.activity.load = this.wrapper.load.clone();
-      }
-
-      this.activity.name = this.wrapper.name;
-
-      ShipmentPool.getInstance().shipments.push(this.activity);
 
       this.dialogVisible = false;
     }
 
     trySplit(){
       // this.confirmModification();
-      this.isSplitPanel = true;
-
-      this.totalLoad.copy(this.wrapper.load);
-      this.load1.copy(this.wrapper.load);
-      this.load2.copy(new LoadImpl([0]));
+      if(this.isShipmentTourActivity) {
+        this.isSplitPanel = true;
+        this.totalLoad.copy((<ShipmentTourActivityWrapper>this.wrapper).load);
+        this.load1.copy((<ShipmentTourActivityWrapper>this.wrapper).load);
+        this.load2.copy(new LoadImpl([0]));
+      }
     }
 
     copyLoad(target: Load, source: Load){
@@ -363,10 +377,12 @@
     }
 
     changeTask(e){
-      let task = e;
-      this.wrapper.load = new LoadImpl([0]);
-      this.wrapper.name = task.name + '-补货';
-      this.wrapper.operationTime = task.serviceTime;
+      if(this.isShipmentTourActivity) {
+        let task = e;
+        (<ShipmentTourActivityWrapper>this.wrapper).load = new LoadImpl([0]);
+        this.wrapper.name = task.name + '-补货';
+        this.wrapper.operationTime = task.serviceTime;
+      }
       // this.wrapper.twStartStr = convertMin2Time(task.startTime);
       // this.wrapper.twEndStr = convertMin2Time(task.endTime);
     }

@@ -216,4 +216,8 @@ export class RoutePool{
       RoutePool.getInstance().addRoute(route);
     }
   }
+
+  assembleRoutesFromTemplate(template: any){
+
+  }
 }
