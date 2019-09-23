@@ -1,4 +1,9 @@
-import {ActivityFactory4Scenario, DepotTourActivity, TourActivity} from "@/engine/domain/Activity";
+import {
+  ActivityFactory4Scenario,
+  ActivityFactory4Template,
+  DepotTourActivity,
+  TourActivity
+} from "@/engine/domain/Activity";
 import {hasId} from "@/engine/domain/Id";
 import {genUID} from "@/utils/common";
 import {
@@ -18,6 +23,7 @@ import {
 import {Load, LoadImpl} from "@/engine/domain/Load";
 import {Driver, DriverPool} from "@/engine/domain/Driver";
 import {Task} from "@/engine/domain/Task";
+import {Constants} from "@/engine/Constant/Constants";
 
 export interface Route extends hasId{
   activities: Array<TourActivity>;
@@ -82,7 +88,8 @@ export class RouteImpl implements Route{
   }
 
   init(){
-    this.activities.push(new DepotTourActivity(0, 0, Number.MAX_VALUE, genUID()));
+    // this.activities.push(new DepotTourActivity(0, 0, Number.MAX_VALUE, genUID()));
+    this.addDepotTourActivity(0, Constants.FIRST_TIME_PICKUP_OPERATION_TIME);
     this.updaterManager.addUpdater(new RouteInitUpdater());
     this.updaterManager.addUpdater(new RouteTimeUpdater());
     this.updaterManager.addUpdater(new RouteLoadUpdater());
@@ -102,8 +109,8 @@ export class RouteImpl implements Route{
     this.updaterManager.update(this);
   }
 
-  addDepotTourActivity(index: number): void{
-    this.activities.splice(index, 0, new DepotTourActivity(0, 0, Number.MAX_VALUE, genUID()));
+  addDepotTourActivity(index: number, operationTime: number): void{
+    this.activities.splice(index, 0, new DepotTourActivity(operationTime, 0, Number.MAX_VALUE, genUID()));
   }
 
   deleteTourActivity(activity: TourActivity): number{
@@ -218,6 +225,28 @@ export class RoutePool{
   }
 
   assembleRoutesFromTemplate(template: any){
+    RoutePool.cleanPool();
 
+    let tmps = template.routes;
+
+    for(let i in tmps){
+      let tmp = tmps[i];
+      let route = RoutePool.getInstance().addNewRoute();
+
+      let acts = tmp.activities;
+      for(let j in acts){
+        let activity = ActivityFactory4Template.generateActivity(acts[j]);
+        if(activity)
+          route.activities.push(activity);
+      }
+
+      if(tmp.driver){
+        let driver = DriverPool.getInstance().getDriver(tmp.driver.uid);
+        if(driver)
+          route.assignDriver(driver);
+      }
+
+      route.updateRoute();
+    }
   }
 }

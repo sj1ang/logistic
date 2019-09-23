@@ -5,7 +5,7 @@ import {ActivityCaution, ActivityNoticeManager} from "@/engine/domain/Notice";
 import {Load, LoadImpl} from "@/engine/domain/Load";
 import {Task, TaskPool} from "@/engine/domain/Task";
 import {ShipmentPool} from "@/engine/domain/ShipmentPool";
-import {RoutePool} from "@/engine/domain/Route";
+import {Route, RoutePool} from "@/engine/domain/Route";
 import {Constants} from "@/engine/Constant/Constants";
 
 export interface TourActivity extends hasId{
@@ -132,6 +132,13 @@ export class ShipmentTourActivity implements TourActivity{
     TaskPool.getInstance().shipmentTourActivityRemoved(this);
   }
 
+  changeTask(task: Task){
+    TaskPool.getInstance().shipmentTourActivityRemoved(this);
+    this.task = task;
+    TaskPool.getInstance().shipmentTourActivityAdded(this);
+    console.log(TaskPool.getInstance().taskAdditionalShipmentMap);
+  }
+
 }
 
 export class AdditionalShipmentTourActivity extends ShipmentTourActivity{
@@ -146,6 +153,13 @@ export class AdditionalShipmentTourActivity extends ShipmentTourActivity{
     let activity = new AdditionalShipmentTourActivity(name, location, operationTime, twStart, twEnd, size, task, uid);
     TaskPool.getInstance().shipmentTourActivityAdded(activity);
     return activity;
+  }
+
+  changeTask(task: Task){
+    TaskPool.getInstance().shipmentTourActivityRemoved(this);
+    this.task = task;
+    TaskPool.getInstance().shipmentTourActivityAdded(this);
+    console.log(TaskPool.getInstance().taskAdditionalShipmentMap);
   }
 }
 
@@ -253,6 +267,27 @@ export class ActivityFactory4Scenario{
   }
 }
 
+export class ActivityFactory4Template{
+  static generateActivity(source: any): TourActivity | undefined{
+    console.log(source);
+    let activity = undefined;
+    let type = source.activityType;
+
+    if(type == Constants.DEPOT_ACTIVITY_TYPE){
+      activity = new DepotTourActivity(0, 0, Number.MAX_VALUE, genUID());
+    }else if(type == Constants.SHIPMENT_ACTIVITY_TYPE){
+      let task = TaskPool.getInstance().getTaskByLocationId(source.locationId);
+      if(task)
+        activity = ShipmentTourActivity.createShipmentTourActivity(task.name, task.location, task.serviceTime, task.startTime, task.endTime, task.load.size, task, genUID());
+      // activity.hasFish = source.hasFish;
+    }
+
+    console.log(activity);
+
+    return activity;
+  }
+}
+
 export class TourActivityWrapper{
   tourActivity: TourActivity;
   name: string;
@@ -348,6 +383,15 @@ export class DepotTourActivityWrapper implements MyTourActivityWrapper{
     let tmpOperationTime: any = this.operationTime;
     this.tourActivity.operationTime = Number.parseInt(<string>tmpOperationTime);
     this.tourActivity.load = this.load.clone();
+
+    // update
+    let route = RoutePool.getInstance().routes.find(x => {
+      return x.uid == this.tourActivity.routeUid;
+    })
+
+    if (route) {
+      route.updateRoute();
+    }
   }
 }
 
@@ -383,14 +427,28 @@ export class ShipmentTourActivityWrapper implements MyTourActivityWrapper{
     //to solve vue bind-bug
     let tmpOperationTime: any = this.operationTime;
     this.tourActivity.operationTime = Number.parseInt(<string>tmpOperationTime);
+
     this.tourActivity.load = this.load.cloneAndReverse();
-    this.tourActivity.task = this.task;
-    console.log(this.hasFish);
+    // this.tourActivity.task = this.task;
+
+    if(this.task)
+      this.tourActivity.changeTask(this.task);
+
     this.tourActivity.hasFish = this.hasFish;
+
+    // update
+    let route = RoutePool.getInstance().routes.find(x => {
+      return x.uid == this.tourActivity.routeUid;
+    })
+
+    if (route) {
+      route.updateRoute();
+    }
   }
 
 }
 
+// should modify three times (depot! shipment! additionalShipment!)
 export class AdditionalShipmentTourActivityWrapper implements MyTourActivityWrapper{
   name: string;
   operationTime: number;
@@ -430,7 +488,11 @@ export class AdditionalShipmentTourActivityWrapper implements MyTourActivityWrap
     this.tourActivity.operationTime = Number.parseInt(tmpOperationTime);
 
     this.tourActivity.load = this.load.cloneAndReverse();
-    this.tourActivity.task = this.task;
+    // this.tourActivity.task = this.task;
+
+    if(this.task)
+      this.tourActivity.changeTask(this.task);
+
     this.tourActivity.hasFish = this.hasFish;
 
     //to solve vue bind-bug
@@ -439,6 +501,15 @@ export class AdditionalShipmentTourActivityWrapper implements MyTourActivityWrap
     //to solve vue bind-bug
     let tmpAdditionalFee:any = this.additionalFee;
     this.tourActivity.additionalFee = Number.parseFloat(tmpAdditionalFee);
+
+    // update
+    let route = RoutePool.getInstance().routes.find(x => {
+      return x.uid == this.tourActivity.routeUid;
+    })
+
+    if (route) {
+      route.updateRoute();
+    }
   }
 
   insert(): void{

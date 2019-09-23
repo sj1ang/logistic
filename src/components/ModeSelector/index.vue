@@ -55,6 +55,7 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 import { ShipmentPool } from "../../engine/domain/ShipmentPool";
 import { TemplateFile } from "../../engine/domain/Scenario";
 import { ScenarioHandler } from "../../engine/domain/ScenarioHandler";
+import {RoutePool} from "../../engine/domain/Route"
 
 @Component({
   name: "ModeSelector"
@@ -98,7 +99,9 @@ export default class extends Vue {
     let params = { params: { id: sid } };
     ScenarioHandler.getInstance().fetchTemplate(params).then(template=>{
       console.log(template);
+      RoutePool.getInstance().assembleRoutesFromTemplate(template);
       loading.close();
+      this.$parent.moveForward();
     })
   }
 }

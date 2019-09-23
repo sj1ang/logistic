@@ -82,6 +82,15 @@ export class TaskPool{
     })
   }
 
+  getTaskByLocationId(id: number): Task | undefined{
+    return this.tasks.find(x=>{
+      if(x.location){
+        let loc = x.location;
+        return loc.id == id;
+      }
+    })
+  }
+
   createTask(locationId: number): Task{
     let task = new TaskImpl(locationId, 0, 0, 0, genUID());
     this.addTask(task);
@@ -98,7 +107,7 @@ export class TaskPool{
     if(task){
       let activities = map.get(task.uid);
       if(activities)
-        activities.push(task.uid);
+        activities.push(activity.uid);
     }
   }
 

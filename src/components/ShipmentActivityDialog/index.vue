@@ -62,7 +62,8 @@
           </el-col>
         </el-form-item>
         <el-form-item label="配送任务" v-if="isShipmentTourActivity">
-          <el-select v-model="wrapper.task" value-key="uid" style="width: 100%" :disabled="type == 'modification'" @change="changeTask">
+          <el-select v-model="wrapper.task" value-key="uid" style="width: 100%"
+                     @change="changeTask">
             <el-option
               v-for="task in tasks"
               :key="task.uid"
@@ -267,13 +268,13 @@
 
       this.wrapper.confirmModification();
 
-      let route: Route = RoutePool.getInstance().routes.find(x => {
-        return x.uid == this.activity.routeUid;
-      })
-
-      if (route) {
-        route.updateRoute();
-      }
+      // let route: Route = RoutePool.getInstance().routes.find(x => {
+      //   return x.uid == this.activity.routeUid;
+      // })
+      //
+      // if (route) {
+      //   route.updateRoute();
+      // }
     }
 
     confirm() {

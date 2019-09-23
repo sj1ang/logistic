@@ -99,13 +99,12 @@ export class ScenarioImpl implements Scenario{
 
 export class ScenarioDTO{
   drivers: Array<Driver>;
-  // locations: Array<MyLocation>;
   routes: Array<RouteDTO>;
   shipments: Array<TourActivityDTO>;
   tasks: Array<Task>;
   vehicles: Array<Vehicle>;
-  taskShipmentMap: Map<string, Array<string>>;
-  taskAdditionalShipmentMap: Map<string, Array<string>>;
+  taskShipmentMap: Object;
+  taskAdditionalShipmentMap: Object;
 
   constructor(scenario: Scenario){
     this.drivers = scenario.drivers;
@@ -126,9 +125,18 @@ export class ScenarioDTO{
       this.shipments.push(ActivityHandler.convert(ss[j]));
     }
 
-    this.taskShipmentMap = scenario.taskShipmentMap;
-    this.taskAdditionalShipmentMap = scenario.taskAdditionalShipmentMap;
+    this.taskShipmentMap = this._strMapToObj(scenario.taskShipmentMap);
+    this.taskAdditionalShipmentMap = this._strMapToObj(scenario.taskAdditionalShipmentMap);
+  }
 
+  _strMapToObj(strMap: Map<any, any>){
+    let obj= Object.create(null);
+    for (let[k,v] of strMap) {
+      obj[k] = v;
+    }
+
+    console.log(obj);
+    return obj;
   }
 }
 

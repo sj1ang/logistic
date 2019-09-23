@@ -22,15 +22,15 @@ export class RouteInitUpdater implements Updater{
     if(route instanceof RouteImpl) {
       let r = <RouteImpl>route;
       let acts = r.activities;
-      if(acts.length == 0) r.addDepotTourActivity(0);
+      if(acts.length == 0) r.addDepotTourActivity(0, Constants.FIRST_TIME_PICKUP_OPERATION_TIME);
 
       if (acts.length > 0) {
         if (!(acts[0] instanceof DepotTourActivity)) {
-          r.addDepotTourActivity(0);
+          r.addDepotTourActivity(0, Constants.FIRST_TIME_PICKUP_OPERATION_TIME);
         }
 
         if (!(acts[acts.length - 1] instanceof DepotTourActivity)) {
-          r.addDepotTourActivity(acts.length);
+          r.addDepotTourActivity(acts.length, Constants.REPICKUP_OPERATION_TIME);
         }
       }
 
@@ -40,9 +40,9 @@ export class RouteInitUpdater implements Updater{
         if (acts[i] instanceof DepotTourActivity) {
           if(i == 0){
             (<DepotTourActivity>acts[i]).isOrigin = true;
-            acts[i].operationTime = Constants.FIRST_TIME_PICKUP_OPERATION_TIME;
+            // acts[i].operationTime = Constants.FIRST_TIME_PICKUP_OPERATION_TIME;
           }else{
-            acts[i].operationTime = Constants.REPICKUP_OPERATION_TIME;
+            // acts[i].operationTime = Constants.REPICKUP_OPERATION_TIME;
           }
 
           if (flag) {
