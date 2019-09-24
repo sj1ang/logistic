@@ -22,8 +22,9 @@ import {
 } from "@/engine/domain/Constraint";
 import {Load, LoadImpl} from "@/engine/domain/Load";
 import {Driver, DriverPool} from "@/engine/domain/Driver";
-import {Task} from "@/engine/domain/Task";
+import {Task, TaskPool} from "@/engine/domain/Task";
 import {Constants} from "@/engine/Constant/Constants";
+import {ShipmentPool} from "@/engine/domain/ShipmentPool";
 
 export interface Route extends hasId{
   activities: Array<TourActivity>;

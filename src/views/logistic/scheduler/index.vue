@@ -102,6 +102,7 @@
   import IndexCell from "../../../components/IndexCell/index"
   import RouteIndexPanel from "../../../components/RouteIndexPanel/index"
   import {ProductPool} from '../../../engine/domain/Product'
+  import {ScenarioHandler} from "../../../engine/domain/ScenarioHandler"
 
   @Component({
     name: 'Scheduler',
@@ -154,6 +155,10 @@
     tryFun() {
       console.log(TaskPool.getInstance().taskShipmentMap);
       console.log(TaskPool.getInstance().taskAdditionalShipmentMap);
+
+      ScenarioHandler.getInstance().save().then(res=>{
+        console.log("saved...");
+      });
     }
 
     // editVehicles() {

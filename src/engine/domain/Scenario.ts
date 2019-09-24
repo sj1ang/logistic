@@ -16,19 +16,19 @@ import {UpdaterManager} from "@/engine/domain/Updater";
 import {ConstraintManager} from "@/engine/domain/Constraint";
 
 export class ScenarioFile{
-  id: number;
+  id: number | undefined;
   name: string;
   type: number;
   targetDate: Date;
   createTime: Date;
   lastModificationTime: Date;
-  scenarioId: number;
+  scenarioId: number | undefined;
   isOfficial: number;
   creator: string;
   productVersion: string;
   geoVersion: string;
 
-  constructor(id: number, name: string, type: number, targetDate: Date, createTime: Date, lastModificationTime: Date, scenarioId: number, isOfficial: number, creator: string, productVersion: string, geoVersion: string){
+  constructor(id: number | undefined, name: string, type: number, targetDate: Date, createTime: Date, lastModificationTime: Date, scenarioId: number | undefined, isOfficial: number, creator: string, productVersion: string, geoVersion: string){
     this.id = id;
     this.name = name;
     this.type = type;

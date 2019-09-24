@@ -1,4 +1,9 @@
-import {ActivityFactory4Scenario, ShipmentTourActivity, TourActivity} from "@/engine/domain/Activity";
+import {
+  ActivityFactory4Scenario,
+  ActivityFactory4Template,
+  ShipmentTourActivity,
+  TourActivity
+} from "@/engine/domain/Activity";
 import {MyLocationPool} from "@/engine/domain/MyLocation";
 import {TaskPool} from "@/engine/domain/Task";
 import {Load, LoadImpl} from "@/engine/domain/Load";
@@ -50,7 +55,6 @@ export class ShipmentPool{
       let task = tasks[i];
       if(task.location) {
         let load: Load = task.load;
-
         let activity = ShipmentTourActivity.createShipmentTourActivity(task.name, task.location, task.serviceTime, task.startTime, task.endTime, load.size, task, genUID());
 
         ShipmentPool.getInstance().addShipmentTourActivity(activity);
@@ -65,6 +69,33 @@ export class ShipmentPool{
     for(let i in tmps){
       let tmp = tmps[i];
       let activity = ActivityFactory4Scenario.generateActivity(tmp);
+      if(activity)
+        ShipmentPool.getInstance().addShipmentTourActivity(activity);
+    }
+  }
+
+  initializeRestShipments(){
+    let map = TaskPool.getInstance().taskShipmentMap;
+    map.forEach((v, k, m)=>{
+      if(v.length == 0){
+        let task = TaskPool.getInstance().getTask(k);
+        if(task){
+          if(task.location){
+            let activity = ShipmentTourActivity.createShipmentTourActivity(task.name, task.location, task.serviceTime, task.startTime, task.endTime, task.load.size, task, genUID());
+            ShipmentPool.getInstance().addShipmentTourActivity(activity);
+          }
+        }
+      }
+    })
+  }
+
+  assembleShipmentsFromTemplate(template: any){
+    ShipmentPool.cleanPool();
+
+    let tmps = template.shipments;
+    for(let i in tmps){
+      let tmp = tmps[i];
+      let activity = ActivityFactory4Template.generateActivity(tmp);
       if(activity)
         ShipmentPool.getInstance().addShipmentTourActivity(activity);
     }

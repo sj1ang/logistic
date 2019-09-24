@@ -83,40 +83,46 @@
       this.$refs.configurationDialog.showDialog();
     }
 
-    saveScenario(): void{
-      const loading = this.$loading({
-        lock: true,
-        text: "Loading",
-        spinner: "el-icon-loading",
-        background: "rgba(0, 0, 0, 0.7)"
-      });
+    // saveScenario(): void{
+    //   const loading = this.$loading({
+    //     lock: true,
+    //     text: "Loading",
+    //     spinner: "el-icon-loading",
+    //     background: "rgba(0, 0, 0, 0.7)"
+    //   });
+    //
+    //   ScenarioHandler.getInstance().saveScenario().then(res=>{
+    //     loading.close();
+    //   });
+    // }
+    //
+    // switchTemplateDialog(): void{
+    //   if(!this.templateFile){
+    //     this.templateFile = new TemplateFile(undefined, "新建模板", new Date(), new Date(), undefined, "蔡徐坤", genUID(), genUID());
+    //     this.templateDialogVisible = true;
+    //   }else{
+    //     this.saveTemplate();
+    //   }
+    // }
 
-      ScenarioHandler.getInstance().saveScenario().then(res=>{
-        loading.close();
-      });
-    }
+    // saveTemplate(): void{
+    //   if(this.templateFile && this.isReady) {
+    //     this.isReady = false;
+    //     this.templateFile.name = this.name;
+    //     ScenarioHandler.getInstance().saveTemplate(this.templateFile).then(res => {
+    //       this.templateFile.id = res.id;
+    //       this.templateFile.templateId = res.templateId;
+    //       this.isReady = true;
+    //     });
+    //   }else{
+    //
+    //   }
+    // }
 
-    switchTemplateDialog(): void{
-      if(!this.templateFile){
-        this.templateFile = new TemplateFile(undefined, "新建模板", new Date(), new Date(), undefined, "蔡徐坤", genUID(), genUID());
-        this.templateDialogVisible = true;
-      }else{
-        this.saveTemplate();
-      }
-    }
-
-    saveTemplate(): void{
-      if(this.templateFile && this.isReady) {
-        this.isReady = false;
-        this.templateFile.name = this.name;
-        ScenarioHandler.getInstance().saveTemplate(this.templateFile).then(res => {
-          this.templateFile.id = res.id;
-          this.templateFile.templateId = res.templateId;
-          this.isReady = true;
-        });
-      }else{
-
-      }
+    save(){
+      ScenarioHandler.getInstance().save().then(res=>{
+        console.log(res);
+      })
     }
   }
 </script>

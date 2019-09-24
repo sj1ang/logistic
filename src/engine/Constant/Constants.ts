@@ -24,4 +24,12 @@ export class Constants{
   static DEPOT_ACTIVITY_TYPE = 'dta';
   static SHIPMENT_ACTIVITY_TYPE = 'sta';
   static ADDITIONAL_SHIPMENT_ACTIVITY_TYPE = 'asta';
+
+  static FETCH_ORDER_TASKS = 0;
+  static FETCH_DELIVERY_TASKS = 1;
+  static FETCH_MOCK_TASKS = 2;
+  static IMPORT_SCENARIO = 3;
+
+  static ORDER_SCENARIO = 0;
+  static DELIVERY_SCENARIO = 1;
 }

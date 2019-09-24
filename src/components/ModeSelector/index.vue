@@ -95,11 +95,8 @@ export default class extends Vue {
       background: "rgba(0, 0, 0, 0.7)"
     });
 
-    let sid = this.templateFiles[this.templateIndex].id;
-    let params = { params: { id: sid } };
-    ScenarioHandler.getInstance().fetchTemplate(params).then(template=>{
-      console.log(template);
-      RoutePool.getInstance().assembleRoutesFromTemplate(template);
+    ScenarioHandler.getInstance().assembleBaseOnTemplate(this.templateFiles[this.templateIndex]).then(res=>{
+      console.log(res);
       loading.close();
       this.$parent.moveForward();
     })

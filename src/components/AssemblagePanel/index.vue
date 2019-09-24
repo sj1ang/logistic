@@ -1,27 +1,27 @@
 <template>
   <div class="assemblage-container">
     <div class="option-wrapper">
-      <el-radio v-model="type" label="order"
+      <el-radio v-model="type" :label="FETCH_ORDER_TASKS"
         >按配送日订单装框（创建物流计划单）</el-radio
       >
     </div>
     <div class="option-wrapper">
-      <el-radio v-model="type" label="delivery"
+      <el-radio v-model="type" :label="FETCH_DELIVERY_TASKS"
         >按配送日发货单装框（创建物流结单）</el-radio
       >
     </div>
     <div class="option-wrapper">
-      <el-radio v-model="type" label="mock"
+      <el-radio v-model="type" :label="FETCH_MOCK_TASKS"
         >生成模拟装框（创建模板）</el-radio
       >
     </div>
     <div class="option-wrapper">
-      <el-radio v-model="type" label="scenario"
+      <el-radio v-model="type" :label="IMPORT_SCENARIO"
         >导入Scenario（修改已有的物流单）</el-radio
       >
       <div style="margin-left: 24px">
         <el-date-picker
-          v-if="type == 'order' || type == 'delivery'"
+          v-if="type == FETCH_ORDER_TASKS || type == FETCH_DELIVERY_TASKS"
           size="mini"
           v-model="selectedDate"
           :picker-options="pickerOptions"
@@ -31,7 +31,7 @@
           size="mini"
           v-model="scenarioIndex"
           placeholder="选择scenario"
-          v-if="type == 'scenario' && scenarioFiles.length > 0"
+          v-if="type == IMPORT_SCENARIO && scenarioFiles.length > 0"
         >
           <el-option
             v-for="(item, index) in scenarioFiles"
@@ -45,7 +45,7 @@
       </div>
       <div
         style="margin-left: 24px"
-        v-if="type == 'scenario' && scenarioFiles.length == 0"
+        v-if="type == IMPORT_SCENARIO && scenarioFiles.length == 0"
       >
         <span style="font-size: 12px; color: #E65D6E">暂无scenario</span>
       </div>
@@ -78,6 +78,7 @@ import { ScenarioHandler } from "../../engine/domain/ScenarioHandler";
 import { genUID } from "../../utils/common";
 import { RoutePool } from "../../engine/domain/Route";
 import { ShipmentPool } from "../../engine/domain/ShipmentPool";
+import {Constants} from "../../engine/Constant/Constants"
 
 @Component({
   name: "AssemblagePanel"
@@ -86,10 +87,16 @@ export default class extends Vue {
   productPool: ProductPool;
   locationPool: MyLocationPool;
   date: Date;
-  type: string = "order";
+  type: number = 0;
   scenarioFiles: Array<ScenarioFile>;
   scenarioIndex: number = 0;
   selectedDate: Date;
+
+  FETCH_ORDER_TASKS = Constants.FETCH_ORDER_TASKS;
+  FETCH_DELIVERY_TASKS = Constants.FETCH_DELIVERY_TASKS;
+  FETCH_MOCK_TASKS = Constants.FETCH_MOCK_TASKS;
+  IMPORT_SCENARIO = Constants.IMPORT_SCENARIO;
+
   pickerOptions: Object = {
     disabledDate(time): boolean {
       let dateTime = new Date();
@@ -101,7 +108,7 @@ export default class extends Vue {
   constructor() {
     super();
     this.date = new Date();
-    this.type = "order";
+    this.type = 0;
     this.scenarioFiles = new Array<ScenarioFile>();
 
     let dateTime = new Date();
@@ -111,11 +118,11 @@ export default class extends Vue {
 
   @Watch("type")
   onTypeChanged() {
-    if (this.type == "order") {
+    if (this.type == this.FETCH_ORDER_TASKS) {
       let dateTime = new Date();
       dateTime.setDate(dateTime.getDate() + 1);
       this.selectedDate = dateTime;
-    } else if (this.type == "delivery") {
+    } else if (this.type == this.FETCH_DELIVERY_TASKS) {
       this.selectedDate = new Date();
     }
   }
@@ -138,45 +145,6 @@ export default class extends Vue {
       });
   }
 
-  assembleEssentials(): Promise {
-    // return MyLocationPool.getInstance()
-    //   .fetchLocations()
-    //   .then(ProductPool.getInstance().fetchProduct)
-    //   .then(TransportCostMatrixManager.getInstance().fetchTransportCostMatrix)
-    //   .then(VehiclePool.getInstance().fetchVehicles)
-    //   .then(DriverPool.getInstance().fetchDrivers);
-
-    return ScenarioHandler.getInstance().fetchAllEssentials();
-  }
-
-  assembleOrderTask(): Promise {
-    return this.assembleEssentials().then(res => {
-      return TaskPool.getInstance().fetchTasks(true);
-    });
-  }
-
-  assembleMockTask(): Promise {
-    return this.assembleEssentials().then(res => {
-      return TaskPool.getInstance().fetchTasks(false);
-    });
-  }
-
-  assembleFromScenario(): Promise {
-    let sid = this.scenarioFiles[this.scenarioIndex].id;
-    let params = { params: { id: sid } };
-    return ScenarioHandler.getInstance()
-      .fetchEssentialsAndScenario(params)
-      .then(scenario => {
-        console.log(scenario);
-        TaskPool.getInstance().assembleTasksFromScenario(scenario);
-        VehiclePool.getInstance().assembleVehiclesFromScenario(scenario);
-        DriverPool.getInstance().assembleDriversFromScenario(scenario);
-        RoutePool.getInstance().assembleRoutesFromScenario(scenario);
-        ShipmentPool.getInstance().assembleShipmentsFromScenario(scenario);
-        return Promise.resolve("assemble from scenario successfully...");
-      });
-  }
-
   conduct() {
     const loading = this.$loading({
       lock: true,
@@ -185,26 +153,19 @@ export default class extends Vue {
       background: "rgba(0, 0, 0, 0.7)"
     });
 
-    ScenarioHandler.getInstance().setSelectedScenarioFile(
-      this.scenarioFiles[this.scenarioIndex]
-    );
-
-    ScenarioHandler.getInstance().type = this.type;
-
     let promise: Promise;
 
-    if (this.type == "order") {
-      promise = this.assembleOrderTask();
-    } else if(this.type == "mock"){
-      promise = this.assembleMockTask();
-    }else if ((this.type = "scenario")) {
-      promise = this.assembleFromScenario();
+    if(this.type == Constants.FETCH_ORDER_TASKS || this.type == Constants.FETCH_DELIVERY_TASKS || this.type == Constants.FETCH_MOCK_TASKS){
+      promise = ScenarioHandler.getInstance().fetchTasks(this.type, this.date);
+    }else if(this.type == Constants.IMPORT_SCENARIO){
+
+      promise = ScenarioHandler.getInstance().importScenario(this.scenarioFiles[this.scenarioIndex]);
     }
 
     if (promise) {
       promise.then(res => {
         loading.close();
-        if (this.type == "scenario") {
+        if (this.type == Constants.IMPORT_SCENARIO) {
           this.$parent.moveTwoSteps();
         } else {
           this.$parent.moveForward();
