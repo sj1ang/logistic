@@ -59,7 +59,11 @@ export class ScenarioSaveManager implements SaveManager{
       }
       console.log(transData);
       let params = JSON.stringify(transData);
-      return postScenario(params);
+      return postScenario(params).then(res=>{
+        console.log(res);
+        this.scenarioFile = new ScenarioFile(res.id, res.name, res.type, new Date(res.targetDate), new Date(res.createTime), new Date(res.lastModificationTime), res.scenarioId, res.isOfficial, res.creator, res.productVersion, res.geoVersion);
+        return Promise.resolve('saved successfully...')
+      })
     }
   }
 

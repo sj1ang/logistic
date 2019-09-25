@@ -156,9 +156,8 @@ export default class extends Vue {
     let promise: Promise;
 
     if(this.type == Constants.FETCH_ORDER_TASKS || this.type == Constants.FETCH_DELIVERY_TASKS || this.type == Constants.FETCH_MOCK_TASKS){
-      promise = ScenarioHandler.getInstance().fetchTasks(this.type, this.date);
+      promise = ScenarioHandler.getInstance().fetchTasks(this.type, this.selectedDate);
     }else if(this.type == Constants.IMPORT_SCENARIO){
-
       promise = ScenarioHandler.getInstance().importScenario(this.scenarioFiles[this.scenarioIndex]);
     }
 

@@ -1,4 +1,12 @@
-import {getRecords, getScenario, getTemplate, getTemplateRecords, postScenario, postTemplate} from "@/api";
+import {
+  getRecords,
+  getScenario,
+  getScenarioRecordByDate,
+  getTemplate,
+  getTemplateRecords,
+  postScenario,
+  postTemplate
+} from "@/api";
 import { MyLocationPool } from "@/engine/domain/MyLocation";
 import { TransportCostMatrixManager } from "@/engine/domain/TransportCostMatrix";
 import { ProductPool } from "@/engine/domain/Product";
@@ -37,27 +45,43 @@ export class ScenarioHandler {
   }
 
   fetchTasks(type: number, targetDate: Date | undefined){
+    let that = this;
     if(type == Constants.FETCH_ORDER_TASKS){
       this.taskFetcher = new OrderTaskFetcher();
-      if(targetDate)
-        this.saveManager = new ScenarioSaveManager(new ScenarioFile(undefined,
-          // @ts-ignore
-          targetDate.Format("yyyy-MM-dd") + "物流计划", Constants.ORDER_SCENARIO, targetDate, new Date(),
-          new Date(), undefined, 1, "蔡徐坤", genUID(), genUID()));
-
+      if(targetDate) {
+        // @ts-ignore
+        let params = {params: {date: targetDate.Format("yyyy-MM-dd"), type: 0}};
+        return getScenarioRecordByDate(params).then(res=>{
+          if(res) {
+            let scenarioFile = new ScenarioFile(res.id, res.name, res.type, new Date(res.targetDate), new Date(res.createTime), new Date(res.lastModificationTime), res.scenarioId, res.isOfficial, res.creator, res.productVersion, res.geoVersion);
+            this.saveManager = new ScenarioSaveManager(scenarioFile);
+          }else {
+            this.saveManager = new ScenarioSaveManager(new ScenarioFile(undefined,
+              // @ts-ignore
+              targetDate.Format("yyyy-MM-dd") + "物流计划", Constants.ORDER_SCENARIO, targetDate, new Date(),
+              new Date(), undefined, 1, "蔡徐坤", genUID(), genUID()));
+          }
+          if(this.taskFetcher)
+            return this.taskFetcher.fetchTasks();
+          else
+            return Promise.reject('null task fetcher');
+        })
+      }
     }else if(type == Constants.FETCH_DELIVERY_TASKS){
       this.taskFetcher = new DeliveryTaskFetcher();
-      if(targetDate)
+      if(targetDate) {
         this.saveManager = new ScenarioSaveManager(new ScenarioFile(undefined,
-        // @ts-ignore
+          // @ts-ignore
           targetDate.Format("yyyy-MM-dd") + " 物流结单", Constants.ORDER_SCENARIO, targetDate, new Date(),
           new Date(), undefined, 1, "蔡徐坤", genUID(), genUID()));
+      }
+      return this.taskFetcher.fetchTasks();
     }else{
       this.taskFetcher = new MockTaskFetcher();
       this.saveManager = new TemplateSaveManager();
+      return this.taskFetcher.fetchTasks();
     }
 
-    return this.taskFetcher.fetchTasks();
   }
 
   importScenario(file: ScenarioFile){
