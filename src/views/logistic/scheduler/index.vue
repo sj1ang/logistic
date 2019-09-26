@@ -103,10 +103,12 @@
   import RouteIndexPanel from "../../../components/RouteIndexPanel/index"
   import {ProductPool} from '../../../engine/domain/Product'
   import {ScenarioHandler} from "../../../engine/domain/ScenarioHandler"
+  import BottomBar from "../../../components/BottomBar/index"
 
   @Component({
     name: 'Scheduler',
     components: {
+      BottomBar,
       RouteIndexPanel,
       IndexCell,
       TaskPanel,

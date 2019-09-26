@@ -1,8 +1,13 @@
 <template>
-  <div class="scheduler-container">
-    <assemblage-panel v-if="step == 0"></assemblage-panel>
-    <mode-selector v-if="step == 1"></mode-selector>
-    <scheduler v-if="step == 2"></scheduler>
+  <div class="main-container">
+    <div class="scheduler-container">
+      <assemblage-panel v-if="step == 0"></assemblage-panel>
+      <mode-selector v-if="step == 1"></mode-selector>
+      <scheduler v-if="step == 2"></scheduler>
+    </div>
+    <div style="display: flex; flex: 0 0 24px; flex-direction: column">
+      <bottom-bar style="flex: 0 0 24px"></bottom-bar>
+    </div>
   </div>
 </template>
 
@@ -17,10 +22,11 @@
   import {DriverPool} from "../../../engine/domain/Driver"
   import ModeSelector from "../../../components/ModeSelector/index"
   import AssemblagePanel from "../../../components/AssemblagePanel/index"
+  import BottomBar from "../../../components/BottomBar/index"
 
   @Component({
     name: 'Assemblage',
-    components: {AssemblagePanel, ModeSelector, Scheduler}
+    components: {BottomBar, AssemblagePanel, ModeSelector, Scheduler}
   })
   export default class extends Vue {
     step: number = 0;
@@ -38,8 +44,16 @@
 </script>
 
 <style lang="scss" scoped>
+  .main-container{
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
   .scheduler-container{
-
+    flex: 1;
+    overflow: scroll;
   }
 </style>
 

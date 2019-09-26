@@ -64,16 +64,29 @@ export class ScenarioHandler {
           if(this.taskFetcher)
             return this.taskFetcher.fetchTasks();
           else
-            return Promise.reject('null task fetcher');
+            return Promise.reject('task fetcher is null...');
         })
       }
     }else if(type == Constants.FETCH_DELIVERY_TASKS){
       this.taskFetcher = new DeliveryTaskFetcher();
       if(targetDate) {
-        this.saveManager = new ScenarioSaveManager(new ScenarioFile(undefined,
-          // @ts-ignore
-          targetDate.Format("yyyy-MM-dd") + " 物流结单", Constants.ORDER_SCENARIO, targetDate, new Date(),
-          new Date(), undefined, 1, "蔡徐坤", genUID(), genUID()));
+        // @ts-ignore
+        let params = {params: {date: targetDate.Format("yyyy-MM-dd"), type: 1}};
+        return getScenarioRecordByDate(params).then(res=>{
+          if(res){
+            let scenarioFile = new ScenarioFile(res.id, res.name, res.type, new Date(res.targetDate), new Date(res.createTime), new Date(res.lastModificationTime), res.scenarioId, res.isOfficial, res.creator, res.productVersion, res.geoVersion);
+            this.saveManager = new ScenarioSaveManager(scenarioFile);
+          }else{
+            this.saveManager = new ScenarioSaveManager(new ScenarioFile(undefined,
+              // @ts-ignore
+              targetDate.Format("yyyy-MM-dd") + " 物流结单", Constants.ORDER_SCENARIO, targetDate, new Date(),
+              new Date(), undefined, 1, "蔡徐坤", genUID(), genUID()));
+          }
+          if(this.taskFetcher)
+            return this.taskFetcher.fetchTasks();
+          else
+            return Promise.reject('task fetcher is null...');
+        })
       }
       return this.taskFetcher.fetchTasks();
     }else{
@@ -86,7 +99,6 @@ export class ScenarioHandler {
 
   importScenario(file: ScenarioFile){
     this.saveManager = new ScenarioSaveManager(file);
-    // this.setSelectedScenarioFile(file);
     let params = { params: { id: file.scenarioId } };
     return ScenarioHandler.getInstance()
       .fetchEssentialsAndScenario(params)
