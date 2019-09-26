@@ -15,7 +15,11 @@ import {Load} from "@/engine/domain/Load";
 import {UpdaterManager} from "@/engine/domain/Updater";
 import {ConstraintManager} from "@/engine/domain/Constraint";
 
-export class ScenarioFile{
+export interface MyFile {
+  id: number | undefined;
+}
+
+export class ScenarioFile implements MyFile{
   id: number | undefined;
   name: string;
   type: number;
@@ -43,7 +47,7 @@ export class ScenarioFile{
   }
 }
 
-export class TemplateFile{
+export class TemplateFile implements MyFile{
   id: number | undefined;
   name: string;
   createTime: Date;

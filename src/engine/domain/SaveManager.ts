@@ -1,6 +1,8 @@
 import {Constants} from "@/engine/Constant/Constants";
-import {ScenarioDTO, ScenarioFile, ScenarioImpl, TemplateFile} from "@/engine/domain/Scenario";
+import {MyFile, ScenarioDTO, ScenarioFile, ScenarioImpl, TemplateFile} from "@/engine/domain/Scenario";
 import {postScenario, postTemplate} from "@/api";
+import {FileManager} from "@/engine/domain/FileManager";
+import {genUID} from "@/utils/common";
 
 export interface SaveManager {
   save(): Promise<any> | undefined;
@@ -9,7 +11,11 @@ export interface SaveManager {
 export class TemplateSaveManager implements SaveManager{
   templateFile: TemplateFile | undefined;
 
-  save() {
+  save(){
+    return undefined;
+  }
+
+  saveTemplate() {
     if(!this.templateFile){
       return undefined;
     }else {
@@ -32,41 +38,66 @@ export class TemplateSaveManager implements SaveManager{
 }
 
 export class ScenarioSaveManager implements SaveManager{
+  targetDate: Date;
+  type: number;
   scenarioFile: ScenarioFile | undefined;
 
-  constructor(scenarioFile: ScenarioFile){
-    this.scenarioFile = scenarioFile;
+  constructor(targetDate: Date, type: number){
+    this.targetDate = targetDate;
+    this.type = type;
   }
 
-  save() {
-    if(!this.scenarioFile){
-      return undefined;
+  save(){
+    return this.generateScenarioFile().then(res=>{
+      this.saveScenario()
+    });
+  }
+
+  saveScenario() {
+    let that = this;
+    if(!that.scenarioFile){
+      return Promise.reject('null scenario file!');
     }else{
       let scenario = new ScenarioImpl();
       let scenarioDTO = new ScenarioDTO(scenario);
-      this.scenarioFile.lastModificationTime = new Date();
+      that.scenarioFile.lastModificationTime = new Date();
 
 
-      let transData = {...this.scenarioFile, content: scenarioDTO};
+      let transData = {...that.scenarioFile, content: scenarioDTO};
 
       if(this.scenarioFile) {
         // @ts-ignore
-        transData.createTime = this.scenarioFile.createTime.Format('yyyy-MM-dd hh:mm:ss');
+        transData.createTime = that.scenarioFile.createTime.Format('yyyy-MM-dd hh:mm:ss');
         // @ts-ignore
-        transData.lastModificationTime = this.scenarioFile.lastModificationTime.Format('yyyy-MM-dd hh:mm:ss');
+        transData.lastModificationTime = that.scenarioFile.lastModificationTime.Format('yyyy-MM-dd hh:mm:ss');
         // @ts-ignore
-        transData.targetDate = this.scenarioFile.targetDate.Format('yyyy-MM-dd hh:mm:ss');
+        transData.targetDate = that.scenarioFile.targetDate.Format('yyyy-MM-dd hh:mm:ss');
       }
-      console.log(transData);
       let params = JSON.stringify(transData);
       return postScenario(params).then(res=>{
-        console.log(res);
         this.scenarioFile = new ScenarioFile(res.id, res.name, res.type, new Date(res.targetDate), new Date(res.createTime), new Date(res.lastModificationTime), res.scenarioId, res.isOfficial, res.creator, res.productVersion, res.geoVersion);
-        return Promise.resolve('saved successfully...')
+        return Promise.resolve('saved successfully')
       })
     }
   }
 
+  generateScenarioFile(): Promise<any>{
+    return FileManager.fetchScenarioRecordByDate(this.targetDate, this.type).then(res=>{
+      if(res){
+        this.scenarioFile = new ScenarioFile(res.id, res.name, res.type, new Date(res.targetDate), new Date(res.createTime), new Date(res.lastModificationTime), res.scenarioId, res.isOfficial, res.creator, res.productVersion, res.geoVersion);
+      }else{
+        if(this.type == Constants.ORDER_SCENARIO) {
+          // @ts-ignore
+          this.scenarioFile = new ScenarioFile(undefined, this.targetDate.Format("yyyy-MM-dd") + "物流计划", Constants.ORDER_SCENARIO, this.targetDate, new Date(), new Date(), undefined, 1, "蔡徐坤", genUID(), genUID());
+        }else if(this.type == Constants.DELIVERY_SCENARIO) {
+          // @ts-ignore
+          this.scenarioFile = new ScenarioFile(undefined, this.targetDate.Format("yyyy-MM-dd") + "物流结单", Constants.DELIVERY_SCENARIO, this.targetDate, new Date(), new Date(), undefined, 1, "蔡徐坤", genUID(), genUID());
+        }
+      }
+
+      return Promise.resolve('scenario file generated successfully')
+    })
+  }
 }
 
 // @ts-ignore

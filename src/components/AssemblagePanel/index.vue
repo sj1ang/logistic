@@ -25,6 +25,7 @@
           size="mini"
           v-model="selectedDate"
           :picker-options="pickerOptions"
+          @blur="checkStatus"
         >
         </el-date-picker>
         <el-select
@@ -79,6 +80,7 @@ import { genUID } from "../../utils/common";
 import { RoutePool } from "../../engine/domain/Route";
 import { ShipmentPool } from "../../engine/domain/ShipmentPool";
 import {Constants} from "../../engine/Constant/Constants"
+import {FileManager, FileCheckerFactory, FileManagerFactory} from "../../engine/domain/FileManager"
 
 @Component({
   name: "AssemblagePanel"
@@ -108,7 +110,7 @@ export default class extends Vue {
   constructor() {
     super();
     this.date = new Date();
-    this.type = 0;
+    this.type = this.FETCH_ORDER_TASKS;
     this.scenarioFiles = new Array<ScenarioFile>();
 
     let dateTime = new Date();
@@ -125,6 +127,8 @@ export default class extends Vue {
     } else if (this.type == this.FETCH_DELIVERY_TASKS) {
       this.selectedDate = new Date();
     }
+
+    this.checkStatus();
   }
 
   created() {
@@ -143,6 +147,8 @@ export default class extends Vue {
         console.log(res);
         loading.close();
       });
+
+    this.checkStatus();
   }
 
   conduct() {
@@ -174,6 +180,14 @@ export default class extends Vue {
       this.$message.error("ERROR!");
       loading.close();
     }
+  }
+
+  checkStatus(){
+    console.log('checking...');
+    FileManagerFactory.getInstance().checkStatus(this.selectedDate, this.type);
+    console.log(FileManagerFactory.getInstance().currentKey)
+    console.log(FileManagerFactory.getInstance().currentFileName)
+    console.log(FileManagerFactory.getInstance().currentFileStatus)
   }
 }
 </script>

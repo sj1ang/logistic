@@ -32,4 +32,9 @@ export class Constants{
 
   static ORDER_SCENARIO = 0;
   static DELIVERY_SCENARIO = 1;
+
+  static NOT_CHECKED = 0;
+  static IS_CHECKING = 1;
+  static SCENARIO_EXISTING = 2;
+  static SCENARIO_NOT_EXISTING = 3;
 }
