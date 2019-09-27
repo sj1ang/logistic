@@ -1,9 +1,11 @@
-export class FileStatus{
-  file: File;
-  status: number;
+import {ScenarioFile} from "@/engine/domain/Scenario";
 
-  constructor(file: File, status: number){
-    this.file = file;
+export class ScenarioFileStatus{
+  status: number;
+  file: ScenarioFile | undefined;
+
+  constructor(status: number, file: ScenarioFile | undefined){
     this.status = status;
+    this.file = file;
   }
 }

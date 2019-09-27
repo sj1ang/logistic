@@ -10,16 +10,30 @@ import {
 import { MyLocationPool } from "@/engine/domain/MyLocation";
 import { TransportCostMatrixManager } from "@/engine/domain/TransportCostMatrix";
 import { ProductPool } from "@/engine/domain/Product";
-import {ScenarioDTO, ScenarioFile, ScenarioImpl, TemplateFile} from "@/engine/domain/Scenario";
-import {Vehicle, VehiclePool} from "@/engine/domain/Vehicle";
-import {DriverPool} from "@/engine/domain/Driver";
-import {DeliveryTaskFetcher, MockTaskFetcher, OrderTaskFetcher, TaskFetcher} from "@/engine/domain/TaskFetcher";
-import {TaskPool} from "@/engine/domain/Task";
-import {ShipmentPool} from "@/engine/domain/ShipmentPool";
-import {RoutePool} from "@/engine/domain/Route";
-import {Constants} from "@/engine/Constant/Constants";
-import {SaveManager, ScenarioSaveManager, TemplateSaveManager} from "@/engine/domain/SaveManager";
-import {genUID} from "@/utils/common";
+import {
+  ScenarioDTO,
+  ScenarioFile,
+  ScenarioImpl,
+  TemplateFile
+} from "@/engine/domain/Scenario";
+import { Vehicle, VehiclePool } from "@/engine/domain/Vehicle";
+import { DriverPool } from "@/engine/domain/Driver";
+import {
+  DeliveryTaskFetcher,
+  MockTaskFetcher,
+  OrderTaskFetcher,
+  TaskFetcher
+} from "@/engine/domain/TaskFetcher";
+import { TaskPool } from "@/engine/domain/Task";
+import { ShipmentPool } from "@/engine/domain/ShipmentPool";
+import { RoutePool } from "@/engine/domain/Route";
+import { Constants } from "@/engine/Constant/Constants";
+import {
+  SaveManager,
+  ScenarioSaveManager,
+  TemplateSaveManager
+} from "@/engine/domain/SaveManager";
+import { genUID } from "@/utils/common";
 
 export class ScenarioHandler {
   static instance: ScenarioHandler;
@@ -28,7 +42,7 @@ export class ScenarioHandler {
   templateFiles: Array<TemplateFile>;
   // file: ScenarioFile |undefined;
 
-  type: string | undefined;
+  selectedType: number | undefined;
   taskFetcher: TaskFetcher | undefined;
   saveManager: SaveManager | undefined;
 
@@ -44,96 +58,76 @@ export class ScenarioHandler {
     this.templateFiles = new Array<TemplateFile>();
   }
 
-  fetchTasks(type: number, targetDate: Date | undefined){
-    if(type == Constants.FETCH_ORDER_TASKS){
+  fetchTasks(type: number, targetDate: Date | undefined) {
+    if (type == Constants.FETCH_ORDER_TASKS) {
       this.taskFetcher = new OrderTaskFetcher();
-      if(targetDate) {
-        // // @ts-ignore
-        // let params = {params: {date: targetDate.Format("yyyy-MM-dd"), type: 0}};
-        // return getScenarioRecordByDate(params).then(res=>{
-        //   if(res) {
-        //     let scenarioFile = new ScenarioFile(res.id, res.name, res.type, new Date(res.targetDate), new Date(res.createTime), new Date(res.lastModificationTime), res.scenarioId, res.isOfficial, res.creator, res.productVersion, res.geoVersion);
-        //     this.saveManager = new ScenarioSaveManager(scenarioFile);
-        //   }else {
-        //     this.saveManager = new ScenarioSaveManager(new ScenarioFile(undefined,
-        //       // @ts-ignore
-        //       targetDate.Format("yyyy-MM-dd") + "物流计划", Constants.ORDER_SCENARIO, targetDate, new Date(),
-        //       new Date(), undefined, 1, "蔡徐坤", genUID(), genUID()));
-        //   }
-        //   if(this.taskFetcher)
-        //     return this.taskFetcher.fetchTasks();
-        //   else
-        //     return Promise.reject('task fetcher is null...');
-        // })
+      if (targetDate) {
         this.saveManager = new ScenarioSaveManager(targetDate, type);
-        if(this.taskFetcher)
-          return this.taskFetcher.fetchTasks();
-        else
-          return Promise.reject('null task fetcher!');
+        if (this.taskFetcher) {
+          return this.saveManager.init().then(res => {
+            if (this.taskFetcher) return this.taskFetcher.fetchTasks();
+            return Promise.reject("null task fetcher!");
+          });
+        } else {
+          return Promise.reject("null task fetcher!");
+        }
       }
-    }else if(type == Constants.FETCH_DELIVERY_TASKS){
+    } else if (type == Constants.FETCH_DELIVERY_TASKS) {
       this.taskFetcher = new DeliveryTaskFetcher();
-      if(targetDate) {
-        // // @ts-ignore
-        // let params = {params: {date: targetDate.Format("yyyy-MM-dd"), type: 1}};
-        // return getScenarioRecordByDate(params).then(res=>{
-        //   if(res){
-        //     let scenarioFile = new ScenarioFile(res.id, res.name, res.type, new Date(res.targetDate), new Date(res.createTime), new Date(res.lastModificationTime), res.scenarioId, res.isOfficial, res.creator, res.productVersion, res.geoVersion);
-        //     this.saveManager = new ScenarioSaveManager(scenarioFile);
-        //   }else{
-        //     this.saveManager = new ScenarioSaveManager(new ScenarioFile(undefined,
-        //       // @ts-ignore
-        //       targetDate.Format("yyyy-MM-dd") + " 物流结单", Constants.ORDER_SCENARIO, targetDate, new Date(),
-        //       new Date(), undefined, 1, "蔡徐坤", genUID(), genUID()));
-        //   }
-        //   if(this.taskFetcher)
-        //     return this.taskFetcher.fetchTasks();
-        //   else
-        //     return Promise.reject('task fetcher is null...');
-        // })
+      if (targetDate) {
         this.saveManager = new ScenarioSaveManager(targetDate, type);
-        if(this.taskFetcher)
-          return this.taskFetcher.fetchTasks();
-        else
-          return Promise.reject('null task fetcher!');
+        if (this.taskFetcher) {
+          return this.saveManager.init().then(res => {
+            if (this.taskFetcher) return this.taskFetcher.fetchTasks();
+            return Promise.reject("null task fetcher!");
+          });
+        } else {
+          return Promise.reject("null task fetcher!");
+        }
       }
       return this.taskFetcher.fetchTasks();
-    }else{
+    } else {
       this.taskFetcher = new MockTaskFetcher();
       this.saveManager = new TemplateSaveManager();
-      return this.taskFetcher.fetchTasks();
-    }
 
+      return this.saveManager.init().then(res=>{
+        if(this.taskFetcher)
+          return this.taskFetcher.fetchTasks()
+        else
+          return Promise.resolve("null task fetcher!");
+      });
+    }
   }
 
-  importScenario(file: ScenarioFile){
-    // this.saveManager = new ScenarioSaveManager(file);
-    let params = { params: { id: file.scenarioId } };
+  importScenario(file: ScenarioFile) {
+    this.saveManager = new ScenarioSaveManager(file.targetDate, file.type);
+    return this.saveManager.init().then(res => {
+      let params = { params: { id: file.scenarioId } };
+      return ScenarioHandler.getInstance()
+        .fetchEssentialsAndScenario(params)
+        .then(scenario => {
+          TaskPool.getInstance().assembleTasksFromScenario(scenario);
+          VehiclePool.getInstance().assembleVehiclesFromScenario(scenario);
+          DriverPool.getInstance().assembleDriversFromScenario(scenario);
+          RoutePool.getInstance().assembleRoutesFromScenario(scenario);
+          ShipmentPool.getInstance().assembleShipmentsFromScenario(scenario);
+          return Promise.resolve("assemble from scenario successfully...");
+        });
+    });
+  }
+
+  assembleBaseOnTemplate(file: TemplateFile) {
+    let params = { params: { id: file.templateId } };
     return ScenarioHandler.getInstance()
-      .fetchEssentialsAndScenario(params)
-      .then(scenario => {
-        console.log(scenario);
-        TaskPool.getInstance().assembleTasksFromScenario(scenario);
-        VehiclePool.getInstance().assembleVehiclesFromScenario(scenario);
-        DriverPool.getInstance().assembleDriversFromScenario(scenario);
-        RoutePool.getInstance().assembleRoutesFromScenario(scenario);
-        ShipmentPool.getInstance().assembleShipmentsFromScenario(scenario);
-        return Promise.resolve("assemble from scenario successfully...");
+      .fetchTemplate(params)
+      .then(template => {
+        RoutePool.getInstance().assembleRoutesFromTemplate(template);
+        ShipmentPool.getInstance().initializeRestShipments();
+        return Promise.resolve("assemble base on template successfully...");
       });
   }
 
-  assembleBaseOnTemplate(file: TemplateFile){
-    let params = { params: { id: file.templateId } };
-    return ScenarioHandler.getInstance().fetchTemplate(params).then(template=>{
-      RoutePool.getInstance().assembleRoutesFromTemplate(template);
-      ShipmentPool.getInstance().initializeRestShipments();
-      return Promise.resolve('assemble base on template successfully...');
-    })
-  }
-
-  // setSelectedScenarioFile(file: ScenarioFile){
-  //   this.file = file;
-  // }
+  assembleBaseOnScenario(file: ScenarioFile) {}
 
   fetchScenario(params: any) {
     return getScenario(params);
@@ -156,48 +150,70 @@ export class ScenarioHandler {
     let params = {};
     this.files = new Array<ScenarioFile>();
     return getRecords(params).then(res => {
-      for(let i in res){
+      for (let i in res) {
         let row = res[i];
-        this.files.push(new ScenarioFile(row.id, row.name, row.type, new Date(row.targetDate), new Date(row.createTime),
-          new Date(row.lastModificationTime), row.scenarioId, row.isOfficial, row.creator, row.productVersion, row.geoVersion));
+        this.files.push(
+          new ScenarioFile(
+            row.id,
+            row.name,
+            row.type,
+            new Date(row.targetDate),
+            new Date(row.createTime),
+            new Date(row.lastModificationTime),
+            row.scenarioId,
+            row.isOfficial,
+            row.creator,
+            row.productVersion,
+            row.geoVersion
+          )
+        );
       }
-      return Promise.resolve('files received successfully');
+      return Promise.resolve("files received successfully");
     });
   }
 
-  fetchTemplateFileList(){
+  fetchTemplateFileList() {
     let params = {};
     this.templateFiles = new Array<TemplateFile>();
-    return getTemplateRecords(params).then(res=>{
-      for(let i in res){
+    return getTemplateRecords(params).then(res => {
+      for (let i in res) {
         let row = res[i];
-        this.templateFiles.push(new TemplateFile(row.id, row.name, new Date(row.createTime),
-          new Date(row.lastModificationTime), row.templateId, row.creator, row.productVersion, row.geoVersion));
+        this.templateFiles.push(
+          new TemplateFile(
+            row.id,
+            row.name,
+            new Date(row.createTime),
+            new Date(row.lastModificationTime),
+            row.templateId,
+            row.creator,
+            row.productVersion,
+            row.geoVersion
+          )
+        );
       }
 
-      return Promise.resolve('template files received successfully');
-    })
+      return Promise.resolve("template files received successfully");
+    });
   }
 
-  fetchTemplate(params: any){
+  fetchTemplate(params: any) {
     return getTemplate(params);
   }
 
-  fetchAllEssentials(){
+  fetchAllEssentials() {
     return this.fetchEssentials()
       .then(VehiclePool.getInstance().fetchVehicles)
       .then(DriverPool.getInstance().fetchDrivers);
   }
 
-  fetchAllEssentialsAndTemplate(params: any){
-    return this.fetchAllEssentials().then(res=>{
+  fetchAllEssentialsAndTemplate(params: any) {
+    return this.fetchAllEssentials().then(res => {
       return this.fetchTemplate(params);
     });
   }
 
-  save(){
-    if(this.saveManager)
-      return this.saveManager.save();
+  save() {
+    if (this.saveManager) return this.saveManager.save();
   }
 
   // saveScenario(){
@@ -243,7 +259,6 @@ export class ScenarioHandler {
   //   return postTemplate(params);
   // }
 }
-
 
 // // @ts-ignore
 // Date.prototype.Format = function(fmt: any)

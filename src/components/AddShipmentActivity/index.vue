@@ -51,7 +51,7 @@
   })
   export default class extends Vue {
     private activity: TourActivity;
-    private type: string;
+    // private type: string;
 
     private templateFile: TemplateFile;
     templateDialogVisible: boolean = false;
@@ -62,7 +62,7 @@
     constructor(){
       super();
       this.activity = AdditionalShipmentTourActivity.createAdditionalShipmentTourActivity("新建任务", null, 0, 0, 720, [0], undefined, genUID());
-      this.type = ScenarioHandler.getInstance().type;
+      // this.type = ScenarioHandler.getInstance().type;
     }
 
     // @Watch('name')

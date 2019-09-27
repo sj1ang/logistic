@@ -1,18 +1,30 @@
 import {Constants} from "@/engine/Constant/Constants";
 import {MyFile, ScenarioDTO, ScenarioFile, ScenarioImpl, TemplateFile} from "@/engine/domain/Scenario";
 import {postScenario, postTemplate} from "@/api";
-import {FileManager} from "@/engine/domain/FileManager";
+import {FileManager, FileManagerFactory} from "@/engine/domain/FileManager";
 import {genUID} from "@/utils/common";
 
 export interface SaveManager {
+  init(): Promise<any>;
   save(): Promise<any> | undefined;
+  getFile(): MyFile | undefined;
 }
 
 export class TemplateSaveManager implements SaveManager{
   templateFile: TemplateFile | undefined;
 
+  init(){
+    return new Promise((resolve, reject)=>{
+      this.templateFile = new TemplateFile(undefined, "", new Date(), new Date(), undefined, "蔡徐坤", genUID(), genUID());
+      resolve('saved successfully')
+    });
+  }
+
   save(){
-    return undefined;
+    if(!this.templateFile){
+      this.templateFile = new TemplateFile(undefined, "", new Date(), new Date(), undefined, "蔡徐坤", genUID(), genUID());
+    }
+    return this.saveTemplate();
   }
 
   saveTemplate() {
@@ -27,14 +39,30 @@ export class TemplateSaveManager implements SaveManager{
       // @ts-ignore
       transData.createTime = this.templateFile.createTime.Format('yyyy-MM-dd hh:mm:ss');
       // @ts-ignore
-      transData.lastModificationTime = this.templateFile.lastModificationTime.Format('yyyy-MM-dd hh:mm:ss');
-
-      console.log(transData);
+      transData.lastModificationTime = new Date().Format('yyyy-MM-dd hh:mm:ss');
 
       let params = JSON.stringify(transData);
-      return postTemplate(params);
+      return postTemplate(params).then(res=>{
+        if(this.templateFile) {
+          this.templateFile.id = res.id;
+          this.templateFile.templateId = res.templateId;
+          this.templateFile.lastModificationTime = new Date(res.lastModificationTime);
+        }
+
+        return Promise.resolve('saved successfully')
+      })
     }
   }
+
+  getFile(): MyFile | undefined{
+    return this.templateFile;
+  }
+
+  // changeFile(file: TemplateFile){
+  //   this.templateFile = file;
+  //   let fileManager = FileManagerFactory.getInstance();
+  //   fileManager.currentFileName = file.name;
+  // }
 }
 
 export class ScenarioSaveManager implements SaveManager{
@@ -47,10 +75,18 @@ export class ScenarioSaveManager implements SaveManager{
     this.type = type;
   }
 
+  init(){
+    return this.generateScenarioFile();
+  }
+
   save(){
-    return this.generateScenarioFile().then(res=>{
-      this.saveScenario()
-    });
+    if(this.scenarioFile)
+      return this.saveScenario();
+    else{
+      return this.generateScenarioFile().then(res=>{
+        this.saveScenario()
+      });
+    }
   }
 
   saveScenario() {
@@ -69,13 +105,21 @@ export class ScenarioSaveManager implements SaveManager{
         // @ts-ignore
         transData.createTime = that.scenarioFile.createTime.Format('yyyy-MM-dd hh:mm:ss');
         // @ts-ignore
-        transData.lastModificationTime = that.scenarioFile.lastModificationTime.Format('yyyy-MM-dd hh:mm:ss');
+        transData.lastModificationTime = new Date().Format('yyyy-MM-dd hh:mm:ss');
         // @ts-ignore
         transData.targetDate = that.scenarioFile.targetDate.Format('yyyy-MM-dd hh:mm:ss');
       }
+
       let params = JSON.stringify(transData);
       return postScenario(params).then(res=>{
-        this.scenarioFile = new ScenarioFile(res.id, res.name, res.type, new Date(res.targetDate), new Date(res.createTime), new Date(res.lastModificationTime), res.scenarioId, res.isOfficial, res.creator, res.productVersion, res.geoVersion);
+        // this.scenarioFile = new ScenarioFile(res.id, res.name, res.type, new Date(res.targetDate), new Date(res.createTime), new Date(res.lastModificationTime), res.scenarioId, res.isOfficial, res.creator, res.productVersion, res.geoVersion);
+
+        if(this.scenarioFile){
+          this.scenarioFile.id = res.id;
+          this.scenarioFile.scenarioId = res.scenarioId;
+          this.scenarioFile.lastModificationTime = res.lastModificationTime;
+        }
+
         return Promise.resolve('saved successfully')
       })
     }
@@ -88,15 +132,19 @@ export class ScenarioSaveManager implements SaveManager{
       }else{
         if(this.type == Constants.ORDER_SCENARIO) {
           // @ts-ignore
-          this.scenarioFile = new ScenarioFile(undefined, this.targetDate.Format("yyyy-MM-dd") + "物流计划", Constants.ORDER_SCENARIO, this.targetDate, new Date(), new Date(), undefined, 1, "蔡徐坤", genUID(), genUID());
+          this.scenarioFile = new ScenarioFile(undefined, FileManager.generateFileName(this.targetDate, this.type), Constants.ORDER_SCENARIO, this.targetDate, new Date(), new Date(), undefined, 1, "蔡徐坤", genUID(), genUID());
         }else if(this.type == Constants.DELIVERY_SCENARIO) {
           // @ts-ignore
-          this.scenarioFile = new ScenarioFile(undefined, this.targetDate.Format("yyyy-MM-dd") + "物流结单", Constants.DELIVERY_SCENARIO, this.targetDate, new Date(), new Date(), undefined, 1, "蔡徐坤", genUID(), genUID());
+          this.scenarioFile = new ScenarioFile(undefined, FileManager.generateFileName(this.targetDate, this.type), Constants.DELIVERY_SCENARIO, this.targetDate, new Date(), new Date(), undefined, 1, "蔡徐坤", genUID(), genUID());
         }
       }
 
       return Promise.resolve('scenario file generated successfully')
     })
+  }
+
+  getFile(): MyFile | undefined {
+    return this.scenarioFile;
   }
 }
 

@@ -57,7 +57,7 @@ export class TemplateFile implements MyFile{
   productVersion: string;
   geoVersion: string;
 
-  constructor(id: number, name: string, createTime: Date, lastModificationTime: Date, templateId: number, creator: string, productVersion: string, geoVersion: string){
+  constructor(id: number | undefined, name: string, createTime: Date, lastModificationTime: Date, templateId: number | undefined, creator: string, productVersion: string, geoVersion: string){
     this.id = id;
     this.name = name;
     this.createTime = createTime;

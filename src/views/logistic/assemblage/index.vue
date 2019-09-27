@@ -6,7 +6,7 @@
       <scheduler v-if="step == 2"></scheduler>
     </div>
     <div style="display: flex; flex: 0 0 24px; flex-direction: column">
-      <bottom-bar style="flex: 0 0 24px"></bottom-bar>
+      <bottom-bar style="flex: 0 0 24px" :step="step"></bottom-bar>
     </div>
   </div>
 </template>
