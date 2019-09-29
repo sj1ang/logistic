@@ -15,14 +15,14 @@ export class TemplateSaveManager implements SaveManager{
 
   init(){
     return new Promise((resolve, reject)=>{
-      this.templateFile = new TemplateFile(undefined, "", new Date(), new Date(), undefined, "蔡徐坤", genUID(), genUID());
+      this.templateFile = new TemplateFile(undefined, "新建模板", new Date(), new Date(), undefined, "蔡徐坤", genUID(), genUID());
       resolve('saved successfully')
     });
   }
 
   save(){
     if(!this.templateFile){
-      this.templateFile = new TemplateFile(undefined, "", new Date(), new Date(), undefined, "蔡徐坤", genUID(), genUID());
+      this.templateFile = new TemplateFile(undefined, "新建模板", new Date(), new Date(), undefined, "蔡徐坤", genUID(), genUID());
     }
     return this.saveTemplate();
   }
@@ -117,7 +117,7 @@ export class ScenarioSaveManager implements SaveManager{
         if(this.scenarioFile){
           this.scenarioFile.id = res.id;
           this.scenarioFile.scenarioId = res.scenarioId;
-          this.scenarioFile.lastModificationTime = res.lastModificationTime;
+          this.scenarioFile.lastModificationTime = new Date(res.lastModificationTime);
         }
 
         return Promise.resolve('saved successfully')

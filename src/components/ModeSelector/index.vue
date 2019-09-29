@@ -34,17 +34,34 @@
         </div>
       </div>
       <div class="bottom-wrapper">
-        <el-button type="primary" size="mini" @click="assembleFromTemplate">依据模板生成</el-button>
+        <el-button
+          type="primary"
+          size="mini"
+          @click="assembleFromTemplate"
+          v-if="templateFiles.length > 0"
+          >依据模板生成</el-button
+        >
+        <div style="color: #606266; font-size: 14px" v-else>暂无模板</div>
       </div>
     </div>
-    <div class="option">
+    <div class="option" v-if="showImportMode">
       <div class="upper-wrapper">
         <span style="line-height: 20px"
           >在任务计划上进行修改<br />保存为配送记录</span
         >
+        <div style="position: absolute; bottom: 16px; left: 0; right: 0; font-size: 12px" v-if="planScenarioFile.name">
+          {{planScenarioFile.name}} <br>
+        </div>
       </div>
       <div class="bottom-wrapper">
-        <el-button type="primary" size="mini">导入已有计划</el-button>
+        <el-button
+          type="primary"
+          size="mini"
+          @click="assembleFromPlanScenario"
+          v-if="planScenarioFile.name"
+          >导入已有计划</el-button
+        >
+        <div style="color: #606266; font-size: 14px" v-else>无已保存的计划</div>
       </div>
     </div>
   </div>
@@ -53,9 +70,10 @@
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { ShipmentPool } from "../../engine/domain/ShipmentPool";
-import { TemplateFile } from "../../engine/domain/Scenario";
+import {ScenarioFile, TemplateFile} from "../../engine/domain/Scenario";
 import { ScenarioHandler } from "../../engine/domain/ScenarioHandler";
-import {RoutePool} from "../../engine/domain/Route"
+import { RoutePool } from "../../engine/domain/Route";
+import { Constants } from "../../engine/Constant/Constants";
 
 @Component({
   name: "ModeSelector"
@@ -64,6 +82,19 @@ export default class extends Vue {
   private templateFiles: Array<TemplateFile>;
   private templateIndex: number = 0;
   private isReady: boolean = false;
+  private selectedType: number;
+  private showImportMode: boolean = true;
+  private planScenarioFile: any = {};
+
+
+  constructor() {
+    super();
+    this.templateFiles = new Array<TemplateFile>();
+    this.selectedType = ScenarioHandler.getInstance().selectedType;
+    if (this.selectedType == Constants.FETCH_MOCK_TASKS) {
+      this.showImportMode = false;
+    }
+  }
 
   created() {
     const loading = this.$loading({
@@ -77,6 +108,25 @@ export default class extends Vue {
       .fetchTemplateFileList()
       .then(res => {
         this.templateFiles = ScenarioHandler.getInstance().templateFiles;
+        return ScenarioHandler.getInstance().fetchPlanScenarioFile();
+      })
+      .then(res => {
+        if(res){
+          console.log(typeof res)
+          this.planScenarioFile = new ScenarioFile(
+            res.id,
+            res.name,
+            res.type,
+            new Date(res.targetDate),
+            new Date(res.createTime),
+            new Date(res.lastModificationTime),
+            res.scenarioId,
+            res.isOfficial,
+            res.creator,
+            res.productVersion,
+            res.geoVersion
+          )
+        }
         this.isReady = true;
         loading.close();
       });
@@ -87,7 +137,7 @@ export default class extends Vue {
     this.$parent.moveForward();
   }
 
-  assembleFromTemplate(){
+  assembleFromTemplate() {
     const loading = this.$loading({
       lock: true,
       text: "Loading",
@@ -95,11 +145,16 @@ export default class extends Vue {
       background: "rgba(0, 0, 0, 0.7)"
     });
 
-    ScenarioHandler.getInstance().assembleBaseOnTemplate(this.templateFiles[this.templateIndex]).then(res=>{
-      console.log(res);
-      loading.close();
-      this.$parent.moveForward();
-    })
+    ScenarioHandler.getInstance()
+      .assembleBaseOnTemplate(this.templateFiles[this.templateIndex])
+      .then(res => {
+        loading.close();
+        this.$parent.moveForward();
+      });
+  }
+
+  assembleFromPlanScenario() {
+    console.log(this.planScenarioFile);
   }
 }
 </script>

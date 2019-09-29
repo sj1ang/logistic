@@ -34,6 +34,7 @@ import {
   TemplateSaveManager
 } from "@/engine/domain/SaveManager";
 import { genUID } from "@/utils/common";
+import {FileManager, FileManagerFactory} from "@/engine/domain/FileManager";
 
 export class ScenarioHandler {
   static instance: ScenarioHandler;
@@ -62,7 +63,7 @@ export class ScenarioHandler {
     if (type == Constants.FETCH_ORDER_TASKS) {
       this.taskFetcher = new OrderTaskFetcher();
       if (targetDate) {
-        this.saveManager = new ScenarioSaveManager(targetDate, type);
+        this.saveManager = new ScenarioSaveManager(targetDate, Constants.ORDER_SCENARIO);
         if (this.taskFetcher) {
           return this.saveManager.init().then(res => {
             if (this.taskFetcher) return this.taskFetcher.fetchTasks();
@@ -75,7 +76,7 @@ export class ScenarioHandler {
     } else if (type == Constants.FETCH_DELIVERY_TASKS) {
       this.taskFetcher = new DeliveryTaskFetcher();
       if (targetDate) {
-        this.saveManager = new ScenarioSaveManager(targetDate, type);
+        this.saveManager = new ScenarioSaveManager(targetDate, Constants.DELIVERY_SCENARIO);
         if (this.taskFetcher) {
           return this.saveManager.init().then(res => {
             if (this.taskFetcher) return this.taskFetcher.fetchTasks();
@@ -127,7 +128,21 @@ export class ScenarioHandler {
       });
   }
 
-  assembleBaseOnScenario(file: ScenarioFile) {}
+  fetchPlanScenarioFile(): any{
+    if(this.saveManager instanceof ScenarioSaveManager){
+      if(this.saveManager.scenarioFile) {
+        let targetDate = this.saveManager.scenarioFile.targetDate;
+        console.log(targetDate);
+        return FileManager.fetchScenarioRecordByDate(targetDate, Constants.ORDER_SCENARIO)
+      }
+    }else{
+      return Promise.resolve(undefined);
+    }
+  }
+
+  assembleBaseOnScenario(file: ScenarioFile) {
+
+  }
 
   fetchScenario(params: any) {
     return getScenario(params);

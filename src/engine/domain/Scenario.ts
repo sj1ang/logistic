@@ -17,6 +17,8 @@ import {ConstraintManager} from "@/engine/domain/Constraint";
 
 export interface MyFile {
   id: number | undefined;
+  name: string;
+  lastModificationTime: Date;
 }
 
 export class ScenarioFile implements MyFile{
