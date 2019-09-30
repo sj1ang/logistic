@@ -89,6 +89,7 @@ export class ShipmentPool{
     })
   }
 
+  // use initializeRestShipments instead
   assembleShipmentsFromTemplate(template: any){
     ShipmentPool.cleanPool();
 

@@ -112,7 +112,7 @@ export class ScenarioHandler {
           DriverPool.getInstance().assembleDriversFromScenario(scenario);
           RoutePool.getInstance().assembleRoutesFromScenario(scenario);
           ShipmentPool.getInstance().assembleShipmentsFromScenario(scenario);
-          return Promise.resolve("assemble from scenario successfully...");
+          return Promise.resolve("assemble from scenario successfully");
         });
     });
   }
@@ -124,7 +124,7 @@ export class ScenarioHandler {
       .then(template => {
         RoutePool.getInstance().assembleRoutesFromTemplate(template);
         ShipmentPool.getInstance().initializeRestShipments();
-        return Promise.resolve("assemble base on template successfully...");
+        return Promise.resolve("assemble base on template successfully");
       });
   }
 
@@ -141,8 +141,20 @@ export class ScenarioHandler {
   }
 
   assembleBaseOnScenario(file: ScenarioFile) {
-
+    let params = {params: {id: file.scenarioId}};
+    return ScenarioHandler.getInstance().fetchScenario(params).then((scenario)=>{
+      if(scenario){
+        RoutePool.getInstance().assembleRoutesFromScenario(scenario);
+        console.log(TaskPool.getInstance().taskShipmentMap)
+        ShipmentPool.getInstance().initializeRestShipments();
+        return Promise.resolve("assemble base on scenario successfully")
+      }else{
+        return Promise.resolve("null scenario!")
+      }
+    })
   }
+
+
 
   fetchScenario(params: any) {
     return getScenario(params);

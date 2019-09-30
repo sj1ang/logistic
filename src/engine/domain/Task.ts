@@ -105,6 +105,8 @@ export class TaskPool{
     let map = activity instanceof AdditionalShipmentTourActivity ? this.taskAdditionalShipmentMap : this.taskShipmentMap;
 
     if(task){
+      console.log(task.uid);
+      console.log(map)
       let activities = map.get(task.uid);
       if(activities)
         activities.push(activity.uid);

@@ -154,7 +154,16 @@ export default class extends Vue {
   }
 
   assembleFromPlanScenario() {
-    console.log(this.planScenarioFile);
+    const loading = this.$loading({
+      lock: true,
+      text: "Loading",
+      spinner: "el-icon-loading",
+      background: "rgba(0, 0, 0, 0.7)"
+    });
+    ScenarioHandler.getInstance().assembleBaseOnScenario(this.planScenarioFile).then(res => {
+      loading.close();
+      this.$parent.moveForward();
+    });
   }
 }
 </script>
