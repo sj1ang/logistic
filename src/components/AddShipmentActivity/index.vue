@@ -123,11 +123,25 @@ export default class extends Vue {
   }
 
   save() {
+    const loading = this.$loading({
+      lock: true,
+      text: "Loading",
+      spinner: "el-icon-loading",
+      background: "rgba(0, 0, 0, 0.7)"
+    });
+    let message = ScenarioHandler.getInstance().saveManager.getFile().name;
+
     ScenarioHandler.getInstance()
       .save()
       .then(res => {
         console.log(res);
-      });
+        this.$notify.success({title: '保存成功', message: message + " 保存成功！", position: 'bottom-right'})
+        loading.close();
+      }).catch(res=>{
+      this.$notify.error({title: '保存失败', message: message  + " 保存失败！", position: 'bottom-right'})
+        console.log(res);
+        loading.close();
+    });
   }
 
   saveAndCloseDialog(){

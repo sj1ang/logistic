@@ -25,6 +25,8 @@ import {Driver, DriverPool} from "@/engine/domain/Driver";
 import {Task, TaskPool} from "@/engine/domain/Task";
 import {Constants} from "@/engine/Constant/Constants";
 import {ShipmentPool} from "@/engine/domain/ShipmentPool";
+import {Watch} from "vue-property-decorator";
+import {DashIndexManager} from "@/engine/domain/DashIndexManager";
 
 export interface Route extends hasId{
   activities: Array<TourActivity>;
@@ -108,6 +110,7 @@ export class RouteImpl implements Route{
   updateRoute(): void {
     console.log('updating...');
     this.updaterManager.update(this);
+    DashIndexManager.getInstance().updateFeeIndex();
   }
 
   addDepotTourActivity(index: number, operationTime: number): void{
@@ -142,6 +145,10 @@ export class RouteImpl implements Route{
 
     this.updateRoute();
   }
+
+  changeFee(){
+    DashIndexManager.getInstance().updateFeeIndex();
+  }
 }
 
 export class RoutePool{
@@ -163,12 +170,29 @@ export class RoutePool{
   addNewRoute(): Route{
     let route: Route = new RouteImpl(genUID());
     this.routes.push(route);
+    DashIndexManager.getInstance().updateRouteIndex();
 
     return route;
   }
 
   addRoute(route: Route){
     this.routes.push(route);
+    DashIndexManager.getInstance().updateRouteIndex();
+  }
+
+  removeRoute(route: Route){
+    for(let i in route.activities){
+      ShipmentPool.getInstance().addShipmentTourActivity(route.activities[i]);
+      ShipmentPool.getInstance().update();
+    }
+
+    let tmpRoutes = this.routes.filter(x=>{
+      return x.uid != route.uid;
+    })
+
+    this.routes = tmpRoutes;
+
+    DashIndexManager.getInstance().updateRouteIndex();
   }
 
   static cleanPool(){
@@ -209,7 +233,7 @@ export class RoutePool{
       }
 
       route.additionalFee = tmp.additionalFee;
-      route.fee = tmp.fee;
+      route.fee = Number.parseInt(tmp.fee);
       route.isFrozen = tmp.isFrozen;
       route.isLocked = tmp.isLocked;
 

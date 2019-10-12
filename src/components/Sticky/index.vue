@@ -76,6 +76,7 @@ export default class extends Vue {
 
   private handleResize() {
     if (this.isSticky) {
+      console.log('fk re')
       this.width = this.$el.getBoundingClientRect().width.toString() + 'px'
     }
   }

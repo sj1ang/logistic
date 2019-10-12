@@ -22,6 +22,6 @@ export default class extends Vue {}
 .app-main {
   overflow: hidden;
   flex: 1 0 auto;
-  position: relative;
+
 }
 </style>

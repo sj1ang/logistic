@@ -62,7 +62,7 @@
             <div class="route-detail-row">
               <div class="route-detail-title">线路费用</div>
               <div class="route-detail-content">
-                <el-input type="number" size="mini" style="width: 100%" v-model="route.fee"></el-input>
+                <el-input type="number" size="mini" style="width: 100%" v-model="route.fee" @blur="route.changeFee"></el-input>
               </div>
             </div>
             <route-index-panel :route="route"></route-index-panel>
@@ -72,8 +72,13 @@
             <task-panel :tasks="route.tasks"></task-panel>
           </div>
           <div class="route-detail-right-wrapper">
-            <driver-panel :driver="route.driver" v-if="route.driver"></driver-panel>
-            <div style="font-size: 12px; height: 32px; background: #f5f5f5; line-height: 24px; padding: 4px" v-else>请分配司机</div>
+            <div style="flex: 1">
+              <driver-panel :driver="route.driver" v-if="route.driver"></driver-panel>
+              <div style="font-size: 12px; height: 32px; background: #f5f5f5; line-height: 24px; padding: 4px" v-else>请分配司机</div>
+            </div>
+            <div class="remove-route-wrapper">
+              <el-button size="mini" style="width: 100%; height: 100%" type="warning" @click="removeRoute(route)">删除线路</el-button>
+            </div>
           </div>
         </div>
       </div>
@@ -150,6 +155,10 @@
       this.shipmentPool.update();
     }
 
+    removeRoute(route){
+      RoutePool.getInstance().removeRoute(route);
+    }
+
     addNewRoute() {
       this.routePool.addNewRoute();
     }
@@ -177,6 +186,7 @@
   .top-wrapper {
     height: 220px;
     background: #f5f5f5;
+    width: 100%;
     display: flex;
   }
 
@@ -306,5 +316,14 @@
     padding: 4px;
     /*border-left: 1px solid #f5f5f5;*/
     flex: 0 0 116px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .remove-route-wrapper{
+    /*background: #d8d8d8;*/
+    height: 32px;
+    flex: 0 0 32px;
+    /*width: 80px;*/
   }
 </style>

@@ -258,7 +258,9 @@ export class ActivityFactory4Scenario{
       activity.hasFish = source.hasFish;
     }else if(type == Constants.ADDITIONAL_SHIPMENT_ACTIVITY_TYPE){
       let location = MyLocationPool.getInstance().getLocation(source.locationId);
-      let task = TaskPool.getInstance().getTask(source.taskId);
+      let task = undefined;
+      if(location)
+        task = TaskPool.getInstance().getTaskByLocationId(location.id);
       activity = AdditionalShipmentTourActivity.createAdditionalShipmentTourActivity(source.name, location, source.operationTime, source.twStart, source.twEnd, source.load.size, task, source.uid);
       activity.hasFish = source.hasFish;
       activity.additionalFee = source.additionalFee;

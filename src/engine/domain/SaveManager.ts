@@ -47,9 +47,11 @@ export class TemplateSaveManager implements SaveManager{
           this.templateFile.id = res.id;
           this.templateFile.templateId = res.templateId;
           this.templateFile.lastModificationTime = new Date(res.lastModificationTime);
+          return Promise.resolve('saved successfully')
+        }else{
+          return Promise.reject('saved unsuccessfully')
         }
 
-        return Promise.resolve('saved successfully')
       })
     }
   }
@@ -113,14 +115,14 @@ export class ScenarioSaveManager implements SaveManager{
       let params = JSON.stringify(transData);
       return postScenario(params).then(res=>{
         // this.scenarioFile = new ScenarioFile(res.id, res.name, res.type, new Date(res.targetDate), new Date(res.createTime), new Date(res.lastModificationTime), res.scenarioId, res.isOfficial, res.creator, res.productVersion, res.geoVersion);
-
         if(this.scenarioFile){
           this.scenarioFile.id = res.id;
           this.scenarioFile.scenarioId = res.scenarioId;
           this.scenarioFile.lastModificationTime = new Date(res.lastModificationTime);
+          return Promise.resolve('saved successfully')
+        }else{
+          return Promise.reject('saved unsuccessfully')
         }
-
-        return Promise.resolve('saved successfully')
       })
     }
   }

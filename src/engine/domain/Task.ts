@@ -10,6 +10,7 @@ import {ProductPool} from "@/engine/domain/Product";
 import {ContentItemImpl} from "@/engine/domain/ContentItem";
 import {Load, LoadImpl} from "@/engine/domain/Load";
 import {AdditionalShipmentTourActivity, ShipmentTourActivity} from "@/engine/domain/Activity";
+import {DashIndexManager} from "@/engine/domain/DashIndexManager";
 
 export interface Task extends hasId{
   name: string;
@@ -105,12 +106,14 @@ export class TaskPool{
     let map = activity instanceof AdditionalShipmentTourActivity ? this.taskAdditionalShipmentMap : this.taskShipmentMap;
 
     if(task){
-      console.log(task.uid);
-      console.log(map)
+      // console.log(task.uid);
+      // console.log(map)
       let activities = map.get(task.uid);
       if(activities)
         activities.push(activity.uid);
     }
+
+    DashIndexManager.getInstance().updateTaskIndex();
   }
 
   shipmentTourActivityRemoved(activity: ShipmentTourActivity){
@@ -130,15 +133,17 @@ export class TaskPool{
         map.set(task.uid, newActivities);
       }
     }
+
+    DashIndexManager.getInstance().updateTaskIndex();
   }
 
   static cleanPool(): void{
     this.instance = new TaskPool();
   }
 
-  fetchTasks(isReal: boolean) {
+  fetchTasks(isReal: boolean, type: number, from: string | undefined, to: string | undefined) {
     console.log("start fetching tasks...")
-    let params = { params: { isReal: isReal } };
+    let params = { params: { isReal: isReal, type: type, from: from, to: to } };
     return getTasks(params).then(res=>{
       TaskPool.cleanPool();
 

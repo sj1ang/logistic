@@ -61,8 +61,10 @@ export class ScenarioHandler {
 
   fetchTasks(type: number, targetDate: Date | undefined) {
     if (type == Constants.FETCH_ORDER_TASKS) {
-      this.taskFetcher = new OrderTaskFetcher();
       if (targetDate) {
+        let date = new Date();
+        date.setDate(targetDate.getDate() - 1);
+        this.taskFetcher = new OrderTaskFetcher(date, date);
         this.saveManager = new ScenarioSaveManager(targetDate, Constants.ORDER_SCENARIO);
         if (this.taskFetcher) {
           return this.saveManager.init().then(res => {
@@ -74,8 +76,8 @@ export class ScenarioHandler {
         }
       }
     } else if (type == Constants.FETCH_DELIVERY_TASKS) {
-      this.taskFetcher = new DeliveryTaskFetcher();
       if (targetDate) {
+        this.taskFetcher = new DeliveryTaskFetcher(targetDate, targetDate);
         this.saveManager = new ScenarioSaveManager(targetDate, Constants.DELIVERY_SCENARIO);
         if (this.taskFetcher) {
           return this.saveManager.init().then(res => {
@@ -86,7 +88,7 @@ export class ScenarioHandler {
           return Promise.reject("null task fetcher!");
         }
       }
-      return this.taskFetcher.fetchTasks();
+      // return this.taskFetcher.fetchTasks();
     } else {
       this.taskFetcher = new MockTaskFetcher();
       this.saveManager = new TemplateSaveManager();

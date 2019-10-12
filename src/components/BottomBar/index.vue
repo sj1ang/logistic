@@ -1,6 +1,17 @@
 <template>
   <div class="bottom-bar-container" @click="tryFunc">
     <div v-if="!isHidden">{{fileName}}（{{statusStr}}）</div>
+    <div>
+      <div class="right-wrapper" v-if="step == 2">
+        <div class="dash-index-wrapper">配送客户：{{dashIndexManager.taskNo}}</div>
+        <div class="dash-index-wrapper">配送任务：{{dashIndexManager.shipmentNo}}</div>
+        <div class="dash-index-wrapper">加单任务：{{dashIndexManager.additionalShipmentNo}}</div>
+        <div class="dash-index-wrapper">配送费用：{{dashIndexManager.totalFee}}</div>
+        <div class="dash-index-wrapper">加单费用：{{dashIndexManager.totalAdditionalFee}}</div>
+        <div class="dash-index-wrapper">线路条数：{{dashIndexManager.routeNo}}</div>
+        <!--<div style="width: 24px; background: #4AB7BD"></div>-->
+      </div>
+    </div>
   </div>
 </template>
 
@@ -12,6 +23,8 @@
   import {ScenarioFileStatus} from '../../engine/domain/FileStatus'
   import {ScenarioHandler} from "../../engine/domain/ScenarioHandler"
   import {SaveManager} from '../../engine/domain/SaveManager'
+  import {Task, TaskPool} from '../../engine/domain/Task'
+  import {DashIndexManager} from '../../engine/domain/DashIndexManager'
 
   @Component({
     name: 'BottomBar'
@@ -26,6 +39,13 @@
     isHidden: boolean;
     file: MyFile | undefined;
 
+    tasks: Array<Task>;
+    taskNo: number;
+
+    taskShipmentMap: Map<string, Array<string>>;
+    taskAdditionalShipmentMap: Map<string, Array<string>>;
+
+    dashIndexManager: DashIndexManager = DashIndexManager.getInstance();
 
     @Watch('fileManager', {deep: true})
     onFileManagerChanged(){
@@ -48,12 +68,31 @@
         this.file = ScenarioHandler.getInstance().saveManager.getFile();
         this.isHidden = false;
       }
+
+      if(this.step == 2){
+        this.taskNo = TaskPool.getInstance().tasks.length;
+        this.taskShipmentMap = TaskPool.getInstance().taskShipmentMap;
+        this.taskAdditionalShipmentMap = TaskPool.getInstance().taskAdditionalShipmentMap;
+      }
+      console.log(this.taskShipmentMap)
+    }
+
+    @Watch('tasks', {deep: true})
+    onTasksChanged(){
+      console.log(this.tasks.length);
+    }
+
+    @Watch('taskShipmentMap', {deep: true})
+    onTaskShipmentMapChanged(){
+      console.log('size...')
+      console.log(this.taskShipmentMap)
     }
 
     constructor(){
       super();
       if(this.step == 0) {
         this.fileManager = FileManagerFactory.getInstance();
+        this.tasks = TaskPool.getInstance().tasks;
         this.isHidden = true;
         this.fileStatus = new ScenarioFileStatus(Constants.NOT_CHECKED, undefined);
         if (ScenarioHandler.getInstance().selectedType == Constants.FETCH_MOCK_TASKS) {
@@ -61,6 +100,9 @@
         } else {
           this.file = new ScenarioFile(undefined, "新建模板", 1, new Date(), new Date(), new Date(), undefined, 1, "", "", "");
         }
+
+        this.taskShipmentMap = new Map();
+        this.taskAdditionalShipmentMap = new Map();
       }
     }
 
@@ -73,6 +115,11 @@
       console.log("STEP:" + this.step)
       console.log(ScenarioHandler.getInstance().saveManager.getFile());
       console.log(this.file);
+      console.log(TaskPool.getInstance().taskShipmentMap);
+      console.log(TaskPool.getInstance().taskAdditionalShipmentMap);
+      console.log(this.taskShipmentMap);
+      console.log(this.taskAdditionalShipmentMap);
+      this.dashIndexManager.update();
     }
 
     assignStatusFromFileManager(){
@@ -112,9 +159,19 @@
     background: #d8d8d8;
     width: 100%;
     display: flex;
+    justify-content: space-between;
     line-height: 24px;
     font-size: 10px;
-    padding: 0 4px;
+    padding: 0 4px 0 4px;
     color: #606266;
+  }
+  .right-wrapper{
+    display: flex;
+  }
+  .dash-index-wrapper{
+    padding: 0 4px 0 0;
+  }
+  .dash-index-wrapper:last-child{
+    padding: 0 0 0 0;
   }
 </style>
