@@ -46,6 +46,7 @@ export class ScenarioHandler {
   selectedType: number | undefined;
   taskFetcher: TaskFetcher | undefined;
   saveManager: SaveManager | undefined;
+  targetDate: Date | undefined;
 
   static getInstance() {
     if (!this.instance) {
@@ -60,6 +61,9 @@ export class ScenarioHandler {
   }
 
   fetchTasks(type: number, targetDate: Date | undefined) {
+    if(targetDate){
+      this.targetDate = targetDate;
+    }
     if (type == Constants.FETCH_ORDER_TASKS) {
       if (targetDate) {
         let date = new Date();
@@ -232,7 +236,12 @@ export class ScenarioHandler {
   fetchAllEssentials() {
     return this.fetchEssentials()
       .then(VehiclePool.getInstance().fetchVehicles)
-      .then(DriverPool.getInstance().fetchDrivers);
+      .then(res=>{
+        if(this.targetDate)
+          return DriverPool.getInstance().fetchDrivers(this.targetDate);
+        else
+          return Promise.resolve("no target date");
+      });
   }
 
   fetchAllEssentialsAndTemplate(params: any) {

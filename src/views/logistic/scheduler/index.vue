@@ -1,5 +1,5 @@
 <template>
-  <div style="display: flex; flex-direction: column;height: 100%; color: #626262; font-size: 14px">
+  <div style="display: flex; flex-direction: column;height: 100%; color: #626262; font-size: 14px; padding-bottom: 32px">
     <sticky :z-index="10">
       <div class="top-wrapper">
         <div class="top-left-wrapper">
@@ -156,7 +156,22 @@
     }
 
     removeRoute(route){
-      RoutePool.getInstance().removeRoute(route);
+      this.$confirm('是否删除该线路？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        RoutePool.getInstance().removeRoute(route);
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        });
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
     }
 
     addNewRoute() {
@@ -322,6 +337,7 @@
 
   .remove-route-wrapper{
     /*background: #d8d8d8;*/
+    margin-top: 4px;
     height: 32px;
     flex: 0 0 32px;
     /*width: 80px;*/

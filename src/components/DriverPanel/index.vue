@@ -1,27 +1,12 @@
 <template>
   <div class="driver-panel-wrapper">
     <div style="height: 32px">
-      <div style="display: flex;">
-        <div class="working-day-wrapper"></div>
-        <div class="working-day-wrapper"></div>
-        <div class="working-day-wrapper"></div>
-        <div class="working-day-wrapper"></div>
-        <div class="working-day-wrapper"></div>
-        <div class="working-day-wrapper"></div>
-        <div class="working-day-wrapper"></div>
-      </div>
-      <div style="display: flex;">
-        <div class="working-day-wrapper"></div>
-        <div class="working-day-wrapper"></div>
-        <div class="working-day-wrapper"></div>
-        <div class="working-day-wrapper"></div>
-        <div class="working-day-wrapper"></div>
-        <div class="working-day-wrapper"></div>
-        <div class="working-day-wrapper"></div>
+      <div style="display: flex; flex-wrap: wrap">
+        <div v-for="(isWork, index) in driver.workdays" :class="['day-wrapper', {'work-day-wrapper': isWork}]"></div>
       </div>
     </div>
     <div class="driver-summary-wrapper">
-      近三十天：#21
+      近三十天：#{{driver.workdayNo}}
     </div>
     <div class="driver-summary-wrapper">
       无投诉
@@ -56,14 +41,18 @@
 
   }
 
-  .working-day-wrapper {
+  .day-wrapper {
     height: 12px;
     width: 12px;
     margin: 0px 4px 4px 0;
+    background: #d8d8d8;
+  }
+
+  .work-day-wrapper  {
     background: #4AB7BD;
   }
 
-  .working-day-wrapper:last-child {
+  .day-wrapper:nth-child(7n) {
     margin-right: 0;
   }
 

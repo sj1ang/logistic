@@ -171,8 +171,9 @@ export default class extends Vue {
 <style lang="scss" scoped>
 .mode-selector-container {
   display: flex;
-  height: 400px;
+  height: 600px;
   background: #f5f5f5;
+  overflow: hidden;
 }
 .option {
   flex: 1;

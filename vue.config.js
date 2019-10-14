@@ -5,7 +5,7 @@ module.exports = {
   publicPath: process.env.NODE_ENV === 'production' ? '/vue-typescript-admin-template/' : '/', // TODO: Remember to change this to fit your need
   lintOnSave: process.env.NODE_ENV === 'development',
   devServer: {
-    host: '192.168.111.76',
+    host: '192.168.0.105',
     port: 9527,
     open: true,
     proxy: {

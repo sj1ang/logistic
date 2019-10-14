@@ -143,8 +143,6 @@ export default class extends Vue {
       .fetchScenarioFileList()
       .then(res => {
         this.scenarioFiles = ScenarioHandler.getInstance().files;
-        console.log(this.scenarioFiles);
-        console.log(res);
         loading.close();
       });
 
@@ -185,11 +183,7 @@ export default class extends Vue {
   }
 
   checkStatus(){
-    console.log('checking...');
     FileManagerFactory.getInstance().checkStatus(this.selectedDate, this.type);
-    console.log(FileManagerFactory.getInstance().currentKey)
-    console.log(FileManagerFactory.getInstance().currentFileName)
-    console.log(FileManagerFactory.getInstance().currentFileStatus)
   }
 }
 </script>

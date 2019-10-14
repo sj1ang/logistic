@@ -181,6 +181,8 @@ export class RoutePool{
   }
 
   removeRoute(route: Route){
+    route.cancelDriver();
+
     for(let i in route.activities){
       ShipmentPool.getInstance().addShipmentTourActivity(route.activities[i]);
       ShipmentPool.getInstance().update();

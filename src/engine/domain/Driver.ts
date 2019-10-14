@@ -13,6 +13,10 @@ export interface Driver extends hasId{
   availableVehicles: Array<Vehicle>;
   isAvailable: boolean;
 
+  workdays: Array<boolean>;
+  workdayNo: number;
+  complaints: Array<Complaint>;
+
   assign2Route(route: Route): void;
   cancel(route: Route): void;
   assignVehicle(vehicle: Vehicle): void;
@@ -31,6 +35,10 @@ export class DriverImpl implements Driver{
   availableVehicles: Array<Vehicle>;
   isAvailable: boolean;
 
+  workdays: Array<boolean>;
+  workdayNo: number;
+  complaints: Array<Complaint>;
+
   constructor(name: string, uid: string){
     this.uid = uid;
     this.workStart = 0;
@@ -39,6 +47,23 @@ export class DriverImpl implements Driver{
     this.availableVehicles = new Array<Vehicle>();
     this.routeUids = new Set<string>();
     this.isAvailable = true;
+    this.workdays = new Array<boolean>();
+    this.workdays.push(true);
+    this.workdays.push(true);
+    this.workdays.push(false);
+    this.workdays.push(false);
+    this.workdays.push(false);
+    this.workdays.push(false);
+    this.workdays.push(false);
+    this.workdays.push(false);
+    this.workdays.push(false);
+    this.workdays.push(false);
+    this.workdays.push(false);
+    this.workdays.push(false);
+    this.workdays.push(false);
+    this.workdays.push(false);
+    this.workdayNo = 0;
+    this.complaints = new Array<Complaint>();
   }
 
   assign2Route(route: Route): void {
@@ -108,6 +133,10 @@ export class DriverImpl implements Driver{
   }
 }
 
+export class Complaint{
+
+}
+
 export class DriverPool{
   drivers: Array<Driver>;
 
@@ -144,14 +173,18 @@ export class DriverPool{
     this.instance = new DriverPool();
   }
 
-  fetchDrivers(){
-    let params = {};
+  fetchDrivers(targetDate: Date){
+    // @ts-ignore
+    let dateStr = targetDate.Format("yyyy-MM-dd");
+
+    let params = { params: {targetDateStr: dateStr} };
     return getDrivers(params).then(res=>{
       DriverPool.cleanPool();
 
       for(let i in res){
         let row = res[i];
         let driver = DriverPool.getInstance().createDriver(row.name, row.uid);
+        driver.workdays = row.workdays;
         for(let j in row.vehicleUidList){
           let vehicleUid = row.vehicleUidList[j];
           let vehicle = VehiclePool.getInstance().getVehicle(vehicleUid);
