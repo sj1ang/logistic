@@ -47,6 +47,7 @@ export class ScenarioHandler {
   taskFetcher: TaskFetcher | undefined;
   saveManager: SaveManager | undefined;
   targetDate: Date | undefined;
+  dayOfWeek: number | undefined;
 
   static getInstance() {
     if (!this.instance) {
@@ -63,6 +64,8 @@ export class ScenarioHandler {
   fetchTasks(type: number, targetDate: Date | undefined) {
     if(targetDate){
       this.targetDate = targetDate;
+      this.dayOfWeek = this.targetDate.getDay() - 1;
+      this.dayOfWeek = this.dayOfWeek < 0 ? 6 : this.dayOfWeek;
     }
     if (type == Constants.FETCH_ORDER_TASKS) {
       if (targetDate) {
@@ -107,6 +110,10 @@ export class ScenarioHandler {
   }
 
   importScenario(file: ScenarioFile) {
+    this.targetDate = file.targetDate;
+    this.dayOfWeek = this.targetDate.getDay() - 1;
+    this.dayOfWeek = this.dayOfWeek < 0 ? 6 : this.dayOfWeek;
+
     this.saveManager = new ScenarioSaveManager(file.targetDate, file.type);
     return this.saveManager.init().then(res => {
       let params = { params: { id: file.scenarioId } };

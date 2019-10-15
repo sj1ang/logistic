@@ -33,11 +33,11 @@
     </sticky>
     <div class="bottom-wrapper">
       <div v-for="(route, index) in routePool.routes">
-        <div class="route-wrapper">
+        <div :class="['route-wrapper', {'route-wrapper-locked': route.isLocked}]">
           <div
             :class="['notice-wrapper', {'notice-wrapper-caution': route.noticeLevel == 3}, {'notice-wrapper-error': route.noticeLevel == 5}]"></div>
           <div style="flex: 1">
-            <draggable v-model="routePool.routes[index].activities" group="1" @change="insertActivity($event, index)"
+            <draggable v-model="routePool.routes[index].activities" group="1" @change="insertActivity($event, index)" :disabled="routePool.routes[index].isLocked"
                        style="padding-top: 4px; padding-left: 4px; min-height: 40px; display: flex; flex-wrap: wrap; flex: 1">
               <shipment-activity v-for="item in routePool.routes[index].activities" :key="item.uid"
                                  :activity="item"></shipment-activity>
@@ -45,6 +45,7 @@
           </div>
           <driver-selector :route="route"></driver-selector>
           <div class="expand-icon-wrapper" @click="switchDetail(route)">
+            <!--<i class="el-icon-lock" v-if="route.isLocked"></i>-->
           </div>
         </div>
         <div class="route-detail-wrapper" v-if="route.showDetail">
@@ -167,10 +168,7 @@
           message: '删除成功!'
         });
       }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        });
+
       });
     }
 
@@ -203,6 +201,7 @@
     background: #f5f5f5;
     width: 100%;
     display: flex;
+    border-bottom: 2px solid #ffffff;
   }
 
   .top-left-wrapper {
@@ -245,11 +244,15 @@
   }
 
   .route-wrapper {
-    background: #f8f8f8;
+    /*background: #f8f8f8;*/
     border-top: 1px solid #d8d8d8;
     min-height: 40px;
     display: flex;
     /*box-sizing: border-box;*/
+  }
+
+  .route-wrapper-locked{
+    background: #F2F6FC;
   }
 
   .route-driver-wrapper {
@@ -289,6 +292,10 @@
     min-height: 32px;
     width: 32px;
     background: #d8d8d8;
+    font-size: 20px;
+    text-align: center;
+    line-height: 32px;
+    color: #ffffff;
   }
 
   .route-detail-wrapper{

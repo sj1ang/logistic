@@ -5,16 +5,16 @@
         <div v-for="(isWork, index) in driver.workdays" :class="['day-wrapper', {'work-day-wrapper': isWork}]"></div>
       </div>
     </div>
-    <div class="driver-summary-wrapper">
-      近三十天：#{{driver.workdayNo}}
+    <div class="driver-summary-wrapper" v-for="(reason, index) in driver.punishment.reasons">
+      {{reason}}
     </div>
-    <div class="driver-summary-wrapper">
-      无投诉
+    <div class="driver-summary-wrapper" v-if="driver.punishment.penaltyFee > 0">
+      考核处罚：{{driver.punishment.penaltyFee}}元
     </div>
     <div>
       <el-button size="mini" type="danger" style="width: 100%; height: 32px" @click="switchDriverPenaltyDialog">司机考核</el-button>
     </div>
-    <driver-penalty-dialog ref="driverPenaltyDialog"></driver-penalty-dialog>
+    <driver-penalty-dialog ref="driverPenaltyDialog" :driver="driver"></driver-penalty-dialog>
   </div>
 </template>
 

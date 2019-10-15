@@ -4,6 +4,9 @@ import {hasId} from "@/engine/domain/Id";
 import {genUID} from "@/utils/common";
 import {Message} from 'element-ui';
 import {getDrivers} from "@/api";
+import {Constants} from "@/engine/Constant/Constants";
+import {ScenarioHandler} from "@/engine/domain/ScenarioHandler";
+import {Punishment, PunishmentImpl} from "@/engine/domain/Punishment";
 
 export interface Driver extends hasId{
   routeUids: Set<string>;
@@ -15,7 +18,7 @@ export interface Driver extends hasId{
 
   workdays: Array<boolean>;
   workdayNo: number;
-  complaints: Array<Complaint>;
+  punishment: Punishment;
 
   assign2Route(route: Route): void;
   cancel(route: Route): void;
@@ -37,7 +40,7 @@ export class DriverImpl implements Driver{
 
   workdays: Array<boolean>;
   workdayNo: number;
-  complaints: Array<Complaint>;
+  punishment: Punishment;
 
   constructor(name: string, uid: string){
     this.uid = uid;
@@ -48,8 +51,8 @@ export class DriverImpl implements Driver{
     this.routeUids = new Set<string>();
     this.isAvailable = true;
     this.workdays = new Array<boolean>();
-    this.workdays.push(true);
-    this.workdays.push(true);
+    this.workdays.push(false);
+    this.workdays.push(false);
     this.workdays.push(false);
     this.workdays.push(false);
     this.workdays.push(false);
@@ -63,7 +66,8 @@ export class DriverImpl implements Driver{
     this.workdays.push(false);
     this.workdays.push(false);
     this.workdayNo = 0;
-    this.complaints = new Array<Complaint>();
+
+    this.punishment = new PunishmentImpl();
   }
 
   assign2Route(route: Route): void {
@@ -81,6 +85,10 @@ export class DriverImpl implements Driver{
       //
       // }
     }
+    let dayOfWeek = ScenarioHandler.getInstance().dayOfWeek;
+
+    if(dayOfWeek)
+      this.workdays[Constants.DRIVER_REVIEW_WEEKS * 7 - 7 + dayOfWeek] = true;
 
   }
 
@@ -93,6 +101,13 @@ export class DriverImpl implements Driver{
     // })
 
     this.routeUids.delete(route.uid);
+    let dayOfWeek = ScenarioHandler.getInstance().dayOfWeek;
+
+    if(dayOfWeek && this.routeUids.size == 0){
+      this.workdays[Constants.DRIVER_REVIEW_WEEKS * 7 - 7 + dayOfWeek] = false;
+      this.punishment.reasons = new Array<string>();
+      this.punishment.penaltyFee = 0;
+    }
   }
 
   emptyVehicles(){
@@ -206,6 +221,7 @@ export class DriverPool{
       let tmp = tmps[i];
 
       let driver = DriverPool.getInstance().createDriver(tmp.name, tmp.uid);
+      driver.workdays = tmp.workdays;
       let tmpVehicles = tmp.availableVehicles;
       for(let j in tmpVehicles){
         let vehicleUid = tmpVehicles[j].uid;

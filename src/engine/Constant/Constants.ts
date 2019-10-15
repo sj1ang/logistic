@@ -37,4 +37,6 @@ export class Constants{
   static IS_CHECKING = 1;
   static SCENARIO_EXISTING = 2;
   static SCENARIO_NOT_EXISTING = 3;
+
+  static DRIVER_REVIEW_WEEKS = 2;
 }

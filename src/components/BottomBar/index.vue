@@ -164,12 +164,15 @@
     font-size: 10px;
     padding: 0 4px 0 4px;
     color: #606266;
+    z-index: 1000;
   }
   .right-wrapper{
     display: flex;
+    z-index: 1000;
   }
   .dash-index-wrapper{
     padding: 0 4px 0 0;
+    z-index: 2000;
   }
   .dash-index-wrapper:last-child{
     padding: 0 0 0 0;

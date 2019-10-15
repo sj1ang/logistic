@@ -92,6 +92,8 @@
   .bottom-container{
     position: fixed;
     bottom: 0;
+    z-index: 1000;
+    border-top: 2px solid #ffffff;
   }
 </style>
 
