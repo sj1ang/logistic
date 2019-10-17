@@ -11,7 +11,7 @@
       <el-table-column label="补货费用" prop="additionalFee" width="80px" align="center"></el-table-column>
       <el-table-column label="考核处罚" prop="penaltyFee" width="80px" align="center"></el-table-column>
       <el-table-column label="费用总计" prop="totalFee" width="80px" align="center"></el-table-column>
-      <el-table-column label="处罚事由" prop="reasonsStr"></el-table-column>
+      <el-table-column label="处罚事由" prop="reasonsStr" width="192px"></el-table-column>
       <el-table-column label="线路详情" prop="routeStr"></el-table-column>
     </el-table>
   </el-dialog>
@@ -49,9 +49,6 @@ export default class extends Vue {
   onDialogShowed() {
     if (this.dialogVisible) {
       this.bill = new Array<DriverPaymentRow>();
-      this.totalFee = 0;
-      this.totalAdditionalFee = 0;
-      this.totalPenaltyFee = 0;
 
       let routes = RoutePool.getInstance().routes;
 
@@ -75,22 +72,20 @@ export default class extends Vue {
           );
 
           for (let j in driver.punishment.reasons) {
+            if(row.reasonsStr == "无")
+              row.reasonsStr = "";
             row.reasonsStr += driver.punishment.reasons[j] + " ";
           }
 
           for (let k in routes[i].activities) {
             if (routes[i].activities[k] instanceof ShipmentTourActivity) {
+              if(row.routeStr == "无")
+                row.routeStr = "";
               row.routeStr += routes[i].activities[k].name + " ";
             }
           }
 
           this.bill.push(row);
-
-          this.totalFee += fee;
-          this.totalAdditionalFee += additionalFee;
-          this.totalPenaltyFee += Number.parseInt(
-            String(driver.punishment.penaltyFee)
-          );
         }
       }
     }

@@ -6,9 +6,9 @@ export class DriverPaymentRow{
   additionalFee: number = 0;
   penaltyFee: number = 0;
   totalFee: number = 0;
-  reasonsStr: string = "";
-  routeStr: string = "";
-  remark: string= "";
+  reasonsStr: string = "无";
+  routeStr: string = "无";
+  remark: string= "无";
 
 
   constructor(driver: Driver){

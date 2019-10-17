@@ -7,6 +7,7 @@ import {getDrivers} from "@/api";
 import {Constants} from "@/engine/Constant/Constants";
 import {ScenarioHandler} from "@/engine/domain/ScenarioHandler";
 import {Punishment, PunishmentImpl} from "@/engine/domain/Punishment";
+import {BoxCollection} from "@/engine/domain/BoxCollection";
 
 export interface Driver extends hasId{
   routeUids: Set<string>;
@@ -19,6 +20,7 @@ export interface Driver extends hasId{
   workdays: Array<boolean>;
   workdayNo: number;
   punishment: Punishment;
+  boxCollection: BoxCollection;
 
   assign2Route(route: Route): void;
   cancel(route: Route): void;
@@ -41,6 +43,7 @@ export class DriverImpl implements Driver{
   workdays: Array<boolean>;
   workdayNo: number;
   punishment: Punishment;
+  boxCollection: BoxCollection;
 
   constructor(name: string, uid: string){
     this.uid = uid;
@@ -68,6 +71,7 @@ export class DriverImpl implements Driver{
     this.workdayNo = 0;
 
     this.punishment = new PunishmentImpl();
+    this.boxCollection = new BoxCollection();
   }
 
   assign2Route(route: Route): void {

@@ -1,8 +1,11 @@
 /* tslint:disable */
 import './additional'
+import './arrive'
 import './dashboard'
 import './delivery'
+import './depart'
 import './example'
+import './exchange'
 import './eye-off'
 import './eye-on'
 import './fish'

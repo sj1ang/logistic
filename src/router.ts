@@ -128,9 +128,9 @@ export default new Router({
       children: [
         {
           path: 'index',
-          component: () => import(/* webpackChunkName: "form" */ '@/views/form/index.vue'),
+          component: () => import(/* webpackChunkName: "form" */ '@/views/logistic/location/index.vue'),
           meta: {
-            title: 'Form',
+            title: 'locations',
             icon: 'form'
           }
         }

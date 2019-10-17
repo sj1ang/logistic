@@ -39,4 +39,6 @@ export class Constants{
   static SCENARIO_NOT_EXISTING = 3;
 
   static DRIVER_REVIEW_WEEKS = 2;
+
+  static BOX_COLLECTION_ARRAY = ["630菜框", "标准菜框", "红色肉框"]
 }
