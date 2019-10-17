@@ -64,6 +64,8 @@ export class ShipmentTourActivity implements TourActivity{
 
   constructor(name: string, location: MyLocation | undefined, operationTime: number, twStart: number, twEnd: number, size: Array<number>, task: Task | undefined, uid: string) {
     // this.uid = genUID();
+    console.log(this.location)
+
     this.uid = uid;
     this.name = name;
     this.location = location;
@@ -158,8 +160,10 @@ export class AdditionalShipmentTourActivity extends ShipmentTourActivity{
   changeTask(task: Task){
     TaskPool.getInstance().shipmentTourActivityRemoved(this);
     this.task = task;
+    this.location = this.task.location;
+    if(this.location)
+      this.locationId = this.location.id;
     TaskPool.getInstance().shipmentTourActivityAdded(this);
-    console.log(TaskPool.getInstance().taskAdditionalShipmentMap);
   }
 }
 
@@ -247,6 +251,8 @@ export class ActivityFactory4Scenario{
     let activity = undefined;
     let type = source.activityType;
 
+    console.log(source)
+
     if(type == Constants.DEPOT_ACTIVITY_TYPE){
       activity = new DepotTourActivity(source.operationTime, source.twStart, source.twEnd, source.uid);
     }else if(type == Constants.SHIPMENT_ACTIVITY_TYPE){
@@ -257,6 +263,9 @@ export class ActivityFactory4Scenario{
       activity = ShipmentTourActivity.createShipmentTourActivity(source.name, location, source.operationTime, source.twStart, source.twEnd, source.load.size, task, source.uid);
       activity.hasFish = source.hasFish;
     }else if(type == Constants.ADDITIONAL_SHIPMENT_ACTIVITY_TYPE){
+
+      console.log(source)
+
       let location = MyLocationPool.getInstance().getLocation(source.locationId);
       let task = undefined;
       if(location)

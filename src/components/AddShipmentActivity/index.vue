@@ -9,12 +9,16 @@
     <div class="function-button" @click="trySave">
       <i class="el-icon-s-promotion"></i>
     </div>
+    <div class="function-button" @click="showLogisticBill">
+      <i class="el-icon-notebook-2"></i>
+    </div>
     <shipment-activity-dialog
       :activity="activity"
       :type="'insertion'"
       ref="shipmentDialog"
     ></shipment-activity-dialog>
     <configuration-dialog ref="configurationDialog"></configuration-dialog>
+    <logistic-bill-dialog ref="logisticBillDialog"></logistic-bill-dialog>
     <el-dialog
       el-dialog
       title="保存新的模板"
@@ -62,10 +66,11 @@ import {
 import { postScenario } from "../../api";
 import { ScenarioHandler } from "../../engine/domain/ScenarioHandler";
 import { Constants } from "../../engine/Constant/Constants";
+import LogisticBillDialog from "../LogisticBillDialog/index"
 
 @Component({
   name: "AddShipmentActivity",
-  components: { ConfigurationDialog, ShipmentActivityDialog, ShipmentActivity }
+  components: {LogisticBillDialog, ConfigurationDialog, ShipmentActivityDialog, ShipmentActivity }
 })
 export default class extends Vue {
   private activity: TourActivity;
@@ -120,6 +125,11 @@ export default class extends Vue {
     }else{
       this.save();
     }
+  }
+
+  showLogisticBill(){
+    console.log('bill...')
+    this.$refs.logisticBillDialog.showDialog();
   }
 
   save() {

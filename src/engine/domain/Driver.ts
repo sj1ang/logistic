@@ -222,6 +222,10 @@ export class DriverPool{
 
       let driver = DriverPool.getInstance().createDriver(tmp.name, tmp.uid);
       driver.workdays = tmp.workdays;
+      for(let i in tmp.punishment.reasons){
+        driver.punishment.reasons.push(tmp.punishment.reasons[i])
+      }
+      driver.punishment.penaltyFee = tmp.punishment.penaltyFee;
       let tmpVehicles = tmp.availableVehicles;
       for(let j in tmpVehicles){
         let vehicleUid = tmpVehicles[j].uid;
