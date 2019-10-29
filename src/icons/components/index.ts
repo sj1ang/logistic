@@ -1,6 +1,7 @@
 /* tslint:disable */
 import './additional'
 import './arrive'
+import './box'
 import './dashboard'
 import './delivery'
 import './depart'

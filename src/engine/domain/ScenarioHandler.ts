@@ -65,6 +65,8 @@ export class ScenarioHandler {
     if(targetDate){
       this.targetDate = targetDate;
       this.dayOfWeek = this.targetDate.getDay() - 1;
+      console.log("day of week:");
+      console.log(this.dayOfWeek);
       this.dayOfWeek = this.dayOfWeek < 0 ? 6 : this.dayOfWeek;
     }
     if (type == Constants.FETCH_ORDER_TASKS) {
@@ -120,6 +122,8 @@ export class ScenarioHandler {
       return ScenarioHandler.getInstance()
         .fetchEssentialsAndScenario(params)
         .then(scenario => {
+          MyLocationPool.getInstance().assembleMyLocationsFromScenario(scenario);
+          TransportCostMatrixManager.getInstance().assembleTransportCostMatrixFromScenario(scenario);
           TaskPool.getInstance().assembleTasksFromScenario(scenario);
           VehiclePool.getInstance().assembleVehiclesFromScenario(scenario);
           DriverPool.getInstance().assembleDriversFromScenario(scenario);
@@ -174,10 +178,12 @@ export class ScenarioHandler {
   }
 
   fetchEssentials() {
-    return MyLocationPool.getInstance()
-      .fetchLocations()
-      .then(TransportCostMatrixManager.getInstance().fetchTransportCostMatrix)
-      .then(ProductPool.getInstance().fetchProduct);
+    // return MyLocationPool.getInstance()
+    //   .fetchLocations()
+    //   .then(TransportCostMatrixManager.getInstance().fetchTransportCostMatrix)
+    //   .then(
+        return ProductPool.getInstance().fetchProduct();
+      // );
   }
 
   fetchEssentialsAndScenario(params: any) {
@@ -242,6 +248,8 @@ export class ScenarioHandler {
 
   fetchAllEssentials() {
     return this.fetchEssentials()
+      .then(MyLocationPool.getInstance().fetchLocations)
+      .then(TransportCostMatrixManager.getInstance().fetchTransportCostMatrix)
       .then(VehiclePool.getInstance().fetchVehicles)
       .then(res=>{
         if(this.targetDate)

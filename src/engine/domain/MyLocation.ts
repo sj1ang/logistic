@@ -1,4 +1,5 @@
 import {getLocations} from "@/api";
+import {TaskPool} from "@/engine/domain/Task";
 
 export interface MyLocation{
   id: number;
@@ -52,15 +53,34 @@ export class MyLocationPool{
 
   fetchLocations(){
     let params = {};
-    let that = this;
+    MyLocationPool.cleanPool();
     return getLocations(params).then(res=>{
       for(let i in res){
         let location = new MyLocationImpl(res[i].id, res[i].name, res[i].address, res[i].alias, res[i].latitude, res[i].longitude);
-        that.addLocation(location);
+        MyLocationPool.getInstance().addLocation(location);
       }
       return Promise.resolve("fetch location success");
     })
   }
 
+  static cleanPool(){
+      this.instance = new MyLocationPool();
+  }
+
+  assembleMyLocationsFromScenario(scenario: any){
+    MyLocationPool.cleanPool();
+
+    for(let i in scenario.locations){
+      let location = new MyLocationImpl(
+        parseInt(scenario.locations[i].id),
+        scenario.locations[i].name,
+        scenario.locations[i].address,
+        scenario.locations[i].alias,
+        parseFloat(scenario.locations[i].latitude),
+        parseFloat(scenario.locations[i].longitude));
+
+      MyLocationPool.getInstance().addLocation(location);
+    }
+  }
 }
 

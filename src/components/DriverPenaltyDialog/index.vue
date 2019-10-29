@@ -1,21 +1,10 @@
 <template>
   <el-dialog title="司机考核" :append-to-body='true' :visible.sync="dialogVisible" width="480px">
     <el-form label-width="80px" size="mini">
-      <el-form-item label="630菜框">
-        <!--<el-col :span="2"><svg-icon name="depart"/></el-col>-->
-        <el-col :span="11"><el-input></el-input></el-col>
+      <el-form-item :label="title" v-for="(title, index) in driver.boxCollection.boxTypes">
+        <el-col :span="11"><el-input v-model="driver.boxCollection.boxSent[index]"></el-input></el-col>
         <el-col :span="2" style="text-align: center; font-size: 20px; color: #4AB7BD;"><div><svg-icon name="exchange"/></div></el-col>
-        <el-col :span="11"><el-input></el-input></el-col>
-      </el-form-item>
-      <el-form-item label="标准菜框">
-        <el-col :span="11"><el-input></el-input></el-col>
-        <el-col :span="2"  style="text-align: center; font-size: 20px; color: #4AB7BD;"><div><svg-icon name="exchange"/></div></el-col>
-        <el-col :span="11"><el-input></el-input></el-col>
-      </el-form-item>
-      <el-form-item label="红色肉框">
-        <el-col :span="11"><el-input></el-input></el-col>
-        <el-col :span="2"  style="text-align: center; font-size: 20px; color: #4AB7BD;"><div><svg-icon name="exchange"/></div></el-col>
-        <el-col :span="11"><el-input></el-input></el-col>
+        <el-col :span="11"><el-input v-model="driver.boxCollection.boxReturned[index]"></el-input></el-col>
       </el-form-item>
     </el-form>
     <el-form :model="driver.punishment" label-width="80px" size="mini">

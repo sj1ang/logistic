@@ -28,14 +28,6 @@ export class TransportCostMatrixManager implements DistanceTransportCostMatrix, 
   constructor(){
     this.distanceTransportCostMatrix = new Map();
     this.durationTransportCostMatrix = new Map();
-    for(let i = 0; i < 100; i++){
-      for(let j = 0; j < 100; j++){
-        if(i != j) {
-          this.putDistance(i, j, j + 0.1);
-          this.putDuration(i, j, j);
-        }
-      }
-    }
   }
 
   putDistance(from: number, to: number, distance: number): void{
@@ -82,4 +74,49 @@ export class TransportCostMatrixManager implements DistanceTransportCostMatrix, 
     })
   }
 
+  generateDistanceCostArray(){
+    let distances: Array<TransportCostCell> = new Array<TransportCostCell>();
+    this.distanceTransportCostMatrix.forEach((value, key) => {
+      let tmps = key.split("-");
+      distances.push(new TransportCostCell(parseInt(tmps[0]), parseInt(tmps[1]), value));
+    })
+    return distances;
+  }
+
+  generateDurationCostArray(){
+    let durations: Array<TransportCostCell> = new Array<TransportCostCell>();
+    this.durationTransportCostMatrix.forEach((value, key) => {
+      let tmps = key.split("-");
+      durations.push(new TransportCostCell(parseInt(tmps[0]), parseInt(tmps[1]), value));
+    })
+    return durations;
+  }
+
+  static cleanMatrix(){
+    this.instance = new TransportCostMatrixManager();
+  }
+
+  assembleTransportCostMatrixFromScenario(scenario: any){
+    TransportCostMatrixManager.cleanMatrix();
+
+    for(let i in scenario.distances){
+      TransportCostMatrixManager.getInstance().putDistance(scenario.distances[i].from, scenario.distances[i].to, scenario.distances[i].value);
+    }
+
+    for(let i in scenario.durations){
+      TransportCostMatrixManager.getInstance().putDuration(scenario.durations[i].from, scenario.durations[i].to, scenario.durations[i].value);
+    }
+  }
+}
+
+export class TransportCostCell{
+  from: number;
+  to: number;
+  value: number;
+
+  constructor(from: number, to: number, value: number){
+    this.from = from;
+    this.to = to;
+    this.value = value;
+  }
 }

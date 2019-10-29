@@ -14,6 +14,7 @@ import {ActivityNoticeManager, RouteNoticeManager} from "@/engine/domain/Notice"
 import {Load} from "@/engine/domain/Load";
 import {UpdaterManager} from "@/engine/domain/Updater";
 import {ConstraintManager} from "@/engine/domain/Constraint";
+import {TransportCostCell, TransportCostMatrixManager} from "@/engine/domain/TransportCostMatrix";
 
 export interface MyFile {
   id: number | undefined;
@@ -72,7 +73,7 @@ export class TemplateFile implements MyFile{
 }
 
 export interface Scenario {
-  // locations: Array<MyLocation>;
+  locations: Map<number, MyLocation>;
   vehicles: Array<Vehicle>;
   drivers: Array<Driver>;
   tasks: Array<Task>;
@@ -80,19 +81,22 @@ export interface Scenario {
   shipments: Array<TourActivity>;
   taskShipmentMap: Map<string, Array<string>>;
   taskAdditionalShipmentMap: Map<string, Array<string>>;
+  matrix: TransportCostMatrixManager;
 }
 
 export class ScenarioImpl implements Scenario{
   drivers: Array<Driver>;
-  // locations: Array<MyLocation>;
+  locations: Map<number, MyLocation>;
   routes: Array<Route>;
   shipments: Array<TourActivity>;
   tasks: Array<Task>;
   vehicles: Array<Vehicle>;
   taskShipmentMap: Map<string, Array<string>>;
   taskAdditionalShipmentMap: Map<string, Array<string>>;
+  matrix: TransportCostMatrixManager;
 
   constructor(){
+    this.locations = MyLocationPool.getInstance().locationMap;
     this.drivers = DriverPool.getInstance().drivers;
     this.routes = RoutePool.getInstance().routes;
     this.shipments = ShipmentPool.getInstance().shipments;
@@ -100,6 +104,7 @@ export class ScenarioImpl implements Scenario{
     this.vehicles = VehiclePool.getInstance().vehicles;
     this.taskShipmentMap = TaskPool.getInstance().taskShipmentMap;
     this.taskAdditionalShipmentMap = TaskPool.getInstance().taskAdditionalShipmentMap;
+    this.matrix = TransportCostMatrixManager.getInstance();
   }
 }
 
@@ -111,6 +116,11 @@ export class ScenarioDTO{
   vehicles: Array<Vehicle>;
   taskShipmentMap: Object;
   taskAdditionalShipmentMap: Object;
+
+  locations: Array<MyLocation>;
+  distances: Array<TransportCostCell>;
+  durations: Array<TransportCostCell>;
+  // matrix: Object;
 
   constructor(scenario: Scenario){
     this.drivers = scenario.drivers;
@@ -133,6 +143,17 @@ export class ScenarioDTO{
 
     this.taskShipmentMap = this._strMapToObj(scenario.taskShipmentMap);
     this.taskAdditionalShipmentMap = this._strMapToObj(scenario.taskAdditionalShipmentMap);
+
+    this.locations = new Array<MyLocation>();
+    scenario.locations.forEach((value, key, map)=>{
+      this.locations.push(value);
+    })
+
+    this.distances = scenario.matrix.generateDistanceCostArray();
+    this.durations = scenario.matrix.generateDurationCostArray();
+
+    console.log(this.distances);
+    console.log(this.durations);
   }
 
   _strMapToObj(strMap: Map<any, any>){

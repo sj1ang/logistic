@@ -9,5 +9,8 @@ export class BoxCollection{
     this.boxTypes = Constants.BOX_COLLECTION_ARRAY;
     this.boxSent = new Array<number>(this.boxTypes.length);
     this.boxReturned = new Array<number>(this.boxTypes.length);
+
+    this.boxSent.fill(0);
+    this.boxReturned.fill(0);
   }
 }

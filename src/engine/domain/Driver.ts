@@ -72,6 +72,8 @@ export class DriverImpl implements Driver{
 
     this.punishment = new PunishmentImpl();
     this.boxCollection = new BoxCollection();
+
+    console.log(this.boxCollection.boxSent);
   }
 
   assign2Route(route: Route): void {
@@ -90,9 +92,12 @@ export class DriverImpl implements Driver{
       // }
     }
     let dayOfWeek = ScenarioHandler.getInstance().dayOfWeek;
+    console.log(dayOfWeek);
 
-    if(dayOfWeek)
+    if(dayOfWeek != undefined)
       this.workdays[Constants.DRIVER_REVIEW_WEEKS * 7 - 7 + dayOfWeek] = true;
+
+    console.log(this.workdays);
 
   }
 
@@ -230,6 +235,15 @@ export class DriverPool{
         driver.punishment.reasons.push(tmp.punishment.reasons[i])
       }
       driver.punishment.penaltyFee = tmp.punishment.penaltyFee;
+
+      let len = tmp.boxCollection.boxTypes.length;
+
+      for(let j = 0; j < len; j++){
+        driver.boxCollection.boxTypes[j] = tmp.boxCollection.boxTypes[j];
+        driver.boxCollection.boxSent[j] = tmp.boxCollection.boxSent[j];
+        driver.boxCollection.boxReturned[j] = tmp.boxCollection.boxReturned[j];
+      }
+
       let tmpVehicles = tmp.availableVehicles;
       for(let j in tmpVehicles){
         let vehicleUid = tmpVehicles[j].uid;
