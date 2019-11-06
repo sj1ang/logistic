@@ -39,3 +39,16 @@ export function post(url: string) {
   }
 }
 
+export function del(url: string) {
+  return function (params: any) {
+    return service.delete(url, params).then((res) =>{
+      const {errcode, errmsg, data} = res.data;
+      if(errcode == ERR_OK){
+        return Promise.resolve(data);
+      }else{
+        return Promise.reject(errmsg);
+      }
+    })
+  }
+}
+

@@ -63,6 +63,18 @@ export class MyLocationPool{
     })
   }
 
+  static fetchLocationArray(){
+    let locationArray = new Array<MyLocation>();
+    let params = {};
+    return getLocations(params).then(res=>{
+      for(let i in res){
+        let location = new MyLocationImpl(res[i].id, res[i].name, res[i].address, res[i].alias, res[i].latitude, res[i].longitude);
+        locationArray.push(location);
+      }
+      return Promise.resolve(locationArray);
+    })
+  }
+
   static cleanPool(){
       this.instance = new MyLocationPool();
   }

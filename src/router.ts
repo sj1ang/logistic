@@ -123,17 +123,30 @@ export default new Router({
       ]
     },
     {
-      path: '/form',
+      path: '/configuration',
       component: Layout,
+      meta:{
+        title: 'configuration',
+        icon: 'form'
+      },
       children: [
         {
-          path: 'index',
+          path: 'location',
           component: () => import(/* webpackChunkName: "form" */ '@/views/logistic/location/index.vue'),
           meta: {
             title: 'locations',
             icon: 'form'
           }
+        },
+        {
+          path: 'requirement',
+          component: () => import(/* webpackChunkName: "form" */ '@/views/logistic/requirement/index.vue'),
+          meta:{
+            title: 'requirement',
+            icon: 'requirement'
+          }
         }
+
       ]
     },
     {
