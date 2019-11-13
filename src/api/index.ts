@@ -17,6 +17,7 @@ const getTemplate = get(domain + '/logistic/template')
 const postTemplate = post(domain + '/logistic/template')
 const getTemplateRecords = get(domain + '/logistic/template-records')
 const getScenarioRecordByDate = get(domain + '/logistic/scenario-record')
+const getRequirements = get(domain + "/logistic/requirements")
 
 export {
   getTasks,
@@ -35,4 +36,5 @@ export {
   postTemplate,
   getTemplateRecords,
   getScenarioRecordByDate,
+  getRequirements,
 }
